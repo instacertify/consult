@@ -129,16 +129,21 @@ function renderHub() {
     .join('');
 
   const cards = pages
-    .map(
-      (p, i) => `
+    .map((p, i) => {
+      const badge = String(p.hub_badge || '').trim();
+      const blurb = String(p.hub_blurb || '').trim();
+      return `
     <a class="path" href="${escapeHtml(p.canonical_path || '/' + p.slug)}" style="--d:${0.08 * i}s">
-      <span class="path__badge">${escapeHtml(p.hub_badge || 'Path')}</span>
+      ${badge ? `<span class="path__badge">${escapeHtml(badge)}</span>` : ''}
       <h2>${escapeHtml(p.hub_label || p.slug)}</h2>
-      <p>${escapeHtml(p.hub_blurb || '')}</p>
+      ${blurb ? `<p>${escapeHtml(blurb)}</p>` : ''}
       <span class="path__cta">Continue →</span>
-    </a>`
-    )
+    </a>`;
+    })
     .join('');
+
+  const hubDesc = String(site.hubDescription || '').trim();
+  const hubSupport = String(site.hubSupport || '').trim();
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -146,11 +151,11 @@ function renderHub() {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(site.brandName || 'Instacertify')} Consult — ${escapeHtml(site.hubTitle || 'Choose your certification path')}</title>
-<meta name="description" content="${escapeHtml(site.hubDescription || '')}">
+<meta name="description" content="${escapeHtml(hubDesc)}">
 <link rel="canonical" href="${base}/">
 <meta name="robots" content="${escapeHtml(site.robotsDefault || 'index, follow')}">
 <meta property="og:title" content="${escapeHtml(site.brandName || 'Instacertify')} — ${escapeHtml(site.hubTitle || '')}">
-<meta property="og:description" content="${escapeHtml(site.hubDescription || '')}">
+<meta property="og:description" content="${escapeHtml(hubDesc)}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${base}/">
 <meta name="theme-color" content="#0A3A52">
@@ -184,7 +189,7 @@ ${JSON.stringify({
       <p class="eyebrow">${escapeHtml(site.hubEyebrow || 'Instacertify Consult')}</p>
       <h1>${escapeHtml(site.brandName || 'Instacertify')}</h1>
       <p class="lede">${escapeHtml(site.hubTitle || 'Choose your certification path')}</p>
-      <p class="sub">${escapeHtml(site.hubDescription || '')}</p>
+      ${hubDesc ? `<p class="sub">${escapeHtml(hubDesc)}</p>` : ''}
 
       <form class="chooser" id="path-form" action="#" method="get">
         <label for="path-select">I need help with</label>
@@ -200,11 +205,14 @@ ${JSON.stringify({
 
     <section class="paths" id="paths">
       <h2 class="sr">Available paths</h2>
-      <div class="paths__grid">${cards}</div>
-      <p class="support">${escapeHtml(site.hubSupport || '')}
-
+      <div class="paths__grid" data-count="${pages.length}">${cards}</div>
+      ${
+        hubSupport
+          ? `<p class="support">${escapeHtml(hubSupport)}
         <a href="${escapeHtml(footer.phoneHref || 'tel:+919999118039')}">${escapeHtml(footer.phone || '+91 99991 18039')}</a>
-      </p>
+      </p>`
+          : ''
+      }
     </section>
   </main>
 

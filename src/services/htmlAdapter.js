@@ -213,7 +213,23 @@ function adaptPageHtml(page, options = {}) {
     if (!m) continue;
     const idx = Number(m[1]);
     const node = $h2s.eq(idx);
-    if (node.length && sec.text) node.text(sec.text);
+    if (!node.length) continue;
+    const text = String(sec.text || '').trim();
+    if (!text) {
+      // Hide emptied headings and tighten the surrounding section block
+      const parent = node.parent();
+      node.remove();
+      if (
+        parent.length &&
+        parent.is('section, .sec, .block, .wrap, div') &&
+        !parent.find('h2,h3,p,li,form,table,.card,.chk').length
+      ) {
+        parent.remove();
+      }
+    } else {
+      node.text(text);
+      node.css('display', '');
+    }
   }
 
   // Role dropdown options

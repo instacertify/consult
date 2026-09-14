@@ -79,13 +79,15 @@ function applyHeroContent($, content = {}) {
   const hero = $('.hero').first();
   if (!hero.length) return;
 
-  if (content.flag_prefix || content.flag_bold) {
-    const flag = hero.find('.flag').first();
-    if (flag.length) {
+  const flag = hero.find('.flag').first();
+  if (flag.length) {
+    const prefix = String(content.flag_prefix || '').trim();
+    const bold = String(content.flag_bold || '').trim();
+    if (!prefix && !bold && (content.flag_prefix !== undefined || content.flag_bold !== undefined)) {
+      flag.remove();
+    } else if (prefix || bold) {
       const dot = flag.find('.dot').first();
       const dotHtml = dot.length ? `<span class="dot"></span>` : '';
-      const prefix = content.flag_prefix || '';
-      const bold = content.flag_bold || '';
       flag.html(
         `${dotHtml}${escapeHtml(prefix)}${bold ? ` <b>${escapeHtml(bold)}</b>` : ''}`
       );
@@ -107,40 +109,87 @@ function applyHeroContent($, content = {}) {
     }
   }
 
-  if (content.hero_sub || content.hero_lede) {
-    const sub = hero.find('.hero__sub').first();
-    if (sub.length) sub.text(content.hero_sub || content.hero_lede);
+  const sub = hero.find('.hero__sub').first();
+  if (sub.length) {
+    const subText = String(content.hero_sub || content.hero_lede || '').trim();
+    if (content.hero_sub !== undefined || content.hero_lede !== undefined) {
+      if (!subText) sub.remove();
+      else sub.text(subText);
+    }
   }
 
-  const acts = hero.find('.hero__acts a.btn');
-  if (acts.length && content.cta_primary) {
-    setBtnText($(acts[0]), content.cta_primary);
-    if (content.cta_primary_href) $(acts[0]).attr('href', content.cta_primary_href);
-  }
-  if (acts.length > 1 && content.cta_secondary) {
-    setBtnText($(acts[1]), content.cta_secondary);
-    if (content.cta_secondary_href) $(acts[1]).attr('href', content.cta_secondary_href);
+  const actsWrap = hero.find('.hero__acts').first();
+  if (actsWrap.length && (content.cta_primary !== undefined || content.cta_secondary !== undefined)) {
+    const $all = actsWrap.find('a.btn');
+    const $primary = $all.eq(0);
+    const $secondary = $all.eq(1);
+
+    if (content.cta_secondary !== undefined && $secondary.length) {
+      const t = String(content.cta_secondary || '').trim();
+      if (!t) $secondary.remove();
+      else {
+        setBtnText($secondary, t);
+        if (content.cta_secondary_href) $secondary.attr('href', content.cta_secondary_href);
+      }
+    }
+
+    if (content.cta_primary !== undefined && $primary.length) {
+      const t = String(content.cta_primary || '').trim();
+      if (!t) $primary.remove();
+      else {
+        setBtnText($primary, t);
+        if (content.cta_primary_href) $primary.attr('href', content.cta_primary_href);
+      }
+    }
+
+    if (!actsWrap.find('a.btn').length) actsWrap.remove();
   }
 
-  const ticks = Array.isArray(content.ticks) ? content.ticks : [];
-  hero.find('ul.ticks li').each((i, el) => {
-    if (!ticks[i]) return;
-    const $li = $(el);
-    const svg = $li.find('svg').first();
-    const svgHtml = svg.length ? $.html(svg) : '';
-    const bold = ticks[i].bold || '';
-    const rest = ticks[i].rest || '';
-    $li.html(
-      `${svgHtml}${bold ? `<b>${escapeHtml(bold)}</b>` : ''}${rest ? ` ${escapeHtml(rest)}` : ''}`
-    );
-  });
+  const ticks = Array.isArray(content.ticks) ? content.ticks : null;
+  if (ticks) {
+    const $ul = hero.find('ul.ticks').first();
+    if ($ul.length) {
+      $ul.find('li').each((i, el) => {
+        const $li = $(el);
+        const row = ticks[i];
+        if (!row) {
+          $li.remove();
+          return;
+        }
+        const bold = String(row.bold || '').trim();
+        const rest = String(row.rest || '').trim();
+        if (!bold && !rest) {
+          $li.remove();
+          return;
+        }
+        const svg = $li.find('svg').first();
+        const svgHtml = svg.length ? $.html(svg) : '';
+        $li.html(
+          `${svgHtml}${bold ? `<b>${escapeHtml(bold)}</b>` : ''}${rest ? ` ${escapeHtml(rest)}` : ''}`
+        );
+      });
+      if (!$ul.find('li').length) $ul.remove();
+    }
+  }
 
-  if (content.form_heading) {
+  if (content.form_heading !== undefined) {
+    const fh = hero.find('.formcard h2').first();
+    if (fh.length) {
+      const t = String(content.form_heading || '').trim();
+      if (!t) fh.remove();
+      else fh.text(t);
+    }
+  } else if (content.form_heading) {
     const fh = hero.find('.formcard h2').first();
     if (fh.length) fh.text(content.form_heading);
   }
-  if (content.form_sub) {
-    const fs = hero.find('.formcard__sub').first();
+
+  const fs = hero.find('.formcard__sub').first();
+  if (fs.length && content.form_sub !== undefined) {
+    const t = String(content.form_sub || '').trim();
+    if (!t) fs.remove();
+    else fs.text(t);
+  } else if (content.form_sub) {
     if (fs.length) fs.text(content.form_sub);
   }
 
@@ -155,7 +204,9 @@ function applyHeroContent($, content = {}) {
 .hero ul.ticks{margin-bottom:0}
 .hero__stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
   margin-top:36px;padding-top:8px;width:100%;max-width:100%}
-@media(max-width:560px){.hero__stats{grid-template-columns:1fr;margin-top:28px}}
+.hero__stats[data-count="1"]{grid-template-columns:minmax(0,1fr);max-width:320px}
+.hero__stats[data-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:560px){.hero__stats,.hero__stats[data-count="2"]{grid-template-columns:1fr;margin-top:28px}}
 .hero__stat{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.1);
   border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 14px;min-width:0}
 .hero__stat-icon{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.12);
@@ -164,6 +215,15 @@ function applyHeroContent($, content = {}) {
 .hero__stat-icon svg{width:22px;height:22px;color:#FFC79E}
 .hero__stat strong{display:block;color:#fff;font-size:clamp(16px,2.1vw,20px);line-height:1.1;letter-spacing:-.02em}
 .hero__stat span{display:block;color:#B6D3E4;font-size:12px;margin-top:4px;line-height:1.25}
+.marq[hidden],.hero .flag[hidden],.hero__acts:empty,ul.ticks:empty{display:none!important}
+.fees.fees--1{grid-template-columns:1fr}
+.fees.fees--2{grid-template-columns:repeat(2,1fr)}
+.fees.fees--3{grid-template-columns:repeat(3,1fr)}
+@media(min-width:560px){
+  .fees.fees--1{grid-template-columns:1fr}
+  .fees.fees--2{grid-template-columns:repeat(2,1fr)}
+  .fees.fees--3{grid-template-columns:repeat(3,1fr)}
+}
 </style>`);
   }
 }
@@ -194,12 +254,24 @@ function defaultHeroStats() {
 function normalizeHeroStats(content = {}) {
   const defaults = defaultHeroStats();
   const incoming = Array.isArray(content.hero_stats) ? content.hero_stats : [];
+  const hasIncoming = Array.isArray(content.hero_stats);
   return defaults.map((d, i) => {
     const row = incoming.find((x) => x && x.key === d.key) || incoming[i] || {};
+    const hasValue = row.value != null;
+    const hasLabel = row.label != null;
     return {
       key: d.key,
-      value: row.value != null && String(row.value).trim() !== '' ? String(row.value) : d.value,
-      label: row.label != null && String(row.label).trim() !== '' ? String(row.label) : d.label,
+      // Blank value in CMS means “hide this stat”; missing row keeps the default.
+      value: hasIncoming
+        ? hasValue
+          ? String(row.value)
+          : d.value
+        : d.value,
+      label: hasIncoming
+        ? hasLabel
+          ? String(row.label)
+          : d.label
+        : d.label,
       iconUrl: row.iconUrl || '',
     };
   });
@@ -217,61 +289,94 @@ function defaultStatIcon(key) {
 }
 
 function applyHeroStats(hero, $, content) {
-  const stats = normalizeHeroStats(content);
   const enabled = content.hero_stats_enabled !== false;
   if (!enabled) {
     hero.find('.hero__stats').remove();
     return;
   }
 
-  const cards = stats
+  const visible = normalizeHeroStats(content).filter(
+    (s) => String(s.value || '').trim() !== '' || String(s.label || '').trim() !== ''
+  );
+  // Hide cards that have neither value nor label; also hide if value cleared
+  const cardsStats = visible.filter((s) => String(s.value || '').trim() !== '');
+
+  let wrap = hero.find('.hero__stats').first();
+  if (!cardsStats.length) {
+    wrap.remove();
+    return;
+  }
+
+  const cards = cardsStats
     .map((s) => {
       const icon = s.iconUrl
         ? `<img src="${escapeAttr(s.iconUrl)}" alt="">`
         : defaultStatIcon(s.key);
+      const label = String(s.label || '').trim();
       return `<div class="hero__stat">
         <div class="hero__stat-icon">${icon}</div>
-        <div><strong>${escapeHtml(s.value)}</strong><span>${escapeHtml(s.label)}</span></div>
+        <div><strong>${escapeHtml(String(s.value).trim())}</strong>${
+          label ? `<span>${escapeHtml(label)}</span>` : ''
+        }</div>
       </div>`;
     })
     .join('');
 
-  let wrap = hero.find('.hero__stats').first();
   if (!wrap.length) {
     const ticks = hero.find('ul.ticks').first();
     const target = ticks.length ? ticks : hero.find('.hero__acts').first();
     if (target.length) {
-      target.after(`<div class="hero__stats" aria-label="Key figures">${cards}</div>`);
+      target.after(
+        `<div class="hero__stats" data-count="${cardsStats.length}" aria-label="Key figures">${cards}</div>`
+      );
     } else {
       const leftCol = hero.find('.hero__in > div').first();
-      if (leftCol.length) leftCol.append(`<div class="hero__stats">${cards}</div>`);
+      if (leftCol.length) {
+        leftCol.append(
+          `<div class="hero__stats" data-count="${cardsStats.length}">${cards}</div>`
+        );
+      }
     }
   } else {
+    wrap.attr('data-count', String(cardsStats.length));
     wrap.html(cards);
   }
 }
 
 function applyTrustedBy($, content = {}) {
-  if (content.trusted_label) {
-    const lbl = $('.marq__lbl').first();
-    if (lbl.length) lbl.text(content.trusted_label);
-  }
-
-  const brands = Array.isArray(content.trusted_brands) ? content.trusted_brands : [];
-  if (!brands.length) return;
-
   const marq = $('section.marq').first();
   if (!marq.length) return;
 
+  if (content.trusted_label !== undefined) {
+    const lbl = marq.find('.marq__lbl').first();
+    const label = String(content.trusted_label || '').trim();
+    if (lbl.length) {
+      if (!label) lbl.remove();
+      else lbl.text(label);
+    }
+  } else if (content.trusted_label) {
+    const lbl = marq.find('.marq__lbl').first();
+    if (lbl.length) lbl.text(content.trusted_label);
+  }
+
+  // Only override brands when CMS has an explicit array (including empty = hide strip)
+  if (!Array.isArray(content.trusted_brands)) return;
+
+  const brands = content.trusted_brands.filter((b) => b && b.imageUrl);
+  if (!brands.length) {
+    marq.attr('hidden', 'hidden');
+    marq.css('display', 'none');
+    return;
+  }
+
+  marq.removeAttr('hidden');
+  marq.css('display', '');
   const imgs = brands
-    .filter((b) => b && b.imageUrl)
     .map(
       (b) =>
         `<img alt="${escapeAttr(b.name || 'Trusted brand')}" src="${escapeAttr(b.imageUrl)}" loading="lazy" decoding="async">`
     )
     .join('');
-
-  if (!imgs) return;
 
   // Duplicate set for marquee animation
   marq.find('.marq__track').html(

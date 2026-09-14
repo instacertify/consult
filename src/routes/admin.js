@@ -1173,7 +1173,7 @@ function pageEditor({ page, settings, saved, reloaded, catalogQ = '', catalogSch
 
     <section class="panel" id="hero-stats">
       <h2>Hero stats (below headline)</h2>
-      <p class="muted">Shown under the hero copy on this landing: Happy Customers, Expert Advisors, Branch Offices. Change numbers, labels, and icons (PNG/WebP) for each.</p>
+      <p class="muted">Shown under the hero copy on this landing: Happy Customers, Expert Advisors, Branch Offices. Change numbers, labels, and icons (PNG/WebP) for each. Leave a number blank to hide that stat — the row reflows to stay aligned.</p>
       <div class="stats-admin-grid">
         ${heroStats
           .map(
