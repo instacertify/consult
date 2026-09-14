@@ -178,10 +178,9 @@ router.post('/pages/:id', express.urlencoded({ extended: true }), (req, res) => 
   content.cta_secondary_href = b.cta_secondary_href || '';
   content.form_sub = b.form_sub || '';
   content.trusted_label = b.trusted_label || content.trusted_label || '';
-  content.hero_image_alt = b.hero_image_alt || content.hero_image_alt || '';
-  if (b.hero_image_url !== undefined) {
-    content.hero_image_url = b.hero_image_url || content.hero_image_url || '';
-  }
+  // hero image feature removed — clear any leftover values
+  delete content.hero_image_url;
+  delete content.hero_image_alt;
 
   const ticks = [];
   for (let i = 0; i < 6; i++) {
@@ -270,12 +269,12 @@ router.post('/pages/:id/reload-words', express.urlencoded({ extended: true }), (
     const content_json = {
       ...meta.content_json,
       trusted_brands: existing.trusted_brands || [],
-      hero_image_url: existing.hero_image_url || '',
-      hero_image_alt: existing.hero_image_alt || '',
       consulting_label: existing.consulting_label,
       consulting_price_crs: existing.consulting_price_crs,
       consulting_price_isi: existing.consulting_price_isi,
       bis_catalog: existing.bis_catalog || { categories: [], products: [] },
+      hero_stats: existing.hero_stats,
+      hero_stats_enabled: existing.hero_stats_enabled,
     };
     updatePage(id, {
       title: meta.title,
@@ -293,24 +292,6 @@ router.post('/pages/:id/reload-words', express.urlencoded({ extended: true }), (
   } catch (err) {
     res.status(500).send(`Reload failed: ${err.message}`);
   }
-});
-
-router.post('/pages/:id/hero-image', mediaUpload.single('image'), (req, res) => {
-  const id = Number(req.params.id);
-  const page = getPageById(id);
-  if (!page) return res.status(404).send('Page not found');
-  if (!req.file) return res.status(400).send('Upload a PNG or WebP image');
-  let content = {};
-  try {
-    content = JSON.parse(page.content_json || '{}');
-  } catch {
-    content = {};
-  }
-  content.hero_image_url = `/media/${req.file.filename}`;
-  content.hero_image_alt = req.body.hero_image_alt || content.hero_image_alt || page.hub_label || 'Hero image';
-  updatePage(id, { content_json: content });
-  clearPageCache();
-  res.redirect(`/admin/pages/${id}?saved=hero-image`);
 });
 
 router.post('/pages/:id/stat-icon/:key', mediaUpload.single('icon'), (req, res) => {
@@ -966,8 +947,6 @@ function pageEditor({ page, settings, saved, reloaded }) {
       <fieldset>
         <legend>5 · Trusted by label</legend>
         <label>Trusted by heading <input name="trusted_label" value="${esc(content.trusted_label || '')}" placeholder="Trusted by Indian and overseas manufacturers"></label>
-        <input type="hidden" name="hero_image_url" value="${esc(content.hero_image_url || '')}">
-        <input type="hidden" name="hero_image_alt" value="${esc(content.hero_image_alt || '')}">
       </fieldset>
 
       <button type="submit">Save URL &amp; all words</button>
@@ -1011,21 +990,6 @@ function pageEditor({ page, settings, saved, reloaded }) {
         Show hero stats on this landing
       </label>
       <input form="page-main-form" type="hidden" name="hero_stats_enabled_present" value="1">
-    </section>
-
-    <section class="panel media-panel">
-      <h2>Optional hero image (PNG or WebP)</h2>
-      <p class="muted">Extra image below the stats, if you still want one.</p>
-      ${
-        content.hero_image_url
-          ? `<div class="media-preview"><img src="${esc(content.hero_image_url)}" alt=""><code>${esc(content.hero_image_url)}</code></div>`
-          : '<p class="muted">No hero image yet.</p>'
-      }
-      <form method="post" action="/admin/pages/${page.id}/hero-image" enctype="multipart/form-data" class="stack">
-        <label>Image alt text <input name="hero_image_alt" value="${esc(content.hero_image_alt || '')}"></label>
-        <label>PNG or WebP file <input type="file" name="image" accept="image/png,image/webp,image/jpeg,.png,.webp,.jpg" required></label>
-        <button type="submit">Upload hero image</button>
-      </form>
     </section>
 
     <section class="panel media-panel">
