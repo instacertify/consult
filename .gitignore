@@ -2,8 +2,10 @@ node_modules/
 data/*.db
 data/*.db-*
 .env
-content/uploads/*
+content/uploads/**
 !content/uploads/.gitkeep
+!content/uploads/media/
+!content/uploads/media/.gitkeep
 tmp_extract/
 tmp_uploads/
 .DS_Store
