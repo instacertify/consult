@@ -109,6 +109,13 @@ input[readonly]{background:#F7FAFC;color:var(--muted)}
 .pill.on{background:#E6F5EF;color:#12805C}
 .pill.off{background:#FDECEA;color:#B3261E}
 
+.danger-zone{border-color:#f0c2be;background:#fff8f7}
+.danger-zone h2{color:var(--red)}
+.danger-zone details{margin-top:8px}
+.danger-zone summary{cursor:pointer;font-weight:700;color:var(--red)}
+.danger-zone .check-row{display:flex;flex-direction:row;align-items:flex-start;gap:10px;font-weight:500}
+.danger-zone .check-row input{width:auto;margin-top:3px;flex:none}
+
 /* Catalog edit rows: keep action columns tidy */
 #catalog table td form.stack{max-width:420px}
 #catalog details{margin-bottom:4px}

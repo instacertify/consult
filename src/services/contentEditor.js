@@ -205,17 +205,31 @@ function applyHeroContent($, content = {}) {
 @media(min-width:980px){
   .hero__in{align-items:start!important}
   .hero__in > div:first-child{display:flex;flex-direction:column;min-width:0}
-  .hero form.formcard,.hero .formcard{align-self:start;width:100%}
+  .hero__in > div:last-child,
+  .hero__in > #apply{min-width:0;display:flex;flex-direction:column;padding-top:0;margin-top:0}
+  .hero form.formcard,
+  .hero .formcard{
+    align-self:start;
+    width:100%;
+    margin-top:0!important;
+    position:sticky;
+    top:88px;
+  }
 }
-.hero__stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
-  margin-top:36px;padding-top:8px;width:100%;max-width:100%}
+/* Stats sit under both columns so form stays level with side copy */
+.hero > .hero__stats,
+.hero .wrap + .hero__stats,
+.hero__in + .hero__stats{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
+  margin:8px auto 0;padding:28px 20px 8px;width:100%;max-width:var(--maxw,1120px);box-sizing:border-box
+}
 .hero__stats[data-count="1"]{grid-template-columns:minmax(0,1fr);max-width:320px}
 .hero__stats[data-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
-@media(min-width:980px){
-  .hero__stats{margin-top:auto;padding-top:28px}
-}
 @media(max-width:560px){
-  .hero__stats,.hero__stats[data-count="2"]{grid-template-columns:1fr;margin-top:28px}
+  .hero > .hero__stats,
+  .hero .wrap + .hero__stats,
+  .hero__in + .hero__stats,
+  .hero__stats[data-count="2"]{grid-template-columns:1fr;padding-top:20px}
 }
 .hero__stat{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.1);
   border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 14px;min-width:0;min-height:74px}
@@ -308,11 +322,9 @@ function applyHeroStats(hero, $, content) {
     return;
   }
 
-  const visible = normalizeHeroStats(content).filter(
-    (s) => String(s.value || '').trim() !== '' || String(s.label || '').trim() !== ''
+  const cardsStats = normalizeHeroStats(content).filter(
+    (s) => String(s.value || '').trim() !== ''
   );
-  // Hide cards that have neither value nor label; also hide if value cleared
-  const cardsStats = visible.filter((s) => String(s.value || '').trim() !== '');
 
   let wrap = hero.find('.hero__stats').first();
   if (!cardsStats.length) {
@@ -335,24 +347,26 @@ function applyHeroStats(hero, $, content) {
     })
     .join('');
 
+  // Place stats under the two-column hero grid so the contact form
+  // stays top-aligned with the side content on every landing.
+  const heroIn = hero.find('.hero__in').first();
+  const html = `<div class="hero__stats" data-count="${cardsStats.length}" aria-label="Key figures">${cards}</div>`;
   if (!wrap.length) {
-    const ticks = hero.find('ul.ticks').first();
-    const target = ticks.length ? ticks : hero.find('.hero__acts').first();
-    if (target.length) {
-      target.after(
-        `<div class="hero__stats" data-count="${cardsStats.length}" aria-label="Key figures">${cards}</div>`
-      );
-    } else {
-      const leftCol = hero.find('.hero__in > div').first();
-      if (leftCol.length) {
-        leftCol.append(
-          `<div class="hero__stats" data-count="${cardsStats.length}">${cards}</div>`
-        );
-      }
+    if (heroIn.length) heroIn.after(html);
+    else {
+      const ticks = hero.find('ul.ticks').first();
+      const target = ticks.length ? ticks : hero.find('.hero__acts').first();
+      if (target.length) target.after(html);
     }
   } else {
-    wrap.attr('data-count', String(cardsStats.length));
-    wrap.html(cards);
+    // Move out of left column if an older adapt put it there
+    if (heroIn.length && wrap.closest('.hero__in').length) {
+      wrap.remove();
+      heroIn.after(html);
+    } else {
+      wrap.attr('data-count', String(cardsStats.length));
+      wrap.html(cards);
+    }
   }
 }
 

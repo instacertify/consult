@@ -167,6 +167,7 @@ router.get('/pages/:id', (req, res) => {
       reloaded: req.query.reloaded,
       catalogQ: String(req.query.q || ''),
       catalogScheme: String(req.query.scheme || ''),
+      deleteError: req.query.error === 'delete-confirm',
     })
   );
 });
@@ -727,9 +728,21 @@ router.post(
 );
 
 router.post('/pages/:id/delete', express.urlencoded({ extended: true }), (req, res) => {
-  deletePage(Number(req.params.id));
+  const id = Number(req.params.id);
+  const page = getPageById(id);
+  if (!page) return res.status(404).send('Page not found');
+
+  const expected = String(page.slug || '').trim();
+  const typed = String(req.body.confirm_slug || '').trim();
+  const checked = req.body.confirm_check === '1' || req.body.confirm_check === 'on';
+  if (!checked || !expected || typed !== expected) {
+    return res.redirect(`/admin/pages/${id}?error=delete-confirm#delete-page`);
+  }
+
+  deletePage(id);
+  clearPageCache(expected);
   clearPageCache();
-  res.redirect('/admin');
+  res.redirect('/admin?saved=page-deleted');
 });
 
 router.post('/settings', express.urlencoded({ extended: true }), (req, res) => {
@@ -919,6 +932,8 @@ function adminDashboard({ settings, pages, leads, emailOk, saved, credError, adm
   const savedMsg =
     saved === 'credentials'
       ? 'Login ID / password updated. Use the new credentials next time you sign in.'
+      : saved === 'page-deleted'
+        ? 'Landing page deleted from the CMS.'
       : saved
         ? 'Saved.'
         : '';
@@ -1093,7 +1108,7 @@ function adminDashboard({ settings, pages, leads, emailOk, saved, credError, adm
   );
 }
 
-function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = '', catalogScheme = '' }) {
+function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = '', catalogScheme = '', deleteError }) {
   let roles = [];
   try {
     roles = JSON.parse(page.role_options || '[]');
@@ -1603,9 +1618,28 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
       <span class="muted">Pulls hero words, section headings and trusted label from the source landing HTML (keeps uploaded brands & hero image).</span>
     </form>
 
-    <form method="post" action="/admin/pages/${page.id}/delete" onsubmit="return confirm('Delete this independent page entry? HTML file is kept on disk.')" style="margin-top:24px">
-      <button type="submit" class="danger">Delete page entry</button>
-    </form>
+    <section class="panel danger-zone" id="delete-page">
+      <h2>Delete this landing page</h2>
+      <p class="muted">Removes it from the CMS directory and admin. The HTML source file stays on disk. This needs <strong>two confirmations</strong>.</p>
+      ${
+        deleteError
+          ? `<p class="err">Delete cancelled — tick the box and type the exact slug <code>${esc(page.slug)}</code> to confirm.</p>`
+          : ''
+      }
+      <details>
+        <summary>I want to delete “${esc(page.hub_label || page.slug)}”</summary>
+        <form method="post" action="/admin/pages/${page.id}/delete" class="stack" style="margin-top:14px" id="delete-page-form">
+          <label class="check-row">
+            <input type="checkbox" name="confirm_check" value="1" required>
+            <span>I understand this landing will disappear from the site directory and can only be restored by re-uploading or re-seeding.</span>
+          </label>
+          <label>Type <code>${esc(page.slug)}</code> to confirm
+            <input name="confirm_slug" required autocomplete="off" placeholder="${esc(page.slug)}">
+          </label>
+          <button type="submit" class="danger" onclick="return confirm('Final confirmation: permanently delete ${esc(page.hub_label || page.slug)} from the CMS?')">Permanently delete landing</button>
+        </form>
+      </details>
+    </section>
 
     <script>
     (function(){
