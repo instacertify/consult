@@ -164,6 +164,32 @@ router.post('/pages/:id', express.urlencoded({ extended: true }), (req, res) => 
     content = {};
   }
   content.hero_support = b.hero_support || '';
+  content.flag_prefix = b.flag_prefix || '';
+  content.flag_bold = b.flag_bold || '';
+  content.h1_main = b.h1_main || '';
+  content.h1_em = b.h1_em || '';
+  content.hero_sub = b.hero_sub || b.hero_lede || '';
+  content.cta_primary = b.cta_primary || '';
+  content.cta_primary_href = b.cta_primary_href || '';
+  content.cta_secondary = b.cta_secondary || '';
+  content.cta_secondary_href = b.cta_secondary_href || '';
+  content.form_sub = b.form_sub || '';
+  content.trusted_label = b.trusted_label || content.trusted_label || '';
+  content.hero_image_alt = b.hero_image_alt || content.hero_image_alt || '';
+  if (b.hero_image_url !== undefined) {
+    content.hero_image_url = b.hero_image_url || content.hero_image_url || '';
+  }
+
+  const ticks = [];
+  for (let i = 0; i < 6; i++) {
+    if (b[`tick_bold_${i}`] === undefined && b[`tick_rest_${i}`] === undefined) continue;
+    ticks.push({
+      bold: b[`tick_bold_${i}`] || '',
+      rest: b[`tick_rest_${i}`] || '',
+    });
+  }
+  if (ticks.length) content.ticks = ticks;
+
   if (b.consulting_label !== undefined) {
     content.consulting_label = String(b.consulting_label || 'Consulting Starts At').trim();
   }
@@ -196,8 +222,8 @@ router.post('/pages/:id', express.urlencoded({ extended: true }), (req, res) => 
     robots: b.robots || 'index, follow',
     og_title: b.og_title,
     og_description: b.og_description,
-    hero_h1: b.hero_h1,
-    hero_lede: b.hero_lede,
+    hero_h1: [b.h1_main, b.h1_em].filter(Boolean).join(' ') || b.hero_h1,
+    hero_lede: b.hero_sub || b.hero_lede,
     form_heading: b.form_heading,
     whatsapp_text: b.whatsapp_text,
     phone: b.phone,
@@ -220,6 +246,21 @@ router.post('/pages/:id/reload-words', express.urlencoded({ extended: true }), (
   try {
     const html = readSourceHtml(page);
     const meta = extractPageMetaFromHtml(html, page.slug);
+    let existing = {};
+    try {
+      existing = JSON.parse(page.content_json || '{}');
+    } catch {
+      existing = {};
+    }
+    const content_json = {
+      ...meta.content_json,
+      trusted_brands: existing.trusted_brands || [],
+      hero_image_url: existing.hero_image_url || '',
+      hero_image_alt: existing.hero_image_alt || '',
+      consulting_label: existing.consulting_label,
+      consulting_price_crs: existing.consulting_price_crs,
+      consulting_price_isi: existing.consulting_price_isi,
+    };
     updatePage(id, {
       title: meta.title,
       meta_description: meta.meta_description,
@@ -229,7 +270,7 @@ router.post('/pages/:id/reload-words', express.urlencoded({ extended: true }), (
       hero_lede: meta.hero_lede,
       form_heading: meta.form_heading,
       role_options: meta.role_options,
-      content_json: meta.content_json,
+      content_json,
     });
     clearPageCache();
     res.redirect(`/admin/pages/${id}?reloaded=1`);
@@ -237,6 +278,70 @@ router.post('/pages/:id/reload-words', express.urlencoded({ extended: true }), (
     res.status(500).send(`Reload failed: ${err.message}`);
   }
 });
+
+router.post('/pages/:id/hero-image', mediaUpload.single('image'), (req, res) => {
+  const id = Number(req.params.id);
+  const page = getPageById(id);
+  if (!page) return res.status(404).send('Page not found');
+  if (!req.file) return res.status(400).send('Upload a PNG or WebP image');
+  let content = {};
+  try {
+    content = JSON.parse(page.content_json || '{}');
+  } catch {
+    content = {};
+  }
+  content.hero_image_url = `/media/${req.file.filename}`;
+  content.hero_image_alt = req.body.hero_image_alt || content.hero_image_alt || page.hub_label || 'Hero image';
+  updatePage(id, { content_json: content });
+  clearPageCache();
+  res.redirect(`/admin/pages/${id}?saved=hero-image`);
+});
+
+router.post('/pages/:id/trusted-brand', mediaUpload.single('logo'), (req, res) => {
+  const id = Number(req.params.id);
+  const page = getPageById(id);
+  if (!page) return res.status(404).send('Page not found');
+  if (!req.file) return res.status(400).send('Upload a brand logo (PNG or WebP)');
+  let content = {};
+  try {
+    content = JSON.parse(page.content_json || '{}');
+  } catch {
+    content = {};
+  }
+  const brands = Array.isArray(content.trusted_brands) ? content.trusted_brands : [];
+  brands.push({
+    name: (req.body.brand_name || 'Trusted brand').trim(),
+    imageUrl: `/media/${req.file.filename}`,
+  });
+  content.trusted_brands = brands;
+  if (req.body.trusted_label) content.trusted_label = req.body.trusted_label.trim();
+  updatePage(id, { content_json: content });
+  clearPageCache();
+  res.redirect(`/admin/pages/${id}?saved=trusted`);
+});
+
+router.post(
+  '/pages/:id/trusted-brand/:idx/delete',
+  express.urlencoded({ extended: true }),
+  (req, res) => {
+    const id = Number(req.params.id);
+    const idx = Number(req.params.idx);
+    const page = getPageById(id);
+    if (!page) return res.status(404).send('Page not found');
+    let content = {};
+    try {
+      content = JSON.parse(page.content_json || '{}');
+    } catch {
+      content = {};
+    }
+    const brands = Array.isArray(content.trusted_brands) ? content.trusted_brands : [];
+    if (idx >= 0 && idx < brands.length) brands.splice(idx, 1);
+    content.trusted_brands = brands;
+    updatePage(id, { content_json: content });
+    clearPageCache();
+    res.redirect(`/admin/pages/${id}?saved=trusted-deleted`);
+  }
+);
 
 router.post('/pages/:id/delete', express.urlencoded({ extended: true }), (req, res) => {
   deletePage(Number(req.params.id));
@@ -599,27 +704,59 @@ function pageEditor({ page, settings, saved, reloaded }) {
         <label>OG description <textarea name="og_description" rows="2">${esc(page.og_description)}</textarea></label>
       </fieldset>
 
-      <fieldset>
-        <legend>3 · Page words (hero + form)</legend>
-        <label>Directory label <input name="hub_label" value="${esc(page.hub_label)}"></label>
-        <label>Directory badge <input name="hub_badge" value="${esc(page.hub_badge)}"></label>
-        <label>Directory blurb <textarea name="hub_blurb" rows="2">${esc(page.hub_blurb)}</textarea></label>
-        <label>Hero H1 <textarea name="hero_h1" rows="2">${esc(page.hero_h1)}</textarea></label>
-        <label>Hero main paragraph <textarea name="hero_lede" rows="3">${esc(page.hero_lede)}</textarea></label>
-        <label>Hero support paragraph <textarea name="hero_support" rows="3">${esc(content.hero_support || '')}</textarea></label>
-        <label>Form heading <input name="form_heading" value="${esc(page.form_heading)}"></label>
-        <label>Phone on this page <input name="phone" value="${esc(page.phone)}"></label>
-        <label>WhatsApp prefill text <input name="whatsapp_text" value="${esc(page.whatsapp_text)}"></label>
-        <label>Role dropdown options (one per line)
-          <textarea name="role_options" rows="8">${esc(roles.join('\n'))}</textarea>
-        </label>
+      <fieldset class="hero-editor">
+        <legend>3 · Hero banner word editor (all words)</legend>
+        <p class="muted">Edit every word on the hero/banner side. Uses the full editor width so nothing is cramped.</p>
+        <div class="hero-grid">
+          <div>
+            <h3 class="subhead">Banner flag</h3>
+            <label>Flag text <input name="flag_prefix" value="${esc(content.flag_prefix || '')}" placeholder="Goods held at customs?"></label>
+            <label>Flag bold <input name="flag_bold" value="${esc(content.flag_bold || '')}" placeholder="Call, don't fill a form"></label>
+            <h3 class="subhead">Headline</h3>
+            <label>H1 main <textarea name="h1_main" rows="2">${esc(content.h1_main || page.hero_h1 || '')}</textarea></label>
+            <label>H1 emphasis (em) <input name="h1_em" value="${esc(content.h1_em || '')}" placeholder="— ISI, CRS, FMCS & Scheme X."></label>
+            <label>Hero paragraph <textarea name="hero_sub" rows="5">${esc(content.hero_sub || page.hero_lede || '')}</textarea></label>
+            <label>Directory label <input name="hub_label" value="${esc(page.hub_label)}"></label>
+            <label>Directory badge <input name="hub_badge" value="${esc(page.hub_badge)}"></label>
+            <label>Directory blurb <textarea name="hub_blurb" rows="2">${esc(page.hub_blurb)}</textarea></label>
+          </div>
+          <div>
+            <h3 class="subhead">Buttons</h3>
+            <label>Primary CTA text <input name="cta_primary" value="${esc(content.cta_primary || '')}"></label>
+            <label>Primary CTA link <input name="cta_primary_href" value="${esc(content.cta_primary_href || '')}"></label>
+            <label>Secondary CTA text <input name="cta_secondary" value="${esc(content.cta_secondary || '')}"></label>
+            <label>Secondary CTA link <input name="cta_secondary_href" value="${esc(content.cta_secondary_href || '')}"></label>
+            <h3 class="subhead">Form card words</h3>
+            <label>Form heading <input name="form_heading" value="${esc(content.form_heading || page.form_heading || '')}"></label>
+            <label>Form subtext <textarea name="form_sub" rows="3">${esc(content.form_sub || '')}</textarea></label>
+            <label>Phone on this page <input name="phone" value="${esc(page.phone)}"></label>
+            <label>WhatsApp prefill text <input name="whatsapp_text" value="${esc(page.whatsapp_text)}"></label>
+            <label>Role dropdown options (one per line)
+              <textarea name="role_options" rows="6">${esc(roles.join('\n'))}</textarea>
+            </label>
+          </div>
+        </div>
+        <h3 class="subhead">Hero tick points</h3>
+        <div class="ticks-grid">
+          ${(content.ticks && content.ticks.length
+            ? content.ticks
+            : [{ bold: '', rest: '' }, { bold: '', rest: '' }, { bold: '', rest: '' }]
+          )
+            .map(
+              (t, i) => `<div class="tick-card">
+              <label>Tick ${i + 1} bold <input name="tick_bold_${i}" value="${esc(t.bold || '')}"></label>
+              <label>Tick ${i + 1} rest <input name="tick_rest_${i}" value="${esc(t.rest || '')}"></label>
+            </div>`
+            )
+            .join('')}
+        </div>
       </fieldset>
 
       ${
         page.slug === 'bis-certification' || page.source_file === 'bis-certification.html'
           ? `<fieldset>
         <legend>BIS · Consulting Starts At (editable price)</legend>
-        <p class="muted">Shown in the product checker and hero when a product/standard is selected. Label defaults to “Consulting Starts At”.</p>
+        <p class="muted">Shown in the product checker and hero. Label defaults to “Consulting Starts At”.</p>
         <label>Price label <input name="consulting_label" value="${esc(content.consulting_label || 'Consulting Starts At')}"></label>
         <label>CRS consulting price (₹) <input name="consulting_price_crs" type="number" min="0" step="1" value="${esc(content.consulting_price_crs ?? 9999)}"></label>
         <label>ISI Mark consulting price (₹) <input name="consulting_price_isi" type="number" min="0" step="1" value="${esc(content.consulting_price_isi ?? 20999)}"></label>
@@ -628,7 +765,7 @@ function pageEditor({ page, settings, saved, reloaded }) {
       }
 
       <fieldset>
-        <legend>4 · Section headings (editable words)</legend>
+        <legend>4 · Section headings (every front-end H2)</legend>
         ${
           sections.length
             ? sections
@@ -644,12 +781,58 @@ function pageEditor({ page, settings, saved, reloaded }) {
         }
       </fieldset>
 
-      <button type="submit">Save URL &amp; words</button>
+      <fieldset>
+        <legend>5 · Trusted by label</legend>
+        <label>Trusted by heading <input name="trusted_label" value="${esc(content.trusted_label || '')}" placeholder="Trusted by Indian and overseas manufacturers"></label>
+        <input type="hidden" name="hero_image_url" value="${esc(content.hero_image_url || '')}">
+        <input type="hidden" name="hero_image_alt" value="${esc(content.hero_image_alt || '')}">
+      </fieldset>
+
+      <button type="submit">Save URL &amp; all words</button>
     </form>
+
+    <section class="panel media-panel">
+      <h2>Hero image / icon (PNG or WebP)</h2>
+      <p class="muted">Upload an image for the hero banner side — fills unused visual space under the hero copy.</p>
+      ${
+        content.hero_image_url
+          ? `<div class="media-preview"><img src="${esc(content.hero_image_url)}" alt=""><code>${esc(content.hero_image_url)}</code></div>`
+          : '<p class="muted">No hero image yet.</p>'
+      }
+      <form method="post" action="/admin/pages/${page.id}/hero-image" enctype="multipart/form-data" class="stack">
+        <label>Image alt text <input name="hero_image_alt" value="${esc(content.hero_image_alt || '')}"></label>
+        <label>PNG or WebP file <input type="file" name="image" accept="image/png,image/webp,image/jpeg,.png,.webp,.jpg" required></label>
+        <button type="submit">Upload hero image</button>
+      </form>
+    </section>
+
+    <section class="panel media-panel">
+      <h2>Trusted by brands (single upload area)</h2>
+      <p class="muted">Add brand logos here. They replace the Trusted by marquee on this landing.</p>
+      <div class="brand-grid">
+        ${(Array.isArray(content.trusted_brands) ? content.trusted_brands : [])
+          .map(
+            (b, i) => `<div class="brand-card">
+            <img src="${esc(b.imageUrl)}" alt="${esc(b.name || '')}">
+            <div><strong>${esc(b.name || 'Brand')}</strong>
+              <form method="post" action="/admin/pages/${page.id}/trusted-brand/${i}/delete">
+                <button type="submit" class="danger">Remove</button>
+              </form>
+            </div>
+          </div>`
+          )
+          .join('') || '<p class="muted">No brands uploaded yet — add the first logo below.</p>'}
+      </div>
+      <form method="post" action="/admin/pages/${page.id}/trusted-brand" enctype="multipart/form-data" class="stack" style="margin-top:14px">
+        <label>Brand name <input name="brand_name" placeholder="e.g. Acme Industries" required></label>
+        <label>Logo (PNG / WebP) <input type="file" name="logo" accept="image/png,image/webp,image/jpeg,.png,.webp,.jpg" required></label>
+        <button type="submit">Add trusted brand</button>
+      </form>
+    </section>
 
     <form method="post" action="/admin/pages/${page.id}/reload-words" style="margin-top:18px">
       <button type="submit" class="btn-ghost">Reload words from HTML file</button>
-      <span class="muted">Pulls title, H1, paragraphs and section headings from the source landing HTML into these fields.</span>
+      <span class="muted">Pulls hero words, section headings and trusted label from the source landing HTML (keeps uploaded brands & hero image).</span>
     </form>
 
     <form method="post" action="/admin/pages/${page.id}/delete" onsubmit="return confirm('Delete this independent page entry? HTML file is kept on disk.')" style="margin-top:24px">

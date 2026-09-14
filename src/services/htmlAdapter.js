@@ -2,6 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const cheerio = require('cheerio');
 const { getSetting } = require('../db');
+const {
+  extractHeroContent,
+  applyHeroContent,
+  applyTrustedBy,
+} = require('./contentEditor');
 
 const PAGES_DIR = path.join(__dirname, '..', '..', 'content', 'pages');
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'content', 'uploads');
@@ -99,6 +104,7 @@ function extractEditableWords(html) {
 function extractPageMetaFromHtml(html, fallbackSlug) {
   const $ = cheerio.load(html);
   const words = extractEditableWords(html);
+  const hero = extractHeroContent(html);
   const title = ($('title').text() || fallbackSlug || 'Untitled').trim();
   const meta_description =
     $('meta[name="description"]').attr('content') || '';
@@ -115,12 +121,14 @@ function extractPageMetaFromHtml(html, fallbackSlug) {
     og_title,
     og_description,
     hero_h1,
-    hero_lede: words.hero_lede,
-    form_heading: words.form_heading,
+    hero_lede: hero.hero_sub || words.hero_lede,
+    form_heading: hero.form_heading || words.form_heading,
     role_options: words.role_options,
     content_json: {
       hero_support: words.hero_support,
       sections: words.sections,
+      ...hero,
+      trusted_brands: [],
     },
   };
 }
@@ -163,6 +171,15 @@ function adaptPageHtml(page, options = {}) {
   // BIS consulting prices (editable from CMS)
   applyBisConsultingPrices($, content);
 
+  // Hero banner words + image + trusted-by brands
+  applyHeroContent($, {
+    ...content,
+    hero_h1: page.hero_h1,
+    hero_lede: page.hero_lede,
+    form_heading: page.form_heading || content.form_heading,
+  });
+  applyTrustedBy($, content);
+
   // SEO / URL
   if (page.title) $('title').text(page.title);
   setOrCreateMeta($, 'name', 'description', page.meta_description || '');
@@ -182,28 +199,6 @@ function adaptPageHtml(page, options = {}) {
     $('head').append(`<link rel="canonical" href="${baseUrl}${canonicalPath}">`);
   } else {
     canonical.attr('href', `${baseUrl}${canonicalPath}`);
-  }
-
-  // Words
-  if (page.hero_h1) $('h1').first().text(page.hero_h1);
-
-  if (page.hero_lede) {
-    const p = $('.hero p').first();
-    if (p.length) p.text(page.hero_lede);
-  }
-
-  if (content.hero_support) {
-    const p = $('.hero p').eq(1);
-    if (p.length) p.text(content.hero_support);
-  }
-
-  if (page.form_heading) {
-    const fh = $('.formcard h2, .formcard .formcard__title, #apply h2').first();
-    if (fh.length) fh.text(page.form_heading);
-    else {
-      const nearby = $('form').first().closest('aside, section, div').find('h2').first();
-      if (nearby.length) nearby.text(page.form_heading);
-    }
   }
 
   // Section headings (independent page body words)
