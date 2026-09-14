@@ -164,6 +164,15 @@ router.post('/pages/:id', express.urlencoded({ extended: true }), (req, res) => 
     content = {};
   }
   content.hero_support = b.hero_support || '';
+  if (b.consulting_label !== undefined) {
+    content.consulting_label = String(b.consulting_label || 'Consulting Starts At').trim();
+  }
+  if (b.consulting_price_crs !== undefined && b.consulting_price_crs !== '') {
+    content.consulting_price_crs = Number(String(b.consulting_price_crs).replace(/[^\d.]/g, '')) || 0;
+  }
+  if (b.consulting_price_isi !== undefined && b.consulting_price_isi !== '') {
+    content.consulting_price_isi = Number(String(b.consulting_price_isi).replace(/[^\d.]/g, '')) || 0;
+  }
 
   const sections = [];
   const keys = Object.keys(b).filter((k) => k.startsWith('section_'));
@@ -605,6 +614,18 @@ function pageEditor({ page, settings, saved, reloaded }) {
           <textarea name="role_options" rows="8">${esc(roles.join('\n'))}</textarea>
         </label>
       </fieldset>
+
+      ${
+        page.slug === 'bis-certification' || page.source_file === 'bis-certification.html'
+          ? `<fieldset>
+        <legend>BIS · Consulting Starts At (editable price)</legend>
+        <p class="muted">Shown in the product checker and hero when a product/standard is selected. Label defaults to “Consulting Starts At”.</p>
+        <label>Price label <input name="consulting_label" value="${esc(content.consulting_label || 'Consulting Starts At')}"></label>
+        <label>CRS consulting price (₹) <input name="consulting_price_crs" type="number" min="0" step="1" value="${esc(content.consulting_price_crs ?? 9999)}"></label>
+        <label>ISI Mark consulting price (₹) <input name="consulting_price_isi" type="number" min="0" step="1" value="${esc(content.consulting_price_isi ?? 20999)}"></label>
+      </fieldset>`
+          : ''
+      }
 
       <fieldset>
         <legend>4 · Section headings (editable words)</legend>

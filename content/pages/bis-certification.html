@@ -409,6 +409,10 @@ details .ans p{margin-bottom:.7em}details .ans p:last-child{margin-bottom:0}
 .fee b{font-size:14px;color:var(--ink);font-weight:700}
 .fee--us{background:#FFF1E8}
 .fee--us span{color:var(--orange-dk)}
+.hit__use{margin-top:10px;display:inline-flex;align-items:center;justify-content:center;
+  font-family:inherit;font-weight:600;font-size:13.5px;padding:10px 14px;border-radius:8px;
+  border:1.5px solid var(--navy);background:var(--navy);color:#fff;cursor:pointer;width:100%}
+.hit__use:hover{background:var(--navy-2)}
 .test{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-top:6px;
   background:#EAF2F7;border-radius:7px;padding:8px 10px}
 .test span{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--navy-2);
@@ -480,7 +484,7 @@ details .ans p{margin-bottom:.7em}details .ans p:last-child{margin-bottom:0}
 
       <ul class="ticks">
         <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>All four routes under one roof</b> — ISI, CRS, FMCS and Scheme X</li>
-        <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Consulting from ₹9,999 for CRS</b> and ₹20,999 for ISI Mark</li>
+        <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Consulting Starts At ₹9,999 for CRS</b> and ₹20,999 for ISI Mark</li>
         <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Three offices in India</b> — and we handle foreign manufacturers too</li>
       </ul>
     </div>
@@ -963,7 +967,7 @@ details .ans p{margin-bottom:.7em}details .ans p:last-child{margin-bottom:0}
         and what each charges per scope, built from the BIS LIMS listings. That's why the checker above
         can show you a real testing price range before you've spoken to us, and why our quote names the
         lab, the charge and the queue rather than saying "at actual".</p>
-        <p class="lede" style="margin-top:14px">Our own fee is fixed and published: <b>₹9,999 for CRS,
+        <p class="lede" style="margin-top:14px">Consulting Starts At: <b>₹9,999 for CRS,
         ₹20,999 per product for ISI Mark</b>. FMCS and Scheme X are quoted on the call, because they
         genuinely vary.</p>
         <div style="margin-top:22px;display:flex;flex-wrap:wrap;gap:11px">
@@ -983,7 +987,7 @@ details .ans p{margin-bottom:.7em}details .ans p:last-child{margin-bottom:0}
           <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12805C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Our professional fee</b>, stated separately so you can see what you're paying us for</li>
           <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12805C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>A realistic date</b>, not a best case</li>
         </ul>
-        <div class="incl__note"><b>Our fee starts at ₹9,999 for CRS and ₹20,999 per product for ISI
+        <div class="incl__note"><b>Consulting Starts At ₹9,999 for CRS and ₹20,999 per product for ISI
         Mark.</b> BIS fees and lab testing are billed at actual against receipts, and you can see both
         in the checker above before you call us. Every quote is itemised, so you can compare it line by
         line with anyone else's.</div>
@@ -1477,8 +1481,8 @@ details .ans p{margin-bottom:.7em}details .ans p:last-child{margin-bottom:0}
             '<div class="fee"><span>BIS fee · micro</span><b>' + money(r[5]) + '</b></div>' +
             '<div class="fee"><span>Small</span><b>' + money(r[6]) + '</b></div>' +
             '<div class="fee"><span>Large</span><b>' + money(r[7]) + '</b></div>' +
-            '<div class="fee fee--us"><span>Our fee</span><b>' + money(d.f.crs) + '</b></div>' +
-          '</div>' + testRow(r[8], r[9], r[10]) + '</div>';
+            '<div class="fee fee--us"><span>Consulting Starts At</span><b>' + money(d.f.crs) + '</b></div>' +
+          '</div>' + testRow(r[8], r[9], r[10]) + '<button type="button" class="hit__use" data-product="' + esc(r[0]) + '" data-standard="' + esc(r[1]) + '">Use in contact form</button></div>';
       } else {
         html += '<div class="hit"><div class="hit__top"><span class="hit__is">' + hl(r[0], t) +
           '</span><span class="badge b' + r[5] + '">' + LBL[r[5]] + '</span></div>' +
@@ -1490,8 +1494,8 @@ details .ans p{margin-bottom:.7em}details .ans p:last-child{margin-bottom:0}
             '<div class="fee"><span>BIS fee · large</span><b>' + money(r[7]) + '</b></div>' +
             '<div class="fee"><span>Small</span><b>' + money(r[9]) + '</b></div>' +
             '<div class="fee"><span>Micro</span><b>' + money(r[10]) + '</b></div>' +
-            '<div class="fee fee--us"><span>Our fee</span><b>' + money(d.f.isi) + '</b></div>' +
-          '</div>' + testRow(r[11], r[12], r[13]) + '</div>';
+            '<div class="fee fee--us"><span>Consulting Starts At</span><b>' + money(d.f.isi) + '</b></div>' +
+          '</div>' + testRow(r[11], r[12], r[13]) + '<button type="button" class="hit__use" data-product="' + esc(r[1]) + '" data-standard="' + esc(r[0]) + '">Use in contact form</button></div>';
       }
     }
 
@@ -1516,6 +1520,27 @@ details .ans p{margin-bottom:.7em}details .ans p:last-child{margin-bottom:0}
     clear.hidden = !t;
     render(t);
   }
+
+  res.addEventListener('click', function(e){
+    var btn = e.target.closest && e.target.closest('.hit__use');
+    if (!btn) return;
+    var product = btn.getAttribute('data-product') || '';
+    var standard = btn.getAttribute('data-standard') || '';
+    var filled = product;
+    if (standard) filled = product ? (product + ' — ' + standard) : standard;
+    var prod = document.getElementById('f-prod');
+    if (prod) {
+      prod.value = filled;
+      prod.dispatchEvent(new Event('input', {bubbles:true}));
+    }
+    var apply = document.getElementById('apply');
+    if (apply) apply.scrollIntoView({behavior:'smooth', block:'start'});
+    setTimeout(function(){
+      var n = document.getElementById('f-name');
+      if (n) n.focus({preventScroll:true});
+    }, 450);
+  });
+
   q.addEventListener('input', function(){ clearTimeout(timer); timer = setTimeout(go, 130); });
   clear.addEventListener('click', function(){ q.value = ''; q.focus(); go(); });
   for (var i = 0; i < chips.length; i++){

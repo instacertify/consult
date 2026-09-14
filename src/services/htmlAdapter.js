@@ -160,6 +160,9 @@ function adaptPageHtml(page, options = {}) {
     page.whatsapp_text
   );
 
+  // BIS consulting prices (editable from CMS)
+  applyBisConsultingPrices($, content);
+
   // SEO / URL
   if (page.title) $('title').text(page.title);
   setOrCreateMeta($, 'name', 'description', page.meta_description || '');
@@ -335,6 +338,73 @@ function normalizePath(p) {
   out = out.replace(/\/+/g, '/');
   if (out.length > 1 && out.endsWith('/')) out = out.slice(0, -1);
   return out;
+}
+
+function formatInr(n) {
+  const num = Number(n);
+  if (!Number.isFinite(num)) return '';
+  return `₹${num.toLocaleString('en-IN')}`;
+}
+
+/**
+ * Apply CMS-editable "Consulting Starts At" prices on BIS landings.
+ * Updates #bis-data JSON fees and visible copy that mentions CRS/ISI consulting prices.
+ */
+function applyBisConsultingPrices($, content) {
+  const crs = Number(content.consulting_price_crs);
+  const isi = Number(content.consulting_price_isi);
+  const label = (content.consulting_label || 'Consulting Starts At').trim() || 'Consulting Starts At';
+  const hasCrs = Number.isFinite(crs) && crs > 0;
+  const hasIsi = Number.isFinite(isi) && isi > 0;
+  if (!hasCrs && !hasIsi && !content.consulting_label) return;
+
+  const $data = $('#bis-data');
+  if ($data.length) {
+    try {
+      const data = JSON.parse($data.html() || '{}');
+      data.f = data.f || {};
+      if (hasCrs) data.f.crs = crs;
+      if (hasIsi) data.f.isi = isi;
+      $data.html(JSON.stringify(data));
+    } catch {
+      /* ignore malformed dataset */
+    }
+  }
+
+  // Update fee chip label text in checker script if present
+  $('script').each((_, el) => {
+    const $el = $(el);
+    let t = $el.html();
+    if (!t || t.indexOf('fee--us') === -1) return;
+    t = t.replace(/>Our fee</g, `>${label}<`);
+    t = t.replace(/>Consulting Starts At</g, `>${label}<`);
+    t = t.replace(/>Consulting from</g, `>${label}<`);
+    $el.html(t);
+  });
+
+  // Visible body copy containing published consulting prices
+  const crsStr = hasCrs ? formatInr(crs) : null;
+  const isiStr = hasIsi ? formatInr(isi) : null;
+
+  $('body *').each((_, node) => {
+    const $n = $(node);
+    if ($n.children().length) return;
+    let t = $n.text();
+    if (!t) return;
+    const parentText = $n.parent().text() || t;
+    const isConsultingCopy =
+      /consulting|our fee|professional fee|own fee/i.test(parentText) ||
+      /consulting|our fee|own fee/i.test(t);
+    if (!isConsultingCopy) return;
+
+    let next = t;
+    if (crsStr) next = next.replace(/₹\s*9,?999/g, crsStr);
+    if (isiStr) next = next.replace(/₹\s*20,?999/g, isiStr);
+    next = next.replace(/Consulting from/gi, label);
+    next = next.replace(/Our fee starts at/gi, label);
+    next = next.replace(/Our own fee is fixed and published:/gi, `${label}:`);
+    if (next !== t) $n.text(next);
+  });
 }
 
 function setOrCreateMeta($, attr, key, content) {
