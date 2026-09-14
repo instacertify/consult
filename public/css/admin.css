@@ -22,6 +22,11 @@ a{color:var(--navy)}
 .brand-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:10px}
 .brand-card{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
 .brand-card img{max-height:48px;width:auto;object-fit:contain;background:#fff;border-radius:6px;padding:4px}
+.stats-admin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px}
+@media(max-width:900px){.stats-admin-grid{grid-template-columns:1fr}}
+.stat-admin-card{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px}
+.stat-admin-preview{height:56px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;background:#fff;border-radius:10px;border:1px solid var(--line)}
+.stat-admin-preview img{max-height:40px;max-width:40px;object-fit:contain}
 .inline-add{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .inline-add input{flex:1;min-width:200px;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
 .option-list{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}

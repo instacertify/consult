@@ -20,6 +20,7 @@ const {
   UPLOADS_DIR,
 } = require('../services/htmlAdapter');
 const { ensureCatalog } = require('../services/bisCatalog');
+const { normalizeHeroStats } = require('../services/contentEditor');
 const { isEmailConfigured } = require('../services/mail');
 const cheerio = require('cheerio');
 
@@ -202,6 +203,18 @@ router.post('/pages/:id', express.urlencoded({ extended: true }), (req, res) => 
     content.consulting_price_isi = Number(String(b.consulting_price_isi).replace(/[^\d.]/g, '')) || 0;
   }
 
+  // Hero stats (Happy Clients / Advisors / Offices)
+  content.hero_stats_enabled = b.hero_stats_enabled_present
+    ? b.hero_stats_enabled === '1' || b.hero_stats_enabled === 'on'
+    : content.hero_stats_enabled !== false;
+  const hero_stats = normalizeHeroStats(content).map((s) => ({
+    key: s.key,
+    value: b[`stat_value_${s.key}`] != null ? String(b[`stat_value_${s.key}`]) : s.value,
+    label: b[`stat_label_${s.key}`] != null ? String(b[`stat_label_${s.key}`]) : s.label,
+    iconUrl: s.iconUrl || '',
+  }));
+  content.hero_stats = hero_stats;
+
   const sections = [];
   const keys = Object.keys(b).filter((k) => k.startsWith('section_'));
   for (const key of keys) {
@@ -298,6 +311,31 @@ router.post('/pages/:id/hero-image', mediaUpload.single('image'), (req, res) => 
   updatePage(id, { content_json: content });
   clearPageCache();
   res.redirect(`/admin/pages/${id}?saved=hero-image`);
+});
+
+router.post('/pages/:id/stat-icon/:key', mediaUpload.single('icon'), (req, res) => {
+  const id = Number(req.params.id);
+  const key = String(req.params.key || '');
+  const page = getPageById(id);
+  if (!page) return res.status(404).send('Page not found');
+  if (!['clients', 'advisors', 'offices'].includes(key)) {
+    return res.status(400).send('Unknown stat key');
+  }
+  if (!req.file) return res.status(400).send('Upload a PNG or WebP icon');
+  let content = {};
+  try {
+    content = JSON.parse(page.content_json || '{}');
+  } catch {
+    content = {};
+  }
+  const stats = normalizeHeroStats(content).map((s) =>
+    s.key === key ? { ...s, iconUrl: `/media/${req.file.filename}` } : s
+  );
+  content.hero_stats = stats;
+  content.hero_stats_enabled = true;
+  updatePage(id, { content_json: content });
+  clearPageCache();
+  res.redirect(`/admin/pages/${id}?saved=stat-icon#hero-stats`);
 });
 
 router.post('/pages/:id/trusted-brand', mediaUpload.single('logo'), (req, res) => {
@@ -779,6 +817,7 @@ function pageEditor({ page, settings, saved, reloaded }) {
   }
   const sections = Array.isArray(content.sections) ? content.sections : [];
   const catalog = ensureCatalog(content);
+  const heroStats = normalizeHeroStats(content);
   const builtinCats = builtinCategoriesFor(page);
   const allCategories = [...builtinCats];
   for (const c of catalog.categories) {
@@ -809,7 +848,7 @@ function pageEditor({ page, settings, saved, reloaded }) {
     </div>
     <p class="muted">Source file: <code>${esc(page.source_type)} / ${esc(page.source_file)}</code> · This landing stays independent of the others.</p>
 
-    <form method="post" action="/admin/pages/${page.id}" class="form-grid">
+    <form method="post" action="/admin/pages/${page.id}" class="form-grid" id="page-main-form">
       <fieldset>
         <legend>1 · Editable URL</legend>
         <label>URL path (change this to change the page address)
@@ -934,9 +973,49 @@ function pageEditor({ page, settings, saved, reloaded }) {
       <button type="submit">Save URL &amp; all words</button>
     </form>
 
+    <section class="panel" id="hero-stats">
+      <h2>Hero stats (below headline)</h2>
+      <p class="muted">Shown under the hero copy on this landing: Happy Customers, Expert Advisors, Branch Offices. Change numbers, labels, and icons (PNG/WebP) for each.</p>
+      <div class="stats-admin-grid">
+        ${heroStats
+          .map(
+            (s) => `<div class="stat-admin-card">
+            <div class="stat-admin-preview">
+              ${
+                s.iconUrl
+                  ? `<img src="${esc(s.iconUrl)}" alt="">`
+                  : `<span class="muted">Default icon</span>`
+              }
+            </div>
+            <label>Number / value
+              <input form="page-main-form" name="stat_value_${esc(s.key)}" value="${esc(s.value)}">
+            </label>
+            <label>Label
+              <input form="page-main-form" name="stat_label_${esc(s.key)}" value="${esc(s.label)}">
+            </label>
+            <form method="post" action="/admin/pages/${page.id}/stat-icon/${esc(s.key)}" enctype="multipart/form-data" class="stack">
+              <label>Change icon (PNG / WebP)
+                <input type="file" name="icon" accept="image/png,image/webp,image/jpeg,.png,.webp,.jpg" required>
+              </label>
+              <button type="submit">Upload ${esc(s.label)} icon</button>
+            </form>
+          </div>`
+          )
+          .join('')}
+      </div>
+      <p class="muted" style="margin-top:12px">Tip: save the main “Save URL &amp; all words” form after editing numbers/labels. Icons upload immediately.</p>
+      <label style="display:flex;flex-direction:row;align-items:center;gap:8px;margin-top:8px">
+        <input form="page-main-form" type="checkbox" name="hero_stats_enabled" value="1" ${
+          content.hero_stats_enabled === false ? '' : 'checked'
+        }>
+        Show hero stats on this landing
+      </label>
+      <input form="page-main-form" type="hidden" name="hero_stats_enabled_present" value="1">
+    </section>
+
     <section class="panel media-panel">
-      <h2>Hero image / icon (PNG or WebP)</h2>
-      <p class="muted">Upload an image for the hero banner side — fills unused visual space under the hero copy.</p>
+      <h2>Optional hero image (PNG or WebP)</h2>
+      <p class="muted">Extra image below the stats, if you still want one.</p>
       ${
         content.hero_image_url
           ? `<div class="media-preview"><img src="${esc(content.hero_image_url)}" alt=""><code>${esc(content.hero_image_url)}</code></div>`
