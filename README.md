@@ -15,7 +15,7 @@ npm start
 ```
 
 - Site: http://localhost:3000  
-- Admin: http://localhost:3000/admin (password from `ADMIN_PASSWORD`)
+- Admin: http://localhost:3000/admin (`ADMIN_USERNAME` + `ADMIN_PASSWORD`, with captcha)
 
 ## Public routes
 

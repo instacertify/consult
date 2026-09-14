@@ -26,6 +26,7 @@ const {
 } = require('../services/bisCatalog');
 const { normalizeHeroStats } = require('../services/contentEditor');
 const { isEmailConfigured } = require('../services/mail');
+const { createMathCaptcha, captchaMatches } = require('../services/captcha');
 const cheerio = require('cheerio');
 
 const router = express.Router();
@@ -96,13 +97,25 @@ function fullUrl(settings, page) {
 
 router.get('/login', (req, res) => {
   if (req.session.admin) return res.redirect('/admin');
-  res.send(loginPage(req.query.error));
+  const captcha = createMathCaptcha();
+  req.session.loginCaptcha = captcha.answer;
+  res.send(loginPage(req.query.error, captcha));
 });
 
 router.post('/login', express.urlencoded({ extended: true }), (req, res) => {
-  const expected = process.env.ADMIN_PASSWORD || 'change-me-admin';
-  console.log("DEBUG: Expected =", expected, "Received =", req.body.password, "Match =", String(req.body.password || "") === expected);
-  if (String(req.body.password || "").toLowerCase() === expected.toLowerCase()) {
+  const expectedUser = String(process.env.ADMIN_USERNAME || 'admin').trim();
+  const expectedPass = process.env.ADMIN_PASSWORD || 'change-me-admin';
+  const username = String(req.body.username || req.body.login_id || '').trim();
+  const password = String(req.body.password || '');
+  const captchaOk = captchaMatches(req.session.loginCaptcha, req.body.captcha);
+  delete req.session.loginCaptcha;
+
+  if (!captchaOk) {
+    return res.redirect('/admin/login?error=captcha');
+  }
+  const userOk = username.toLowerCase() === expectedUser.toLowerCase();
+  const passOk = password === expectedPass;
+  if (userOk && passOk) {
     req.session.admin = true;
     return res.redirect('/admin');
   }
@@ -721,7 +734,11 @@ router.post('/settings', express.urlencoded({ extended: true }), (req, res) => {
     defaultPhone: b.defaultPhone,
     defaultPhoneHref: b.defaultPhoneHref,
     leadEmail: b.leadEmail,
-    googleAdsId: b.googleAdsId,
+    googleAdsId: String(b.googleAdsId || '').trim(),
+    gtmId: String(b.gtmId || '').trim(),
+    gaId: String(b.gaId || '').trim(),
+    customHeadHtml: String(b.customHeadHtml || ''),
+    customBodyHtml: String(b.customBodyHtml || ''),
     robotsDefault: b.robotsDefault,
     logoUrl: b.logoUrl || getAllSettings().site?.logoUrl || '',
   };
@@ -833,17 +850,30 @@ function shell(title, body) {
 </body></html>`;
 }
 
-function loginPage(error) {
+function loginPage(error, captcha) {
+  const errMsg =
+    error === 'captcha'
+      ? 'Captcha did not match — try again.'
+      : error
+        ? 'Incorrect login ID or password.'
+        : '';
+  const img = captcha?.dataUri || '';
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title>Admin Login</title>
 <link rel="stylesheet" href="/css/admin.css"></head>
 <body class="login">
-<form class="card" method="post" action="/admin/login">
+<form class="card" method="post" action="/admin/login" autocomplete="off">
   <h1>Consult CMS</h1>
   <p>Independent landing pages — edit each URL and all words from here.</p>
-  ${error ? '<p class="err">Incorrect password</p>' : ''}
-  <label>Password <input type="password" name="password" autocapitalize="none" autocomplete="off" required autofocus></label>
+  ${errMsg ? `<p class="err">${esc(errMsg)}</p>` : ''}
+  <label>Login ID <input type="text" name="username" autocapitalize="none" autocomplete="username" required autofocus></label>
+  <label>Password <input type="password" name="password" autocapitalize="none" autocomplete="current-password" required></label>
+  <div class="captcha-row">
+    <img class="captcha-img" src="${esc(img)}" width="220" height="64" alt="Captcha challenge">
+    <label>Captcha answer <input type="text" name="captcha" inputmode="numeric" autocomplete="off" required placeholder="Solve the sum"></label>
+  </div>
+  <p class="muted" style="margin-top:0">Enter the result of the sum shown above.</p>
   <button type="submit">Sign in</button>
 </form>
 </body></html>`;
@@ -936,13 +966,21 @@ function adminDashboard({ settings, pages, leads, emailOk, saved }) {
           <label>Default phone href <input name="defaultPhoneHref" value="${esc(site.defaultPhoneHref || '')}"></label>
           <label>Lead email <input name="leadEmail" value="${esc(site.leadEmail || '')}"></label>
           <label>Logo URL <input name="logoUrl" value="${esc(site.logoUrl || '')}"></label>
-          <label>Google Ads ID <input name="googleAdsId" value="${esc(site.googleAdsId || '')}"></label>
           <label>Default robots
             <select name="robotsDefault">
               <option value="index, follow" ${site.robotsDefault === 'index, follow' ? 'selected' : ''}>index, follow</option>
               <option value="noindex, follow" ${site.robotsDefault === 'noindex, follow' ? 'selected' : ''}>noindex, follow</option>
             </select>
           </label>
+        </fieldset>
+        <fieldset>
+          <legend>Tracking tags (site-wide)</legend>
+          <p class="muted">These load on the hub and every landing. Prefer GTM for most tags; use GA / Ads IDs for direct gtag, or paste any other snippet below.</p>
+          <label>Google Tag Manager ID <input name="gtmId" value="${esc(site.gtmId || '')}" placeholder="GTM-XXXXXXX"></label>
+          <label>Google Analytics (GA4) ID <input name="gaId" value="${esc(site.gaId || '')}" placeholder="G-XXXXXXXXXX"></label>
+          <label>Google Ads ID <input name="googleAdsId" value="${esc(site.googleAdsId || '')}" placeholder="AW-XXXXXXXXX"></label>
+          <label>Other tags — head (HTML) <textarea name="customHeadHtml" rows="5" placeholder="&lt;!-- Meta Pixel, Clarity, etc. --&gt;">${esc(site.customHeadHtml || '')}</textarea></label>
+          <label>Other tags — body end (HTML) <textarea name="customBodyHtml" rows="4" placeholder="Optional body snippets">${esc(site.customBodyHtml || '')}</textarea></label>
         </fieldset>
         <fieldset>
           <legend>Footer (shared)</legend>

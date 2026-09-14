@@ -9,6 +9,7 @@ require('dotenv').config();
 const { getDb, getSetting } = require('./db');
 const { listPages, getPageBySlug } = require('./services/pages');
 const { adaptPageHtml } = require('./services/htmlAdapter');
+const { injectTrackingIntoHtml } = require('./services/trackingTags');
 const { router: leadsRouter, handleLead } = require('./routes/leads');
 const adminRouter = require('./routes/admin');
 
@@ -145,7 +146,7 @@ function renderHub() {
   const hubDesc = String(site.hubDescription || '').trim();
   const hubSupport = String(site.hubSupport || '').trim();
 
-  return `<!DOCTYPE html>
+  return injectTrackingIntoHtml(`<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -227,7 +228,7 @@ ${JSON.stringify({
   </footer>
   <script src="/js/hub.js" defer></script>
 </body>
-</html>`;
+</html>`, site);
 }
 
 function escapeHtml(s) {

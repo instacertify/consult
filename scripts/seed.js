@@ -39,6 +39,10 @@ const DEFAULT_SITE = {
   defaultPhoneHref: 'tel:+919999118039',
   leadEmail: 'contact@instacertify.com',
   googleAdsId: 'AW-XXXXXXXXX',
+  gtmId: '',
+  gaId: '',
+  customHeadHtml: '',
+  customBodyHtml: '',
   robotsDefault: 'index, follow',
 };
 

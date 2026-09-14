@@ -51,6 +51,8 @@ input,textarea,select{font:inherit;font-weight:500;padding:10px 12px;border:1px 
 .login{min-height:100vh;display:grid;place-items:center;padding:20px}
 .login .card{width:min(400px,100%);background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px}
 .login h1{margin-top:0}
+.captcha-row{display:grid;gap:10px;margin:12px 0 4px}
+.captcha-img{display:block;width:100%;max-width:220px;height:auto;border-radius:10px;border:1px solid var(--line);background:#F4F8FB}
 .err{color:var(--red);font-weight:600}
 .lede-admin{max-width:70ch;margin:0 0 16px}
 .ok{background:#E6F5EF;color:#12805C;padding:10px 12px;border-radius:10px;font-weight:600}

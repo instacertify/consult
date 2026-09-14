@@ -8,6 +8,7 @@ const {
   applyTrustedBy,
 } = require('./contentEditor');
 const { applyBisCatalog } = require('./bisCatalog');
+const { applyTrackingTags } = require('./trackingTags');
 
 const PAGES_DIR = path.join(__dirname, '..', '..', 'content', 'pages');
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'content', 'uploads');
@@ -307,6 +308,9 @@ function adaptPageHtml(page, options = {}) {
 
   // Compact contact card: merge country into phone, reduce form size
   compactContactForm($);
+
+  // GTM / GA / Ads / custom tags (site-wide)
+  applyTrackingTags($, site);
 
   if (!$('script[data-lead-enhancer]').length) {
     $('body').append(`
