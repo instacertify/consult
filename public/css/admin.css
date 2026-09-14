@@ -1,0 +1,35 @@
+:root{
+  --navy:#0A3A52; --orange:#E8702A; --ink:#0F2230; --body:#40566A;
+  --line:#DCE6ED; --bg:#F4F8FB; --white:#fff; --red:#B3261E; --green:#12805C;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Poppins,system-ui,sans-serif;background:var(--bg);color:var(--body);line-height:1.5}
+a{color:var(--navy)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding:14px 20px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0}
+.brand{font-weight:700;text-decoration:none;color:var(--navy)}
+.top nav{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.top a{text-decoration:none;font-weight:600;font-size:.92rem}
+.linkish{background:none;border:0;color:var(--navy);font:inherit;font-weight:600;cursor:pointer;padding:0}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 20px 64px}
+h1{color:var(--ink);margin:0 0 8px;letter-spacing:-.02em}
+h2{color:var(--ink);margin:0 0 12px;font-size:1.15rem}
+.muted{color:#6B8095;font-size:.92rem}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin:18px 0}
+.grid-2{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{border-bottom:1px solid var(--line);padding:10px 8px;text-align:left;vertical-align:top}
+.btn,button{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:10px 14px;
+  font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+button.danger{background:var(--red)}
+.stack label,.form-grid label{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;font-weight:600;font-size:.88rem;color:var(--ink)}
+input,textarea,select{font:inherit;font-weight:500;padding:10px 12px;border:1px solid var(--line);border-radius:10px;color:var(--ink)}
+.form-grid{display:grid;gap:16px}
+.form-grid fieldset{border:1px solid var(--line);border-radius:12px;padding:14px;margin:0}
+.form-grid legend{padding:0 6px;font-weight:700;color:var(--navy)}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login .card{width:min(400px,100%);background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px}
+.login h1{margin-top:0}
+.err{color:var(--red);font-weight:600}
+code{background:#EAF2F7;padding:2px 6px;border-radius:6px}
