@@ -27,6 +27,11 @@ const {
 const { normalizeHeroStats } = require('../services/contentEditor');
 const { isEmailConfigured } = require('../services/mail');
 const { createMathCaptcha, captchaMatches } = require('../services/captcha');
+const {
+  getAdminUsername,
+  verifyAdminLogin,
+  updateAdminCredentials,
+} = require('../services/adminAuth');
 const cheerio = require('cheerio');
 
 const router = express.Router();
@@ -103,8 +108,6 @@ router.get('/login', (req, res) => {
 });
 
 router.post('/login', express.urlencoded({ extended: true }), (req, res) => {
-  const expectedUser = String(process.env.ADMIN_USERNAME || 'admin').trim();
-  const expectedPass = process.env.ADMIN_PASSWORD || 'change-me-admin';
   const username = String(req.body.username || req.body.login_id || '').trim();
   const password = String(req.body.password || '');
   const captchaOk = captchaMatches(req.session.loginCaptcha, req.body.captcha);
@@ -113,9 +116,7 @@ router.post('/login', express.urlencoded({ extended: true }), (req, res) => {
   if (!captchaOk) {
     return res.redirect('/admin/login?error=captcha');
   }
-  const userOk = username.toLowerCase() === expectedUser.toLowerCase();
-  const passOk = password === expectedPass;
-  if (userOk && passOk) {
+  if (verifyAdminLogin(username, password)) {
     // Single backend session — unlocks every independent page editor
     req.session.regenerate((err) => {
       if (err) {
@@ -147,6 +148,8 @@ router.get('/', (req, res) => {
       leads,
       emailOk: isEmailConfigured(),
       saved: req.query.saved,
+      credError: req.query.cred_error,
+      adminUsername: getAdminUsername(),
     })
   );
 });
@@ -776,6 +779,20 @@ router.post('/settings', express.urlencoded({ extended: true }), (req, res) => {
   res.redirect('/admin?saved=settings');
 });
 
+router.post('/credentials', express.urlencoded({ extended: true }), (req, res) => {
+  const b = req.body;
+  const result = updateAdminCredentials({
+    currentPassword: b.current_password,
+    newUsername: b.new_username,
+    newPassword: b.new_password,
+    confirmPassword: b.confirm_password,
+  });
+  if (!result.ok) {
+    return res.redirect(`/admin?cred_error=${encodeURIComponent(result.error)}#credentials`);
+  }
+  res.redirect('/admin?saved=credentials#credentials');
+});
+
 router.post('/upload-html', upload.single('html'), (req, res) => {
   try {
     if (!req.file) return res.status(400).send('No file uploaded');
@@ -888,19 +905,34 @@ function loginPage(error, captcha) {
 </body></html>`;
 }
 
-function adminDashboard({ settings, pages, leads, emailOk, saved }) {
+function adminDashboard({ settings, pages, leads, emailOk, saved, credError, adminUsername }) {
   const site = settings.site || {};
   const footer = settings.footer || {};
   const base = baseUrlOf(settings);
+  const credErrMsg = {
+    current: 'Current password is incorrect.',
+    username: 'Login ID must be at least 3 characters.',
+    'username-chars': 'Login ID may only use letters, numbers, . _ @ -',
+    'password-short': 'New password must be at least 8 characters.',
+    'password-mismatch': 'New password and confirmation do not match.',
+  }[credError] || (credError ? 'Could not update credentials.' : '');
+  const savedMsg =
+    saved === 'credentials'
+      ? 'Login ID / password updated. Use the new credentials next time you sign in.'
+      : saved
+        ? 'Saved.'
+        : '';
   return shell(
     'Independent pages',
     `
     <h1>Independent landing pages</h1>
     <p class="lede-admin">You are signed into the <strong>single backend</strong>. Open any landing below to edit it — <strong>no extra password</strong> per page. Pages stay independent (not merged).</p>
-    <p class="ok" style="margin-top:-6px">Access: all landings · site settings · leads · tracking tags</p>
-    ${saved ? `<p class="ok">Saved.</p>` : ''}
+    <p class="ok" style="margin-top:-6px">Access: all landings · site settings · leads · tracking tags · <a href="#credentials">change login</a></p>
+    ${savedMsg ? `<p class="ok">${esc(savedMsg)}</p>` : ''}
+    ${credErrMsg ? `<p class="err">${esc(credErrMsg)}</p>` : ''}
     <p class="muted">Site base URL: <code>${esc(base)}</code>
-      · Email: <strong>${emailOk ? 'SMTP configured' : 'SMTP not configured — leads still saved'}</strong></p>
+      · Email: <strong>${emailOk ? 'SMTP configured' : 'SMTP not configured — leads still saved'}</strong>
+      · Signed in as <code>${esc(adminUsername || 'admin')}</code></p>
 
     <section class="panel">
       <h2>All landings (edit any without signing in again)</h2>
@@ -1014,6 +1046,24 @@ function adminDashboard({ settings, pages, leads, emailOk, saved }) {
         ${site.logoUrl ? `<p class="muted">Current: <a href="${esc(site.logoUrl)}" target="_blank">${esc(site.logoUrl)}</a></p>` : ''}
         <label>Logo image <input type="file" name="logo" accept="image/*" required></label>
         <button type="submit">Upload logo</button>
+      </form>
+    </section>
+
+    <section class="panel" id="credentials">
+      <h2>Change backend login ID &amp; password</h2>
+      <p class="muted">One login for the whole CMS. Update the login ID and/or password here. Leave “new password” blank to keep the current password.</p>
+      <form method="post" action="/admin/credentials" class="form-grid" autocomplete="off">
+        <fieldset>
+          <legend>Credentials</legend>
+          <label>Current login ID
+            <input value="${esc(adminUsername || '')}" readonly>
+          </label>
+          <label>Current password <input type="password" name="current_password" required autocomplete="current-password"></label>
+          <label>New login ID <input type="text" name="new_username" value="${esc(adminUsername || '')}" required minlength="3" pattern="[A-Za-z0-9._@\\-]+" autocomplete="username"></label>
+          <label>New password <input type="password" name="new_password" minlength="8" autocomplete="new-password" placeholder="Leave blank to keep current"></label>
+          <label>Confirm new password <input type="password" name="confirm_password" minlength="8" autocomplete="new-password"></label>
+        </fieldset>
+        <button type="submit">Update login ID &amp; password</button>
       </form>
     </section>
 
