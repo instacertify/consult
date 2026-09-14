@@ -1,29 +1,28 @@
-/**
- * WHAT WE ARE BUILDING
- * ====================
- *
- * Domain: consult.instacertify.com
- *
- * Public site (SEO + fast):
- *   /                        Hub — customer path chooser (BIS / LMPC / MSDS + more)
- *   /bis-certification       Original BIS landing (adapted)
- *   /lmpc-certificate        Original LMPC landing (adapted)
- *   /msds-certificate        Original MSDS landing (adapted)
- *   /p/:slug                 Any extra HTML page uploaded via admin
- *   /sitemap.xml /robots.txt SEO helpers
- *
- * Simple backend CMS (/admin):
- *   • Edit site settings, footer, phone, WhatsApp, email
- *   • Edit each page: title, meta, hero, URLs/slugs, robots, dropdown options
- *   • Upload a standalone HTML landing → auto-adapted into the site
- *   • Change page URL/slug and enable/disable pages
- *   • View all form leads collected from the site
- *
- * Lead pipeline:
- *   Form POST → saved in SQLite admin → emailed to contact@instacertify.com
- *   Compatible endpoints: /api/leads, /bis-submit, /lmpc-submit, /msds-submit
- *
- * HTML adapter (on serve + on upload):
- *   Injects form → /api/leads, rewrites canonical/phone/footer from CMS,
- *   adds hub link, forces SEO robots when configured, caches result.
- */
+# What we are building
+
+Domain: **consult.instacertify.com**
+
+## Independent landing pages (not merged)
+
+BIS, LMPC and MSDS stay **separate landings**, each with its own URL and content:
+
+- `/bis-certification`
+- `/lmpc-certificate`
+- `/msds-certificate`
+- plus any HTML you upload later (own URL)
+
+The home `/` is only a **directory / chooser** that links to those pages. It does **not** merge their content into one page.
+
+## Backend (`/admin`)
+
+- Lists every independent landing
+- Shows the **full URL** for each page
+- **Open page** and **Edit URL & words** for each
+- Editable per page: URL path, SEO title/description, H1, hero paragraphs, section headings, form heading, role dropdown options
+- Shared footer / logo / phone settings
+- Upload another standalone HTML → becomes a new independent URL
+- Leads stored + emailed to `contact@instacertify.com`
+
+## Lead endpoints
+
+`/api/leads`, `/bis-submit`, `/lmpc-submit`, `/msds-submit`

@@ -9,8 +9,11 @@ const UPLOADS_DIR = path.join(__dirname, '..', '..', 'content', 'uploads');
 const cache = new Map();
 
 function clearPageCache(slug) {
-  if (slug) cache.delete(slug);
-  else cache.clear();
+  if (slug) {
+    for (const key of [...cache.keys()]) {
+      if (key.startsWith(`${slug}::`)) cache.delete(key);
+    }
+  } else cache.clear();
 }
 
 function resolveSourcePath(page) {
@@ -36,28 +39,117 @@ function phoneHrefFromDisplay(phone, fallback) {
   return d.startsWith('91') && d.length >= 12 ? `tel:+${d}` : `tel:+${d}`;
 }
 
+function parseContentJson(page) {
+  try {
+    return typeof page.content_json === 'string'
+      ? JSON.parse(page.content_json || '{}')
+      : page.content_json || {};
+  } catch {
+    return {};
+  }
+}
+
 /**
- * Adapt a stored HTML landing page with CMS settings.
- * Fast path: memory cache keyed by slug + updated_at + settings version.
+ * Extract editable words from a standalone landing HTML (independent page).
  */
-function adaptPageHtml(page, options = {}) {
-  const site = getSetting('site', {});
-  const footer = getSetting('footer', {});
-  const cacheKey = `${page.slug}::${page.updated_at}::${site.baseUrl || ''}::${footer.email || ''}`;
-  if (!options.bypassCache && cache.has(cacheKey)) {
-    return cache.get(cacheKey);
+function extractEditableWords(html) {
+  const $ = cheerio.load(html);
+  const hero = $('.hero').first();
+  const heroPs = [];
+  if (hero.length) {
+    hero.find('p').each((_, el) => {
+      const t = $(el).text().replace(/\s+/g, ' ').trim();
+      if (t) heroPs.push(t);
+    });
   }
 
+  const sections = [];
+  $('h2').each((i, el) => {
+    const text = $(el).text().replace(/\s+/g, ' ').trim();
+    if (!text) return;
+    sections.push({
+      key: `h2_${i}`,
+      label: `Section heading ${i + 1}`,
+      text,
+    });
+  });
+
+  const role_options = [];
+  $('select[name="role"] option, #f-role option').each((_, el) => {
+    const label = ($(el).text() || '').trim();
+    const v = ($(el).attr('value') || label).trim();
+    if (v && !/^select/i.test(label)) role_options.push(label || v);
+  });
+
+  return {
+    hero_lede: heroPs[0] || '',
+    hero_support: heroPs[1] || '',
+    form_heading: (
+      $('.formcard h2').first().text() ||
+      $('form').closest('aside,section,div').find('h2').first().text() ||
+      ''
+    )
+      .replace(/\s+/g, ' ')
+      .trim(),
+    sections,
+    role_options,
+  };
+}
+
+function extractPageMetaFromHtml(html, fallbackSlug) {
+  const $ = cheerio.load(html);
+  const words = extractEditableWords(html);
+  const title = ($('title').text() || fallbackSlug || 'Untitled').trim();
+  const meta_description =
+    $('meta[name="description"]').attr('content') || '';
+  const robots = $('meta[name="robots"]').attr('content') || 'index, follow';
+  const og_title = $('meta[property="og:title"]').attr('content') || title;
+  const og_description =
+    $('meta[property="og:description"]').attr('content') || meta_description;
+  const hero_h1 = ($('h1').first().text() || '').replace(/\s+/g, ' ').trim();
+
+  return {
+    title,
+    meta_description,
+    robots: /noindex/i.test(robots) ? 'index, follow' : robots,
+    og_title,
+    og_description,
+    hero_h1,
+    hero_lede: words.hero_lede,
+    form_heading: words.form_heading,
+    role_options: words.role_options,
+    content_json: {
+      hero_support: words.hero_support,
+      sections: words.sections,
+    },
+  };
+}
+
+function readSourceHtml(page) {
   const filePath = resolveSourcePath(page);
   if (!fs.existsSync(filePath)) {
     throw new Error(`Page source missing: ${page.source_file}`);
   }
+  return fs.readFileSync(filePath, 'utf8');
+}
 
-  const raw = fs.readFileSync(filePath, 'utf8');
+/**
+ * Adapt one independent landing HTML with CMS URL + words.
+ */
+function adaptPageHtml(page, options = {}) {
+  const site = getSetting('site', {});
+  const footer = getSetting('footer', {});
+  const content = parseContentJson(page);
+  const cacheKey = `${page.slug}::${page.updated_at}::${site.baseUrl || ''}::${footer.email || ''}::${page.canonical_path || ''}`;
+  if (!options.bypassCache && cache.has(cacheKey)) {
+    return cache.get(cacheKey);
+  }
+
+  const raw = readSourceHtml(page);
   const $ = cheerio.load(raw, { decodeEntities: false });
 
   const baseUrl = (site.baseUrl || 'https://consult.instacertify.com').replace(/\/$/, '');
-  const canonicalPath = page.canonical_path || `/${page.slug}`;
+  const canonicalPath = normalizePath(page.canonical_path || `/${page.slug}`);
   const phoneDisplay = page.phone || footer.phone || site.defaultPhone || '+91 99991 18039';
   const phoneHref =
     footer.phoneHref ||
@@ -68,7 +160,7 @@ function adaptPageHtml(page, options = {}) {
     page.whatsapp_text
   );
 
-  // SEO
+  // SEO / URL
   if (page.title) $('title').text(page.title);
   setOrCreateMeta($, 'name', 'description', page.meta_description || '');
   setOrCreateMeta($, 'name', 'robots', page.robots || site.robotsDefault || 'index, follow');
@@ -89,13 +181,19 @@ function adaptPageHtml(page, options = {}) {
     canonical.attr('href', `${baseUrl}${canonicalPath}`);
   }
 
-  // Hero H1
-  if (page.hero_h1) {
-    const h1 = $('h1').first();
-    if (h1.length) h1.text(page.hero_h1);
+  // Words
+  if (page.hero_h1) $('h1').first().text(page.hero_h1);
+
+  if (page.hero_lede) {
+    const p = $('.hero p').first();
+    if (p.length) p.text(page.hero_lede);
   }
 
-  // Form heading
+  if (content.hero_support) {
+    const p = $('.hero p').eq(1);
+    if (p.length) p.text(content.hero_support);
+  }
+
   if (page.form_heading) {
     const fh = $('.formcard h2, .formcard .formcard__title, #apply h2').first();
     if (fh.length) fh.text(page.form_heading);
@@ -105,7 +203,18 @@ function adaptPageHtml(page, options = {}) {
     }
   }
 
-  // Role dropdown options from CMS
+  // Section headings (independent page body words)
+  const sections = Array.isArray(content.sections) ? content.sections : [];
+  const $h2s = $('h2');
+  for (const sec of sections) {
+    const m = String(sec.key || '').match(/h2_(\d+)/);
+    if (!m) continue;
+    const idx = Number(m[1]);
+    const node = $h2s.eq(idx);
+    if (node.length && sec.text) node.text(sec.text);
+  }
+
+  // Role dropdown options
   let roleOptions = [];
   try {
     roleOptions = JSON.parse(page.role_options || '[]');
@@ -122,22 +231,19 @@ function adaptPageHtml(page, options = {}) {
     }
   }
 
-  // Rewrite form action → unified lead API, keep page context
+  // Form → lead API (page stays independent; only wiring changes)
   $('form').each((_, el) => {
     const $form = $(el);
     $form.attr('method', 'post');
     $form.attr('action', '/api/leads');
     $form.attr('data-adapted', '1');
     if (!$form.find('input[name="page_slug"]').length) {
-      $form.prepend(
-        `<input type="hidden" name="page_slug" value="${page.slug}">`
-      );
+      $form.prepend(`<input type="hidden" name="page_slug" value="${page.slug}">`);
     } else {
       $form.find('input[name="page_slug"]').attr('value', page.slug);
     }
   });
 
-  // Phone / WhatsApp / mailto rewrites
   $('a[href^="tel:"]').attr('href', phoneHref);
   $('a[href*="wa.me"]').attr('href', waHref);
   $('a[href^="mailto:contact@"]').attr(
@@ -145,31 +251,19 @@ function adaptPageHtml(page, options = {}) {
     `mailto:${footer.email || site.leadEmail || 'contact@instacertify.com'}`
   );
 
-  // Footer text blocks (best-effort on class .ftr)
   const $ftr = $('footer.ftr, footer');
   if ($ftr.length) {
-    const company = footer.company || 'Instacertify Labs Private Limited';
     const address = footer.address || '';
     const cin = footer.cin || '';
     const email = footer.email || 'contact@instacertify.com';
     const legal = footer.legal || '';
-
-    // Update first strong / brand-ish blocks carefully via known structure
     $ftr.find('a[href^="mailto:"]').first().text(email).attr('href', `mailto:${email}`);
     $ftr.find('a[href^="tel:"]').first().text(phoneDisplay).attr('href', phoneHref);
-
     if (legal) {
       const $legal = $ftr.find('.ftr__legal');
       if ($legal.length) $legal.text(legal);
     }
-
-    // Inject CMS marker for debugging
-    if (!$ftr.attr('data-cms-footer')) {
-      $ftr.attr('data-cms-footer', '1');
-      $ftr.attr('data-company', company);
-    }
-
-    // Soft-replace address line if present
+    $ftr.attr('data-cms-footer', '1');
     if (address) {
       $ftr.find('*').each((_, node) => {
         const $n = $(node);
@@ -182,28 +276,17 @@ function adaptPageHtml(page, options = {}) {
     }
   }
 
-  // Hub / path chooser link in header
+  // Soft link back to directory (does not merge pages)
   const $logo = $('.hdr__logo').first();
   if ($logo.length) {
     $logo.attr('href', '/');
-    $logo.attr('title', 'Instacertify Consult — choose a path');
+    $logo.attr('title', 'Instacertify Consult');
   }
   if (site.logoUrl) {
     const $img = $('.hdr__logo img').first();
     if ($img.length) $img.attr('src', site.logoUrl);
   }
 
-  // Inject lightweight path switcher into header CTA
-  const $cta = $('.hdr__cta').first();
-  if ($cta.length && !$cta.find('.path-switch').length) {
-    $cta.prepend(`
-      <a class="path-switch" href="/#paths" style="font-size:13px;font-weight:600;color:var(--navy-2);text-decoration:none;margin-right:6px">
-        All paths
-      </a>
-    `);
-  }
-
-  // Enhance form submit with fetch (progressive) — inject once
   if (!$('script[data-lead-enhancer]').length) {
     $('body').append(`
 <script data-lead-enhancer="1">
@@ -242,12 +325,16 @@ function adaptPageHtml(page, options = {}) {
 
   const html = $.html();
   cache.set(cacheKey, html);
-  // Cap cache size
-  if (cache.size > 40) {
-    const first = cache.keys().next().value;
-    cache.delete(first);
-  }
+  if (cache.size > 40) cache.delete(cache.keys().next().value);
   return html;
+}
+
+function normalizePath(p) {
+  let out = String(p || '/').trim();
+  if (!out.startsWith('/')) out = `/${out}`;
+  out = out.replace(/\/+/g, '/');
+  if (out.length > 1 && out.endsWith('/')) out = out.slice(0, -1);
+  return out;
 }
 
 function setOrCreateMeta($, attr, key, content) {
@@ -268,48 +355,14 @@ function escapeAttr(s) {
     .replace(/</g, '&lt;');
 }
 
-/**
- * Parse an uploaded HTML file into CMS page fields.
- */
-function extractPageMetaFromHtml(html, fallbackSlug) {
-  const $ = cheerio.load(html);
-  const title = ($('title').text() || fallbackSlug || 'Untitled').trim();
-  const meta_description =
-    $('meta[name="description"]').attr('content') || '';
-  const robots = $('meta[name="robots"]').attr('content') || 'index, follow';
-  const og_title = $('meta[property="og:title"]').attr('content') || title;
-  const og_description =
-    $('meta[property="og:description"]').attr('content') || meta_description;
-  const hero_h1 = ($('h1').first().text() || '').trim();
-  const form_heading = (
-    $('.formcard h2').first().text() ||
-    $('form').closest('aside,section,div').find('h2').first().text() ||
-    ''
-  ).trim();
-
-  const role_options = [];
-  $('select[name="role"] option, #f-role option').each((_, el) => {
-    const v = ($(el).attr('value') || $(el).text() || '').trim();
-    if (v && !/^select/i.test(v)) role_options.push($(el).text().trim() || v);
-  });
-
-  return {
-    title,
-    meta_description,
-    robots: /noindex/i.test(robots) ? 'index, follow' : robots,
-    og_title,
-    og_description,
-    hero_h1,
-    form_heading,
-    role_options,
-  };
-}
-
 module.exports = {
   adaptPageHtml,
   clearPageCache,
   extractPageMetaFromHtml,
+  extractEditableWords,
+  readSourceHtml,
   resolveSourcePath,
+  normalizePath,
   PAGES_DIR,
   UPLOADS_DIR,
 };

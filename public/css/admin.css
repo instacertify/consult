@@ -32,4 +32,14 @@ input,textarea,select{font:inherit;font-weight:500;padding:10px 12px;border:1px 
 .login .card{width:min(400px,100%);background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px}
 .login h1{margin-top:0}
 .err{color:var(--red);font-weight:600}
-code{background:#EAF2F7;padding:2px 6px;border-radius:6px}
+.lede-admin{max-width:70ch;margin:0 0 16px}
+.ok{background:#E6F5EF;color:#12805C;padding:10px 12px;border-radius:10px;font-weight:600}
+.url-banner{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;
+  background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0 18px}
+.url-link{font-weight:700;word-break:break-all}
+.url-link.big{font-size:1.05rem}
+.pages-table .actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-ghost,button.btn-ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.pill{display:inline-block;padding:3px 8px;border-radius:999px;font-size:12px;font-weight:700}
+.pill.on{background:#E6F5EF;color:#12805C}
+.pill.off{background:#FDECEA;color:#B3261E}

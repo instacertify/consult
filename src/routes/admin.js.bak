@@ -94,8 +94,7 @@ router.get('/login', (req, res) => {
 
 router.post('/login', express.urlencoded({ extended: true }), (req, res) => {
   const expected = process.env.ADMIN_PASSWORD || 'change-me-admin';
-  console.log("DEBUG: Expected =", expected, "Received =", req.body.password, "Match =", String(req.body.password || "") === expected);
-  if (String(req.body.password || "").toLowerCase() === expected.toLowerCase()) {
+  if (String(req.body.password || '') === expected) {
     req.session.admin = true;
     return res.redirect('/admin');
   }
@@ -371,7 +370,7 @@ function loginPage(error) {
   <h1>Consult CMS</h1>
   <p>Independent landing pages — edit each URL and all words from here.</p>
   ${error ? '<p class="err">Incorrect password</p>' : ''}
-  <label>Password <input type="password" name="password" autocapitalize="none" autocomplete="off" required autofocus></label>
+  <label>Password <input type="password" name="password" required autofocus></label>
   <button type="submit">Sign in</button>
 </form>
 </body></html>`;

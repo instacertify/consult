@@ -12,7 +12,7 @@
 .hero{color:#fff;padding:12px 0 40px}
 .hero .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#FFB484;font-weight:600}
 .hero h1{font-size:clamp(28px,5vw,44px);margin:8px 0;letter-spacing:-.03em;line-height:1.1}
-.hero p{max-width:52ch;color:#C9DCE8;font-size:1.05rem}
+.hero p{max-width:54ch;color:#C9DCE8;font-size:1.05rem}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:-10px}
 .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 12px 32px -18px rgba(10,58,82,.35)}
 .card h2{margin:0 0 8px;color:var(--ink);font-size:1.1rem}
@@ -22,6 +22,7 @@
 .flow h2{margin:0 0 12px;color:var(--ink)}
 .flow ol{margin:0;padding-left:1.2rem;line-height:1.7}
 code{background:#EAF2F7;padding:2px 6px;border-radius:6px;font-size:.9em}
+.note{margin-top:10px;padding:12px;background:#FFF1E8;border-radius:10px;color:var(--ink)}
 </style>
 </head>
 <body>
@@ -29,22 +30,23 @@ code{background:#EAF2F7;padding:2px 6px;border-radius:6px;font-size:.9em}
   <section class="hero">
     <p class="eyebrow">consult.instacertify.com</p>
     <h1>What we are building</h1>
-    <p>One SEO website that merges BIS, LMPC and MSDS landings, with a simple backend to change content, images, footer, URLs — and capture leads to Gmail.</p>
+    <p>Independent landing pages (BIS, LMPC, MSDS — not merged into one page), each with its own URL. Backend lists every URL and lets you edit the URL and all words.</p>
   </section>
   <div class="grid">
-    <div class="card"><span class="n">1 · Hub</span><h2>Customer path chooser</h2><p>Dropdown + cards so visitors pick BIS / LMPC / MSDS (or any uploaded path).</p><a href="/">Open hub →</a></div>
-    <div class="card"><span class="n">2 · Landings</span><h2>Adapted pages</h2><p>Original HTML served fast, with SEO, forms, phone, WhatsApp and footer from CMS.</p><a href="/bis-certification">Open BIS →</a></div>
-    <div class="card"><span class="n">3 · Admin</span><h2>Simple CMS backend</h2><p>Edit words, dropdown options, footer, logo; upload HTML to add a new path.</p><a href="/admin">Open admin →</a></div>
-    <div class="card"><span class="n">4 · Leads</span><h2>Email + store</h2><p>Every form is saved in admin and emailed to contact@instacertify.com.</p><a href="/admin/leads">Open leads →</a></div>
+    <div class="card"><span class="n">1 · Landings</span><h2>Independent pages</h2><p>BIS, LMPC and MSDS stay separate landings with their own URLs and content.</p><a href="/admin">Open in backend →</a></div>
+    <div class="card"><span class="n">2 · Backend</span><h2>URL shown & editable</h2><p>Admin shows the full URL for each page. Change the path anytime.</p><a href="/admin">Edit URLs →</a></div>
+    <div class="card"><span class="n">3 · Words</span><h2>Every word editable</h2><p>Title, meta, H1, hero copy, section headings, dropdown options — per page.</p><a href="/admin">Edit words →</a></div>
+    <div class="card"><span class="n">4 · Leads</span><h2>Email + store</h2><p>Forms from each landing are saved and emailed to contact@instacertify.com.</p><a href="/admin/leads">Open leads →</a></div>
   </div>
   <section class="flow">
-    <h2>Flow</h2>
+    <h2>How it works</h2>
     <ol>
-      <li>Visitor lands on <code>/</code> and chooses a certification path</li>
-      <li>Sees the matching landing (BIS / LMPC / MSDS)</li>
-      <li>Submits quote form → stored in CMS + emailed via Gmail SMTP</li>
-      <li>Team edits copy/images/URLs in <code>/admin</code> without redeploying HTML by hand</li>
+      <li>Each landing is stored as its own HTML and public URL</li>
+      <li>Backend lists every landing with its full URL and Open / Edit actions</li>
+      <li>Edit that page’s URL path and words without touching the other landings</li>
+      <li>Optional directory at <code>/</code> only links to the independent pages — it does not merge their content</li>
     </ol>
+    <p class="note">Example URLs: <code>/bis-certification</code>, <code>/lmpc-certificate</code>, <code>/msds-certificate</code> — each fully editable in admin.</p>
   </section>
 </div>
 </body>
