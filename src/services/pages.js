@@ -112,14 +112,15 @@ function deletePage(id) {
 }
 
 function createLead(data) {
+  const nowIso = data.submitted_at || new Date().toISOString();
   const info = getDb()
     .prepare(
       `INSERT INTO leads (
         page_slug, name, email, country_code, phone, role, product, consent,
-        raw_json, ip, user_agent
+        raw_json, ip, user_agent, created_at
       ) VALUES (
         @page_slug, @name, @email, @country_code, @phone, @role, @product, @consent,
-        @raw_json, @ip, @user_agent
+        @raw_json, @ip, @user_agent, @created_at
       )`
     )
     .run({
@@ -134,6 +135,7 @@ function createLead(data) {
       raw_json: JSON.stringify(data.raw || data),
       ip: data.ip || '',
       user_agent: data.user_agent || '',
+      created_at: nowIso,
     });
   return getDb().prepare('SELECT * FROM leads WHERE id = ?').get(info.lastInsertRowid);
 }

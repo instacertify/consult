@@ -42,8 +42,9 @@ Phone: ${lead.country_code || ''} ${lead.phone || '-'}
 Role: ${lead.role || '-'}
 Product / need: ${lead.product || '-'}
 Consent: ${lead.consent ? 'yes' : 'no'}
-Received: ${lead.created_at || new Date().toISOString()}
-IP: ${lead.ip || '-'}
+Time: ${lead.created_at || '-'}
+IP address: ${lead.ip || '-'}
+User agent: ${lead.user_agent || '-'}
 
 ---
 Manage leads in Admin → Leads
@@ -59,7 +60,9 @@ Manage leads in Admin → Leads
       ${row('Role', lead.role)}
       ${row('Product / need', lead.product)}
       ${row('Consent', lead.consent ? 'yes' : 'no')}
-      ${row('Received', lead.created_at || new Date().toISOString())}
+      ${row('Time', lead.created_at)}
+      ${row('IP address', lead.ip)}
+      ${row('User agent', lead.user_agent)}
     </table>
   `;
 

@@ -742,20 +742,21 @@ function adminDashboard({ settings, pages, leads, emailOk, saved }) {
       <h2>Recent leads</h2>
       <p><a href="/admin/leads">View all →</a></p>
       <table>
-        <thead><tr><th>When</th><th>Page</th><th>Name</th><th>Phone</th><th>Emailed</th></tr></thead>
+        <thead><tr><th>When</th><th>IP</th><th>Page</th><th>Name</th><th>Phone</th><th>Emailed</th></tr></thead>
         <tbody>
           ${leads
             .slice(0, 8)
             .map(
               (l) => `<tr>
             <td>${esc(l.created_at)}</td>
+            <td><code>${esc(l.ip || '-')}</code></td>
             <td>${esc(l.page_slug)}</td>
             <td>${esc(l.name)}</td>
             <td>${esc((l.country_code || '') + ' ' + (l.phone || ''))}</td>
             <td>${l.email_sent ? 'Yes' : 'No'}</td>
           </tr>`
             )
-            .join('') || '<tr><td colspan="5">No leads yet</td></tr>'}
+            .join('') || '<tr><td colspan="6">No leads yet</td></tr>'}
         </tbody>
       </table>
     </section>
@@ -1093,10 +1094,10 @@ function leadsPage(leads) {
     'Leads',
     `
     <h1>Leads</h1>
-    <p class="muted">Form submissions from each independent landing — stored here and emailed to contact@instacertify.com when SMTP is configured.</p>
+    <p class="muted">Every form submission stores the visitor <strong>IP address</strong> and <strong>time (IST)</strong>, and emails them to contact@instacertify.com when SMTP is configured.</p>
     <table>
       <thead>
-        <tr><th>ID</th><th>When</th><th>Page</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Product</th><th>Mail</th></tr>
+        <tr><th>ID</th><th>Time (IST)</th><th>IP address</th><th>Page</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Product</th><th>Mail</th></tr>
       </thead>
       <tbody>
         ${
@@ -1105,6 +1106,7 @@ function leadsPage(leads) {
               (l) => `<tr>
           <td>${l.id}</td>
           <td>${esc(l.created_at)}</td>
+          <td><code>${esc(l.ip || '-')}</code></td>
           <td>${esc(l.page_slug)}</td>
           <td>${esc(l.name)}</td>
           <td>${esc(l.email)}</td>
@@ -1114,7 +1116,7 @@ function leadsPage(leads) {
           <td title="${esc(l.email_error || '')}">${l.email_sent ? 'Sent' : 'Pending/fail'}</td>
         </tr>`
             )
-            .join('') || '<tr><td colspan="9">No leads yet</td></tr>'
+            .join('') || '<tr><td colspan="10">No leads yet</td></tr>'
         }
       </tbody>
     </table>
