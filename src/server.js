@@ -109,6 +109,10 @@ app.get('/', (_req, res) => {
   res.type('html').send(renderHub());
 });
 
+app.get('/building', (_req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'building.html'));
+});
+
 function renderHub() {
   const site = getSetting('site', {});
   const footer = getSetting('footer', {});
