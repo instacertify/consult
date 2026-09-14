@@ -1422,7 +1422,7 @@ details .ans p{margin-bottom:.7em}details .ans p:last-child{margin-bottom:0}
   function money(n){ return n ? '₹' + Number(n).toLocaleString('en-IN') : '—'; }
   function testRow(lo, hi, n){
     if (!n || !hi) return '<div class="test test--none"><span>Lab testing</span>' +
-      '<b>Not in our lab file yet — we\'ll quote it</b></div>';
+      '<b>Contact expert to discover more</b></div>';
     var range = (lo === hi) ? money(lo) : money(lo) + ' – ' + money(hi);
     return '<div class="test"><span>Lab testing</span><b>' + range + '</b>' +
       '<em>across ' + n + ' BIS-recognised lab' + (n === 1 ? '' : 's') + '</em></div>';
@@ -1482,7 +1482,7 @@ details .ans p{margin-bottom:.7em}details .ans p:last-child{margin-bottom:0}
             '<div class="fee"><span>Small</span><b>' + money(r[6]) + '</b></div>' +
             '<div class="fee"><span>Large</span><b>' + money(r[7]) + '</b></div>' +
             '<div class="fee fee--us"><span>Consulting Starts At</span><b>' + money(d.f.crs) + '</b></div>' +
-          '</div>' + testRow(r[8], r[9], r[10]) + '<button type="button" class="hit__use" data-product="' + esc(r[0]) + '" data-standard="' + esc(r[1]) + '">Use in contact form</button></div>';
+          '</div>' + testRow(r[8], r[9], r[10]) + '<button type="button" class="hit__use" data-product="' + esc(r[0]) + '" data-standard="' + esc(r[1]) + '">Get a detailed quote</button></div>';
       } else {
         html += '<div class="hit"><div class="hit__top"><span class="hit__is">' + hl(r[0], t) +
           '</span><span class="badge b' + r[5] + '">' + LBL[r[5]] + '</span></div>' +
@@ -1495,7 +1495,7 @@ details .ans p{margin-bottom:.7em}details .ans p:last-child{margin-bottom:0}
             '<div class="fee"><span>Small</span><b>' + money(r[9]) + '</b></div>' +
             '<div class="fee"><span>Micro</span><b>' + money(r[10]) + '</b></div>' +
             '<div class="fee fee--us"><span>Consulting Starts At</span><b>' + money(d.f.isi) + '</b></div>' +
-          '</div>' + testRow(r[11], r[12], r[13]) + '<button type="button" class="hit__use" data-product="' + esc(r[1]) + '" data-standard="' + esc(r[0]) + '">Use in contact form</button></div>';
+          '</div>' + testRow(r[11], r[12], r[13]) + '<button type="button" class="hit__use" data-product="' + esc(r[1]) + '" data-standard="' + esc(r[0]) + '">Get a detailed quote</button></div>';
       }
     }
 
