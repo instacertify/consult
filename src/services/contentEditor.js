@@ -202,13 +202,23 @@ function applyHeroContent($, content = {}) {
   if (!$('style[data-hero-media]').length) {
     $('head').append(`<style data-hero-media="1">
 .hero ul.ticks{margin-bottom:0}
+@media(min-width:980px){
+  .hero__in{align-items:start!important}
+  .hero__in > div:first-child{display:flex;flex-direction:column;min-width:0}
+  .hero form.formcard,.hero .formcard{align-self:start;width:100%}
+}
 .hero__stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
   margin-top:36px;padding-top:8px;width:100%;max-width:100%}
 .hero__stats[data-count="1"]{grid-template-columns:minmax(0,1fr);max-width:320px}
 .hero__stats[data-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
-@media(max-width:560px){.hero__stats,.hero__stats[data-count="2"]{grid-template-columns:1fr;margin-top:28px}}
+@media(min-width:980px){
+  .hero__stats{margin-top:auto;padding-top:28px}
+}
+@media(max-width:560px){
+  .hero__stats,.hero__stats[data-count="2"]{grid-template-columns:1fr;margin-top:28px}
+}
 .hero__stat{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.1);
-  border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 14px;min-width:0}
+  border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 14px;min-width:0;min-height:74px}
 .hero__stat-icon{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.12);
   display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden}
 .hero__stat-icon img{width:100%;height:100%;object-fit:cover;display:block}
@@ -224,6 +234,9 @@ function applyHeroContent($, content = {}) {
   .fees.fees--2{grid-template-columns:repeat(2,1fr)}
   .fees.fees--3{grid-template-columns:repeat(3,1fr)}
 }
+.hero__acts .btn{justify-content:center}
+.strip__in{align-items:stretch}
+.strip__i{display:flex;flex-direction:column;justify-content:center;min-height:88px}
 </style>`);
   }
 }

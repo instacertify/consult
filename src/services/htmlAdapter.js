@@ -386,25 +386,40 @@ function compactContactForm($) {
 
   if (!$('style[data-compact-form]').length) {
     $('head').append(`<style data-compact-form="1">
-.formcard.formcard--compact{padding:16px 16px 14px;border-radius:12px}
+.formcard.formcard--compact{padding:18px 18px 16px;border-radius:14px;display:flex;flex-direction:column}
 .formcard.formcard--compact h2{font-size:18px;margin:0 0 4px}
-.formcard.formcard--compact .formcard__sub{font-size:12.5px;margin:0 0 10px;line-height:1.4}
-.formcard.formcard--compact .field{margin-bottom:8px}
-.formcard.formcard--compact .field label{font-size:11.5px;margin-bottom:3px}
+.formcard.formcard--compact .formcard__sub{font-size:12.5px;margin:0 0 12px;line-height:1.4}
+.formcard.formcard--compact .field{margin-bottom:10px}
+.formcard.formcard--compact .field label{font-size:11.5px;margin-bottom:4px}
 .formcard.formcard--compact .field-hint{font-weight:500;color:var(--muted);font-size:10.5px}
 .formcard.formcard--compact input,
 .formcard.formcard--compact select,
 .formcard.formcard--compact textarea{
-  padding:8px 10px;font-size:13.5px;border-radius:8px;min-height:0
+  padding:9px 11px;font-size:13.5px;border-radius:8px;min-height:0;width:100%
 }
-.formcard.formcard--compact textarea{min-height:52px;resize:vertical}
-.formcard.formcard--compact .btn{padding:11px 16px;font-size:14.5px;border-radius:8px}
+.formcard.formcard--compact input[type="checkbox"],
+.formcard.formcard--compact input[type="radio"]{
+  width:15px;min-width:15px;max-width:15px;height:15px;padding:0;flex:none
+}
+.formcard.formcard--compact .consent{
+  display:flex;gap:10px;align-items:flex-start;margin:10px 0 12px;width:100%
+}
+.formcard.formcard--compact .consent span,
+.formcard.formcard--compact .consent label,
+.formcard.formcard--compact .consent{
+  font-size:11.5px;line-height:1.45
+}
+.formcard.formcard--compact .consent > *:not(input){flex:1;min-width:0}
+.formcard.formcard--compact textarea{min-height:56px;resize:vertical}
+.formcard.formcard--compact .btn{padding:12px 16px;font-size:14.5px;border-radius:8px;width:100%;justify-content:center}
 .formcard.formcard--compact .tel-in--merged{
-  display:grid;grid-template-columns:108px 1fr;gap:6px;align-items:stretch
+  display:grid;grid-template-columns:112px minmax(0,1fr);gap:8px;align-items:stretch
 }
 .formcard.formcard--compact .tel-cc{
   width:100%;max-width:100%;padding:8px 6px;font-size:12.5px;line-height:1.2
 }
+.formcard.formcard--compact .consent{margin:10px 0 12px}
+.formcard.formcard--compact .formcard__foot{margin-top:auto;padding-top:8px}
 @media(max-width:420px){
   .formcard.formcard--compact .tel-in--merged{grid-template-columns:1fr}
 }
