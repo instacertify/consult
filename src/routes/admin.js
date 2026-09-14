@@ -150,6 +150,8 @@ router.get('/', (req, res) => {
       saved: req.query.saved,
       credError: req.query.cred_error,
       adminUsername: getAdminUsername(),
+      deleteError: req.query.error === 'delete-confirm',
+      deleteSlug: String(req.query.slug || ''),
     })
   );
 });
@@ -732,17 +734,21 @@ router.post('/pages/:id/delete', express.urlencoded({ extended: true }), (req, r
   const page = getPageById(id);
   if (!page) return res.status(404).send('Page not found');
 
+  const fromList = req.body.from_list === '1' || req.query.from === 'list';
   const expected = String(page.slug || '').trim();
   const typed = String(req.body.confirm_slug || '').trim();
   const checked = req.body.confirm_check === '1' || req.body.confirm_check === 'on';
   if (!checked || !expected || typed !== expected) {
+    if (fromList) {
+      return res.redirect(`/admin?error=delete-confirm&slug=${encodeURIComponent(expected)}#domain-pages`);
+    }
     return res.redirect(`/admin/pages/${id}?error=delete-confirm#delete-page`);
   }
 
   deletePage(id);
   clearPageCache(expected);
   clearPageCache();
-  res.redirect('/admin?saved=page-deleted');
+  res.redirect('/admin?saved=page-deleted#domain-pages');
 });
 
 router.post('/settings', express.urlencoded({ extended: true }), (req, res) => {
@@ -879,7 +885,7 @@ function shell(title, body) {
 <header class="top">
   <a class="brand" href="/admin">Instacertify CMS</a>
   <nav>
-    <a href="/admin">Independent pages</a>
+    <a href="/admin#domain-pages">All domain pages</a>
     <a href="/admin/leads">Leads</a>
     <a href="/" target="_blank" rel="noopener">Directory</a>
     <form method="post" action="/admin/logout" style="display:inline"><button type="submit" class="linkish">Logout</button></form>
@@ -918,10 +924,13 @@ function loginPage(error, captcha) {
 </body></html>`;
 }
 
-function adminDashboard({ settings, pages, leads, emailOk, saved, credError, adminUsername }) {
+function adminDashboard({ settings, pages, leads, emailOk, saved, credError, adminUsername, deleteError, deleteSlug }) {
   const site = settings.site || {};
   const footer = settings.footer || {};
   const base = baseUrlOf(settings);
+  const liveCount = pages.filter((p) => p.enabled).length;
+  const hiddenCount = pages.length - liveCount;
+  const totalOnDomain = pages.length + 1; // + hub /
   const credErrMsg = {
     current: 'Current password is incorrect.',
     username: 'Login ID must be at least 3 characters.',
@@ -937,51 +946,113 @@ function adminDashboard({ settings, pages, leads, emailOk, saved, credError, adm
       : saved
         ? 'Saved.'
         : '';
+  const deleteErrMsg = deleteError
+    ? `Delete cancelled — tick the box and type the exact slug${
+        deleteSlug ? ` <code>${esc(deleteSlug)}</code>` : ''
+      } to confirm.`
+    : '';
+  const hubUrl = `${base}/`;
   return shell(
-    'Independent pages',
+    'All domain pages',
     `
-    <h1>Independent landing pages</h1>
-    <p class="lede-admin">You are signed into the <strong>single backend</strong>. Open any landing below to edit it — <strong>no extra password</strong> per page. Pages stay independent (not merged).</p>
+    <h1>Pages on this domain</h1>
+    <p class="lede-admin">Every URL created for <code>${esc(base)}</code> — hub plus independent landings. One sign-in edits any page; pages stay separate (not merged).</p>
     <p class="ok" style="margin-top:-6px">Access: all landings · site settings · leads · tracking tags · <a href="#credentials">change login</a></p>
     ${savedMsg ? `<p class="ok">${esc(savedMsg)}</p>` : ''}
+    ${deleteErrMsg ? `<p class="err">${deleteErrMsg}</p>` : ''}
     ${credErrMsg ? `<p class="err">${esc(credErrMsg)}</p>` : ''}
-    <p class="muted">Site base URL: <code>${esc(base)}</code>
+    <p class="muted">Domain: <code>${esc(base)}</code>
+      · <strong>${totalOnDomain}</strong> URLs (${pages.length} landings + hub)
+      · ${liveCount} live · ${hiddenCount} hidden
       · Email: <strong>${emailOk ? 'SMTP configured' : 'SMTP not configured — leads still saved'}</strong>
       · Signed in as <code>${esc(adminUsername || 'admin')}</code></p>
 
-    <section class="panel">
-      <h2>All landings (edit any without signing in again)</h2>
+    <section class="panel" id="domain-pages">
+      <div class="domain-pages-head">
+        <h2>All pages created on ${esc(base.replace(/^https?:\/\//, ''))}</h2>
+        <p class="muted" style="margin:0">Full live URLs. Delete unused landings only after double confirmation.</p>
+      </div>
+      <ul class="domain-url-list" aria-label="All domain URLs">
+        <li><a href="/" target="_blank" rel="noopener">${esc(hubUrl)}</a> <span class="pill on">Hub</span></li>
+        ${pages
+          .map((p) => {
+            const pathPart = normalizePath(p.canonical_path || `/${p.slug}`);
+            const live = `${base}${pathPart}`;
+            return `<li><a href="${esc(pathPart)}" target="_blank" rel="noopener">${esc(live)}</a> ${
+              p.enabled ? '<span class="pill on">Live</span>' : '<span class="pill off">Hidden</span>'
+            }</li>`;
+          })
+          .join('')}
+      </ul>
       <table class="pages-table">
         <thead>
           <tr>
-            <th>Landing</th>
-            <th>Full URL (editable per page)</th>
+            <th>#</th>
+            <th>Page</th>
+            <th>Full URL on domain</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
+          <tr class="hub-row">
+            <td>1</td>
+            <td>
+              <strong>Directory hub</strong>
+              <div class="muted">Path chooser · not a CMS landing editor</div>
+            </td>
+            <td>
+              <a class="url-link" href="/" target="_blank" rel="noopener">${esc(hubUrl)}</a>
+              <div class="muted">Path: <code>/</code></div>
+            </td>
+            <td><span class="pill on">Live</span></td>
+            <td class="actions">
+              <a class="btn btn-ghost" href="/admin#settings">Hub copy in settings</a>
+              <a class="btn btn-ghost" href="/" target="_blank" rel="noopener">Open</a>
+            </td>
+          </tr>
           ${pages
-            .map((p) => {
+            .map((p, i) => {
               const pathPart = normalizePath(p.canonical_path || `/${p.slug}`);
               const live = `${base}${pathPart}`;
-              return `<tr>
+              const openDelete = deleteError && deleteSlug === p.slug ? ' open' : '';
+              return `<tr id="page-${p.id}">
+              <td>${i + 2}</td>
               <td>
                 <strong>${esc(p.hub_label || p.slug)}</strong>
-                <div class="muted">${esc(p.hub_badge || '')} · ${esc(p.source_type)}</div>
+                <div class="muted">${esc(p.hub_badge || '')} · ${esc(p.source_type)} · slug <code>${esc(p.slug)}</code></div>
               </td>
               <td>
                 <a class="url-link" href="${esc(pathPart)}" target="_blank" rel="noopener">${esc(live)}</a>
                 <div class="muted">Path: <code>${esc(pathPart)}</code></div>
               </td>
               <td>${p.enabled ? '<span class="pill on">Live</span>' : '<span class="pill off">Hidden</span>'}</td>
-              <td class="actions">
-                <a class="btn" href="/admin/pages/${p.id}">Edit URL &amp; words</a>
-                <a class="btn btn-ghost" href="${esc(pathPart)}" target="_blank" rel="noopener">Open page</a>
+              <td class="actions-col">
+                <div class="actions">
+                  <a class="btn" href="/admin/pages/${p.id}">Edit URL &amp; words</a>
+                  <a class="btn btn-ghost" href="${esc(pathPart)}" target="_blank" rel="noopener">Open</a>
+                </div>
+                <details class="inline-delete"${openDelete}>
+                  <summary class="danger-summary">Delete URL…</summary>
+                  <form method="post" action="/admin/pages/${p.id}/delete" class="stack delete-inline-form">
+                    <input type="hidden" name="from_list" value="1">
+                    <p class="muted" style="margin:0">Removes <code>${esc(pathPart)}</code> from the domain directory. Needs two confirmations.</p>
+                    <label class="check-row">
+                      <input type="checkbox" name="confirm_check" value="1" required>
+                      <span>I understand this URL will disappear from the site and can only be restored by re-uploading or re-seeding.</span>
+                    </label>
+                    <label>Type <code>${esc(p.slug)}</code> to confirm
+                      <input name="confirm_slug" required autocomplete="off" placeholder="${esc(p.slug)}">
+                    </label>
+                    <button type="submit" class="danger" onclick="return confirm('Final confirmation: permanently delete ${esc(
+                      p.hub_label || p.slug
+                    )} (${esc(pathPart)}) from the CMS?')">Permanently delete this URL</button>
+                  </form>
+                </details>
               </td>
             </tr>`;
             })
-            .join('') || '<tr><td colspan="4">No pages yet</td></tr>'}
+            .join('') || ''}
         </tbody>
       </table>
     </section>

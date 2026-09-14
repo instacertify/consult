@@ -59,8 +59,21 @@ table{width:100%;border-collapse:collapse;font-size:.9rem}
 th,td{border-bottom:1px solid var(--line);padding:12px 10px;text-align:left;vertical-align:middle}
 th{color:var(--ink);font-size:.8rem;letter-spacing:.04em;text-transform:uppercase;font-weight:700}
 .pages-table tbody tr:hover{background:#fafcfe}
+.pages-table .hub-row{background:#f7fbfd}
 .pages-table .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .pages-table .actions .btn,.pages-table .actions a.btn{min-height:38px;display:inline-flex;align-items:center}
+.pages-table .actions-col{min-width:220px;vertical-align:top}
+.domain-pages-head{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.domain-url-list{list-style:none;margin:0 0 16px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;gap:8px}
+.domain-url-list li{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.92rem}
+.domain-url-list a{font-weight:700;word-break:break-all;color:var(--navy);text-decoration:none}
+.domain-url-list a:hover{text-decoration:underline}
+.inline-delete{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.inline-delete .danger-summary{cursor:pointer;font-weight:700;color:var(--red);font-size:.88rem;list-style:none}
+.inline-delete .danger-summary::-webkit-details-marker{display:none}
+.delete-inline-form{margin-top:10px;max-width:360px}
+.delete-inline-form .check-row{display:flex;flex-direction:row;align-items:flex-start;gap:10px;font-weight:500;font-size:.86rem}
+.delete-inline-form .check-row input{width:auto;margin-top:3px;flex:none}
 
 .btn,button{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:10px 14px;
   font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;line-height:1.2}
