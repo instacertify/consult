@@ -45,15 +45,14 @@ const DEFAULT_SITE = {
 const SEED_PAGES = [
   {
     slug: 'bis-certification',
-    title:
-      'BIS Certification — ISI, CRS, FMCS & Scheme X | Free Product Checker | Instacertify',
+    title: 'BIS Certification | ISI, CRS & FMCS | Instacertify',
     meta_description:
-      'Check free whether your product needs BIS certification. Search 1,682 Indian Standards by product, IS number or HSN code and see QCO status and BIS marking fees. ISI, CRS, FMCS and Scheme X handled end to end.',
+      'Check if your product needs BIS. Search by name, IS number or HSN, then get a clear quote for ISI, CRS or FMCS.',
     canonical_path: '/bis-certification',
     robots: 'index, follow',
-    og_title: 'BIS Certification — Free Product Checker | ISI, CRS, FMCS, Scheme X',
+    og_title: 'BIS Certification | Instacertify',
     og_description:
-      'Search 1,682 Indian Standards by product, IS number or HSN code. See QCO status and real BIS marking fees before you pay anyone.',
+      'Free product checker for BIS. See if ISI or CRS applies, then request a detailed quote.',
     hero_h1: 'BIS certification— ISI, CRS, FMCS & Scheme X.',
     hero_lede: '',
     form_heading: 'Get your BIS quote',
@@ -77,14 +76,13 @@ const SEED_PAGES = [
   },
   {
     slug: 'lmpc-certificate',
-    title: 'LMPC Certificate in 1 Working Day | ₹3,999 All-Inclusive | Instacertify',
+    title: 'LMPC Certificate in 1 Working Day | Instacertify',
     meta_description:
-      'LMPC certificate and Legal Metrology registration for importers, manufacturers and packers — typically issued within 1 working day. ₹3,999 all inclusive.',
+      'Get your LMPC certificate in about one working day. One Legal Metrology registration for importers, manufacturers and packers across India.',
     canonical_path: '/lmpc-certificate',
     robots: 'index, follow',
-    og_title: 'LMPC Certificate in 1 Working Day | Instacertify',
-    og_description:
-      'Legal Metrology / LMPC registration typically in 1 working day. Transparent ₹3,999 all-inclusive pricing.',
+    og_title: 'LMPC Certificate | Instacertify',
+    og_description: 'Legal Metrology (LMPC) registration, typically in one working day.',
     hero_h1: 'LMPC certificate & Legal Metrology registration— typically in 1 working day.',
     hero_lede: '',
     form_heading: 'Get your LMPC quote',
@@ -109,14 +107,13 @@ const SEED_PAGES = [
   },
   {
     slug: 'msds-certificate',
-    title: 'MSDS Certificate | GHS Safety Data Sheet in 24 Hours | Instacertify',
+    title: 'MSDS / SDS Certificate in 24 Hours | Instacertify',
     meta_description:
-      'MSDS certificate for export, shipping, buyer requirements and Amazon or Flipkart listings. Full 16-section GHS Safety Data Sheet in 24 hours, from ₹2,999.',
+      'Need an MSDS for shipping or marketplace listings? We prepare a full 16-section GHS Safety Data Sheet within 24 hours.',
     canonical_path: '/msds-certificate',
     robots: 'index, follow',
-    og_title: 'MSDS / GHS Safety Data Sheet in 24 Hours | Instacertify',
-    og_description:
-      'Full 16-section GHS SDS for export, shipping and marketplaces — typically in 24 hours.',
+    og_title: 'MSDS Certificate | Instacertify',
+    og_description: 'Full GHS Safety Data Sheet (MSDS) prepared within 24 hours.',
     hero_h1: 'MSDS certificate— shipping-ready in 24 hours.',
     hero_lede: '',
     form_heading: 'Get your MSDS quote',
@@ -154,10 +151,8 @@ function seed({ force = false } = {}) {
   const existing = db.prepare('SELECT COUNT(*) AS c FROM pages').get().c;
   if (existing > 0 && !force) {
     console.log('Pages already seeded (' + existing + ') — skipping page insert');
-    return;
-  }
-
-  const insert = db.prepare(`
+  } else {
+    const insert = db.prepare(`
     INSERT INTO pages (
       slug, title, meta_description, canonical_path, robots, og_title, og_description,
       hero_h1, hero_lede, form_heading, whatsapp_text, phone, role_options,
@@ -170,22 +165,43 @@ function seed({ force = false } = {}) {
     ON CONFLICT(slug) DO NOTHING
   `);
 
-  const tx = db.transaction((pages) => {
-    for (const p of pages) {
-      const filePath = path.join(PAGES_DIR, p.source_file);
-      if (!fs.existsSync(filePath)) {
-        console.warn('Missing page file:', filePath);
-        continue;
+    const tx = db.transaction((pages) => {
+      for (const p of pages) {
+        const filePath = path.join(PAGES_DIR, p.source_file);
+        if (!fs.existsSync(filePath)) {
+          console.warn('Missing page file:', filePath);
+          continue;
+        }
+        insert.run({
+          ...p,
+          role_options: JSON.stringify(p.role_options),
+        });
       }
-      insert.run({
-        ...p,
-        role_options: JSON.stringify(p.role_options),
-      });
-    }
-  });
+    });
 
-  tx(SEED_PAGES);
-  console.log('Seeded settings +', SEED_PAGES.length, 'pages');
+    tx(SEED_PAGES);
+    console.log('Seeded settings +', SEED_PAGES.length, 'pages');
+  }
+
+  // Soft-refresh SEO copy once so existing DBs drop keyword-stuffed / test metas
+  if (getSetting('seo_human_v1') !== true) {
+    const upd = db.prepare(
+      `UPDATE pages SET title = ?, meta_description = ?, og_title = ?, og_description = ?, hub_blurb = ?, updated_at = datetime('now')
+       WHERE slug = ? AND source_type = 'seed'`
+    );
+    for (const p of SEED_PAGES) {
+      upd.run(
+        p.title,
+        p.meta_description,
+        p.og_title,
+        p.og_description,
+        p.hub_blurb,
+        p.slug
+      );
+    }
+    setSetting('seo_human_v1', true);
+    console.log('Applied human SEO copy (seo_human_v1)');
+  }
 }
 
 if (require.main === module) {

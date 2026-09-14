@@ -19,7 +19,11 @@ const {
   normalizePath,
   UPLOADS_DIR,
 } = require('../services/htmlAdapter');
-const { ensureCatalog } = require('../services/bisCatalog');
+const {
+  ensureCatalog,
+  listBuiltinProducts,
+  normKey,
+} = require('../services/bisCatalog');
 const { normalizeHeroStats } = require('../services/contentEditor');
 const { isEmailConfigured } = require('../services/mail');
 const cheerio = require('cheerio');
@@ -136,6 +140,8 @@ router.get('/pages/:id', (req, res) => {
       settings,
       saved: req.query.saved,
       reloaded: req.query.reloaded,
+      catalogQ: String(req.query.q || ''),
+      catalogScheme: String(req.query.scheme || ''),
     })
   );
 });
@@ -373,17 +379,73 @@ function readPageContent(page) {
   }
 }
 
-function builtinCategoriesFor(page) {
+function readBisDataFor(page) {
   try {
     const html = readSourceHtml(page);
     const $ = cheerio.load(html);
     const raw = $('#bis-data').html();
-    if (!raw) return [];
-    const data = JSON.parse(raw);
-    return Array.isArray(data.c) ? data.c : [];
+    if (!raw) return null;
+    return JSON.parse(raw);
   } catch {
-    return [];
+    return null;
   }
+}
+
+function builtinCategoriesFor(page) {
+  const data = readBisDataFor(page);
+  return data && Array.isArray(data.c) ? data.c : [];
+}
+
+function upsertOverride(catalog, override) {
+  const key = normKey(
+    override.scheme,
+    override.match_standard || override.standard,
+    override.match_name || override.name || override.product_name
+  );
+  catalog.overrides = catalog.overrides.filter((o) => {
+    if (override.id && o.id && o.id === override.id) return false;
+    const ok = normKey(
+      o.scheme,
+      o.match_standard != null ? o.match_standard : o.standard,
+      o.match_name || o.name || o.product_name
+    );
+    return ok !== key;
+  });
+  catalog.overrides.unshift(override);
+}
+
+function upsertRemoval(catalog, removal) {
+  const scope = removal.scope || (removal.name ? 'product' : 'standard');
+  catalog.removed = catalog.removed.filter((r) => {
+    if (String(r.scheme || 'isi') !== String(removal.scheme || 'isi')) return true;
+    const rs = String(r.scope || (r.name ? 'product' : 'standard'));
+    if (rs !== scope) return true;
+    if (scope === 'standard') {
+      return (
+        String(r.standard || '')
+          .trim()
+          .toLowerCase() !==
+        String(removal.standard || '')
+          .trim()
+          .toLowerCase()
+      );
+    }
+    return !(
+      String(r.name || '')
+        .trim()
+        .toLowerCase() ===
+        String(removal.name || '')
+          .trim()
+          .toLowerCase() &&
+      String(r.standard || '')
+        .trim()
+        .toLowerCase() ===
+        String(removal.standard || '')
+          .trim()
+          .toLowerCase()
+    );
+  });
+  catalog.removed.unshift({ ...removal, scope });
 }
 
 router.post(
@@ -423,7 +485,6 @@ router.post(
     if (!name || !category) {
       return res.redirect(`/admin/pages/${id}?error=product#catalog`);
     }
-    // ensure category exists in custom list if not builtin
     const builtin = builtinCategoriesFor(page);
     if (!builtin.includes(category) && !catalog.categories.includes(category)) {
       catalog.categories.push(category);
@@ -452,6 +513,41 @@ router.post(
 );
 
 router.post(
+  '/pages/:id/catalog/product/:pid/edit',
+  express.urlencoded({ extended: true }),
+  (req, res) => {
+    const id = Number(req.params.id);
+    const page = getPageById(id);
+    if (!page) return res.status(404).send('Page not found');
+    const content = readPageContent(page);
+    const catalog = ensureCatalog(content);
+    const b = req.body;
+    const idx = catalog.products.findIndex((p) => p.id === req.params.pid);
+    if (idx < 0) {
+      return res.redirect(`/admin/pages/${id}?error=product-missing#catalog`);
+    }
+    const prev = catalog.products[idx];
+    catalog.products[idx] = {
+      ...prev,
+      scheme: b.scheme === 'crs' ? 'crs' : prev.scheme || 'isi',
+      category: String(b.category || prev.category || '').trim(),
+      name: String(b.product_name || prev.name || '').trim(),
+      standard: String(b.standard != null ? b.standard : prev.standard || '').trim(),
+      hsn4: String(b.hsn4 != null ? b.hsn4 : prev.hsn4 || '').trim(),
+      hsn8: String(b.hsn8 != null ? b.hsn8 : prev.hsn8 || '').trim(),
+      status: Number(b.status != null ? b.status : prev.status || 0),
+      test_lo: Number(b.test_lo != null && b.test_lo !== '' ? b.test_lo : prev.test_lo || 0),
+      test_hi: Number(b.test_hi != null && b.test_hi !== '' ? b.test_hi : prev.test_hi || 0),
+      labs: Number(b.labs != null && b.labs !== '' ? b.labs : prev.labs || 0),
+    };
+    content.bis_catalog = catalog;
+    updatePage(id, { content_json: content });
+    clearPageCache();
+    res.redirect(`/admin/pages/${id}?saved=product-edited#catalog`);
+  }
+);
+
+router.post(
   '/pages/:id/catalog/product/:pid/delete',
   express.urlencoded({ extended: true }),
   (req, res) => {
@@ -465,6 +561,122 @@ router.post(
     updatePage(id, { content_json: content });
     clearPageCache();
     res.redirect(`/admin/pages/${id}?saved=product-deleted#catalog`);
+  }
+);
+
+router.post(
+  '/pages/:id/catalog/builtin/edit',
+  express.urlencoded({ extended: true }),
+  (req, res) => {
+    const id = Number(req.params.id);
+    const page = getPageById(id);
+    if (!page) return res.status(404).send('Page not found');
+    const content = readPageContent(page);
+    const catalog = ensureCatalog(content);
+    const b = req.body;
+    const scheme = b.scheme === 'crs' ? 'crs' : 'isi';
+    const matchName = String(b.match_name || '').trim();
+    const matchStandard = String(b.match_standard || '').trim();
+    if (!matchName) {
+      return res.redirect(`/admin/pages/${id}?error=builtin-edit#catalog`);
+    }
+    upsertOverride(catalog, {
+      scheme,
+      match_name: matchName,
+      match_standard: matchStandard,
+      name: String(b.product_name || matchName).trim(),
+      product_name: String(b.product_name || matchName).trim(),
+      standard: String(b.standard != null ? b.standard : matchStandard).trim(),
+      test_lo: b.test_lo === '' || b.test_lo == null ? undefined : Number(b.test_lo),
+      test_hi: b.test_hi === '' || b.test_hi == null ? undefined : Number(b.test_hi),
+      labs: b.labs === '' || b.labs == null ? undefined : Number(b.labs),
+    });
+    content.bis_catalog = catalog;
+    updatePage(id, { content_json: content });
+    clearPageCache();
+    const q = encodeURIComponent(String(b.q || matchName).slice(0, 80));
+    res.redirect(`/admin/pages/${id}?saved=builtin-edited&q=${q}#catalog`);
+  }
+);
+
+router.post(
+  '/pages/:id/catalog/builtin/remove-product',
+  express.urlencoded({ extended: true }),
+  (req, res) => {
+    const id = Number(req.params.id);
+    const page = getPageById(id);
+    if (!page) return res.status(404).send('Page not found');
+    const content = readPageContent(page);
+    const catalog = ensureCatalog(content);
+    const scheme = req.body.scheme === 'crs' ? 'crs' : 'isi';
+    const name = String(req.body.name || '').trim();
+    const standard = String(req.body.standard || '').trim();
+    if (!name) {
+      return res.redirect(`/admin/pages/${id}?error=remove-product#catalog`);
+    }
+    upsertRemoval(catalog, { scheme, name, standard, scope: 'product' });
+    content.bis_catalog = catalog;
+    updatePage(id, { content_json: content });
+    clearPageCache();
+    res.redirect(`/admin/pages/${id}?saved=builtin-removed#catalog`);
+  }
+);
+
+router.post(
+  '/pages/:id/catalog/builtin/remove-standard',
+  express.urlencoded({ extended: true }),
+  (req, res) => {
+    const id = Number(req.params.id);
+    const page = getPageById(id);
+    if (!page) return res.status(404).send('Page not found');
+    const content = readPageContent(page);
+    const catalog = ensureCatalog(content);
+    const scheme = req.body.scheme === 'crs' ? 'crs' : 'isi';
+    const standard = String(req.body.standard || '').trim();
+    if (!standard) {
+      return res.redirect(`/admin/pages/${id}?error=remove-standard#catalog`);
+    }
+    upsertRemoval(catalog, { scheme, standard, scope: 'standard' });
+    content.bis_catalog = catalog;
+    updatePage(id, { content_json: content });
+    clearPageCache();
+    res.redirect(`/admin/pages/${id}?saved=standard-removed#catalog`);
+  }
+);
+
+router.post(
+  '/pages/:id/catalog/removal/:idx/undo',
+  express.urlencoded({ extended: true }),
+  (req, res) => {
+    const id = Number(req.params.id);
+    const idx = Number(req.params.idx);
+    const page = getPageById(id);
+    if (!page) return res.status(404).send('Page not found');
+    const content = readPageContent(page);
+    const catalog = ensureCatalog(content);
+    if (idx >= 0 && idx < catalog.removed.length) catalog.removed.splice(idx, 1);
+    content.bis_catalog = catalog;
+    updatePage(id, { content_json: content });
+    clearPageCache();
+    res.redirect(`/admin/pages/${id}?saved=removal-undone#catalog`);
+  }
+);
+
+router.post(
+  '/pages/:id/catalog/override/:idx/clear',
+  express.urlencoded({ extended: true }),
+  (req, res) => {
+    const id = Number(req.params.id);
+    const idx = Number(req.params.idx);
+    const page = getPageById(id);
+    if (!page) return res.status(404).send('Page not found');
+    const content = readPageContent(page);
+    const catalog = ensureCatalog(content);
+    if (idx >= 0 && idx < catalog.overrides.length) catalog.overrides.splice(idx, 1);
+    content.bis_catalog = catalog;
+    updatePage(id, { content_json: content });
+    clearPageCache();
+    res.redirect(`/admin/pages/${id}?saved=override-cleared#catalog`);
   }
 );
 
@@ -783,7 +995,7 @@ function adminDashboard({ settings, pages, leads, emailOk, saved }) {
   );
 }
 
-function pageEditor({ page, settings, saved, reloaded }) {
+function pageEditor({ page, settings, saved, reloaded, catalogQ = '', catalogScheme = '' }) {
   let roles = [];
   try {
     roles = JSON.parse(page.role_options || '[]');
@@ -799,11 +1011,17 @@ function pageEditor({ page, settings, saved, reloaded }) {
   const sections = Array.isArray(content.sections) ? content.sections : [];
   const catalog = ensureCatalog(content);
   const heroStats = normalizeHeroStats(content);
-  const builtinCats = builtinCategoriesFor(page);
+  const bisData = readBisDataFor(page);
+  const builtinCats = bisData && Array.isArray(bisData.c) ? bisData.c : [];
   const allCategories = [...builtinCats];
   for (const c of catalog.categories) {
     if (!allCategories.includes(c)) allCategories.push(c);
   }
+  const builtinHits = listBuiltinProducts(bisData, {
+    q: catalogQ,
+    scheme: catalogScheme,
+    limit: 25,
+  });
   const base = baseUrlOf(settings);
   const pathPart = normalizePath(page.canonical_path || `/${page.slug}`);
   const live = `${base}${pathPart}`;
@@ -856,10 +1074,11 @@ function pageEditor({ page, settings, saved, reloaded }) {
 
       <fieldset>
         <legend>2 · SEO words</legend>
-        <label>Browser title <input name="title" value="${esc(page.title)}"></label>
-        <label>Meta description <textarea name="meta_description" rows="3">${esc(page.meta_description)}</textarea></label>
-        <label>OG title <input name="og_title" value="${esc(page.og_title)}"></label>
-        <label>OG description <textarea name="og_description" rows="2">${esc(page.og_description)}</textarea></label>
+        <p class="muted">Keep meta short and natural — one or two sentences people would actually say. Avoid keyword stuffing.</p>
+        <label>Browser title <input name="title" value="${esc(page.title)}" maxlength="70"></label>
+        <label>Meta description <textarea name="meta_description" rows="2" maxlength="160">${esc(page.meta_description)}</textarea></label>
+        <label>OG title <input name="og_title" value="${esc(page.og_title)}" maxlength="70"></label>
+        <label>OG description <textarea name="og_description" rows="2" maxlength="160">${esc(page.og_description)}</textarea></label>
       </fieldset>
 
       <fieldset class="hero-editor">
@@ -1028,8 +1247,8 @@ function pageEditor({ page, settings, saved, reloaded }) {
     ${
       isBis
         ? `<section class="panel" id="catalog">
-      <h2>BIS products by category (checker dropdown / search)</h2>
-      <p class="muted">Add more products into any category. They appear in the BIS product checker search on the front end.</p>
+      <h2>BIS catalog — products, standards &amp; testing prices</h2>
+      <p class="muted">Search the built-in checker list to edit a product name/standard, change the lab testing price range, or remove a product or whole IS standard. Custom products you add below also support testing ranges.</p>
 
       <div class="catalog-layout">
         <div>
@@ -1043,7 +1262,7 @@ function pageEditor({ page, settings, saved, reloaded }) {
           </form>
         </div>
         <div>
-          <h3 class="subhead">Add product into a category</h3>
+          <h3 class="subhead">Add product</h3>
           <form method="post" action="/admin/pages/${page.id}/catalog/product" class="stack">
             <label>Category
               <select name="category" required>
@@ -1061,6 +1280,11 @@ function pageEditor({ page, settings, saved, reloaded }) {
             <label>IS / standard <input name="standard" placeholder="e.g. IS 10322"></label>
             <label>HSN (4 digit) <input name="hsn4" placeholder="9405"></label>
             <label>HSN (8 digit) <input name="hsn8" placeholder="94054090"></label>
+            <div class="ticks-grid">
+              <label>Testing from ₹ <input name="test_lo" type="number" min="0" step="1" placeholder="e.g. 25000"></label>
+              <label>Testing to ₹ <input name="test_hi" type="number" min="0" step="1" placeholder="e.g. 195000"></label>
+              <label>Labs count <input name="labs" type="number" min="0" step="1" placeholder="e.g. 12"></label>
+            </div>
             <label>QCO status (ISI)
               <select name="status">
                 <option value="0">Mandatory — QCO in force</option>
@@ -1074,9 +1298,152 @@ function pageEditor({ page, settings, saved, reloaded }) {
         </div>
       </div>
 
+      <h3 class="subhead">Find &amp; edit built-in product / standard</h3>
+      <form method="get" action="/admin/pages/${page.id}" class="inline-add" style="margin-bottom:12px">
+        <input name="q" value="${esc(catalogQ)}" placeholder="Search product, IS number or HSN…" style="min-width:220px">
+        <select name="scheme">
+          <option value="" ${!catalogScheme ? 'selected' : ''}>All schemes</option>
+          <option value="isi" ${catalogScheme === 'isi' ? 'selected' : ''}>ISI</option>
+          <option value="crs" ${catalogScheme === 'crs' ? 'selected' : ''}>CRS</option>
+        </select>
+        <button type="submit">Search</button>
+      </form>
+      ${
+        catalogQ
+          ? `<table>
+        <thead><tr><th>Product</th><th>Standard</th><th>Testing ₹</th><th>Edit / remove</th></tr></thead>
+        <tbody>
+          ${
+            builtinHits.length
+              ? builtinHits
+                  .map((p) => {
+                    const ov = catalog.overrides.find(
+                      (o) =>
+                        String(o.scheme || 'isi') === p.scheme &&
+                        String(o.match_name || o.name || '')
+                          .trim()
+                          .toLowerCase() === String(p.name).trim().toLowerCase() &&
+                        String(o.match_standard != null ? o.match_standard : o.standard || '')
+                          .trim()
+                          .toLowerCase() === String(p.standard).trim().toLowerCase()
+                    );
+                    const nameVal = ov ? ov.product_name || ov.name || p.name : p.name;
+                    const stdVal = ov && ov.standard != null ? ov.standard : p.standard;
+                    const loVal =
+                      ov && ov.test_lo != null && ov.test_lo !== '' ? ov.test_lo : p.test_lo;
+                    const hiVal =
+                      ov && ov.test_hi != null && ov.test_hi !== '' ? ov.test_hi : p.test_hi;
+                    const labsVal =
+                      ov && ov.labs != null && ov.labs !== '' ? ov.labs : p.labs;
+                    return `<tr>
+              <td>
+                <strong>${esc(p.name)}</strong>
+                <div class="muted">${esc(p.scheme.toUpperCase())}${ov ? ' · edited' : ''}</div>
+              </td>
+              <td>${esc(p.standard)}</td>
+              <td class="muted">${Number(p.test_lo) || Number(p.test_hi) ? `₹${esc(p.test_lo)} – ₹${esc(p.test_hi)}` : '—'}</td>
+              <td>
+                <form method="post" action="/admin/pages/${page.id}/catalog/builtin/edit" class="stack" style="gap:6px;margin-bottom:8px">
+                  <input type="hidden" name="q" value="${esc(catalogQ)}">
+                  <input type="hidden" name="scheme" value="${esc(p.scheme)}">
+                  <input type="hidden" name="match_name" value="${esc(p.name)}">
+                  <input type="hidden" name="match_standard" value="${esc(p.standard)}">
+                  <label>Product name <input name="product_name" value="${esc(nameVal)}"></label>
+                  <label>IS / standard <input name="standard" value="${esc(stdVal)}"></label>
+                  <div class="ticks-grid">
+                    <label>Test from ₹ <input name="test_lo" type="number" min="0" step="1" value="${esc(loVal)}"></label>
+                    <label>Test to ₹ <input name="test_hi" type="number" min="0" step="1" value="${esc(hiVal)}"></label>
+                    <label>Labs <input name="labs" type="number" min="0" step="1" value="${esc(labsVal)}"></label>
+                  </div>
+                  <button type="submit">Save product edits</button>
+                </form>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <form method="post" action="/admin/pages/${page.id}/catalog/builtin/remove-product" onsubmit="return confirm('Hide this product from the checker?')">
+                    <input type="hidden" name="scheme" value="${esc(p.scheme)}">
+                    <input type="hidden" name="name" value="${esc(p.name)}">
+                    <input type="hidden" name="standard" value="${esc(p.standard)}">
+                    <button type="submit" class="danger">Remove product</button>
+                  </form>
+                  <form method="post" action="/admin/pages/${page.id}/catalog/builtin/remove-standard" onsubmit="return confirm('Hide ALL products under ${esc(p.standard)} (${esc(p.scheme.toUpperCase())})?')">
+                    <input type="hidden" name="scheme" value="${esc(p.scheme)}">
+                    <input type="hidden" name="standard" value="${esc(p.standard)}">
+                    <button type="submit" class="danger">Remove standard ${esc(p.standard)}</button>
+                  </form>
+                </div>
+              </td>
+            </tr>`;
+                  })
+                  .join('')
+              : `<tr><td colspan="4">No built-in products matched “${esc(catalogQ)}”.</td></tr>`
+          }
+        </tbody>
+      </table>`
+          : `<p class="muted">Type a product name or IS number above to edit or remove it. Example: <code>Mobile Phones</code> or <code>IS 13252</code>.</p>`
+      }
+
+      <h3 class="subhead">Remove a standard directly</h3>
+      <form method="post" action="/admin/pages/${page.id}/catalog/builtin/remove-standard" class="inline-add" onsubmit="return confirm('Hide every product under this standard?')">
+        <select name="scheme">
+          <option value="isi">ISI</option>
+          <option value="crs">CRS</option>
+        </select>
+        <input name="standard" placeholder="e.g. IS 10322" required>
+        <button type="submit" class="danger">Remove standard</button>
+      </form>
+
+      <h3 class="subhead">Hidden products / standards</h3>
+      <table>
+        <thead><tr><th>Scope</th><th>Scheme</th><th>Detail</th><th></th></tr></thead>
+        <tbody>
+          ${
+            catalog.removed.length
+              ? catalog.removed
+                  .map(
+                    (r, i) => `<tr>
+              <td>${esc(r.scope || (r.name ? 'product' : 'standard'))}</td>
+              <td>${esc(String(r.scheme || 'isi').toUpperCase())}</td>
+              <td>${esc(r.name ? `${r.name}${r.standard ? ` · ${r.standard}` : ''}` : r.standard || '')}</td>
+              <td>
+                <form method="post" action="/admin/pages/${page.id}/catalog/removal/${i}/undo">
+                  <button type="submit">Undo</button>
+                </form>
+              </td>
+            </tr>`
+                  )
+                  .join('')
+              : '<tr><td colspan="4">Nothing hidden yet.</td></tr>'
+          }
+        </tbody>
+      </table>
+
+      <h3 class="subhead">Saved product edits (overrides)</h3>
+      <table>
+        <thead><tr><th>Original</th><th>Shows as</th><th>Testing ₹</th><th></th></tr></thead>
+        <tbody>
+          ${
+            catalog.overrides.length
+              ? catalog.overrides
+                  .map(
+                    (o, i) => `<tr>
+              <td class="muted">${esc(o.match_name || o.name || '')} · ${esc(o.match_standard != null ? o.match_standard : '')}</td>
+              <td><strong>${esc(o.product_name || o.name || '')}</strong> · ${esc(o.standard || '')}</td>
+              <td>${o.test_lo != null || o.test_hi != null ? `₹${esc(o.test_lo ?? '—')} – ₹${esc(o.test_hi ?? '—')}` : '—'}</td>
+              <td>
+                <form method="post" action="/admin/pages/${page.id}/catalog/override/${i}/clear">
+                  <button type="submit" class="danger">Clear edit</button>
+                </form>
+              </td>
+            </tr>`
+                  )
+                  .join('')
+              : '<tr><td colspan="4">No built-in product edits yet.</td></tr>'
+          }
+        </tbody>
+      </table>
+
       <h3 class="subhead">Custom products added from backend</h3>
       <table>
-        <thead><tr><th>Product</th><th>Category</th><th>Scheme</th><th>Standard</th><th></th></tr></thead>
+        <thead><tr><th>Product</th><th>Category / scheme</th><th>Standard &amp; testing</th><th>Edit</th></tr></thead>
         <tbody>
           ${
             catalog.products.length
@@ -1084,18 +1451,35 @@ function pageEditor({ page, settings, saved, reloaded }) {
                   .map(
                     (p) => `<tr>
               <td><strong>${esc(p.name)}</strong></td>
-              <td>${esc(p.category)}</td>
-              <td>${esc((p.scheme || 'isi').toUpperCase())}</td>
-              <td>${esc(p.standard || '')}</td>
+              <td>${esc(p.category)} · ${esc((p.scheme || 'isi').toUpperCase())}</td>
               <td>
-                <form method="post" action="/admin/pages/${page.id}/catalog/product/${esc(p.id)}/delete">
+                <div>${esc(p.standard || '—')}</div>
+                <div class="muted">${Number(p.test_lo) || Number(p.test_hi) ? `Test ₹${esc(p.test_lo)} – ₹${esc(p.test_hi)}` : 'No testing range'}${p.labs ? ` · ${esc(p.labs)} labs` : ''}</div>
+              </td>
+              <td>
+                <details>
+                  <summary>Edit</summary>
+                  <form method="post" action="/admin/pages/${page.id}/catalog/product/${esc(p.id)}/edit" class="stack" style="margin-top:8px">
+                    <input type="hidden" name="scheme" value="${esc(p.scheme || 'isi')}">
+                    <input type="hidden" name="category" value="${esc(p.category || '')}">
+                    <label>Product name <input name="product_name" value="${esc(p.name)}"></label>
+                    <label>IS / standard <input name="standard" value="${esc(p.standard || '')}"></label>
+                    <div class="ticks-grid">
+                      <label>Test from ₹ <input name="test_lo" type="number" min="0" step="1" value="${esc(p.test_lo || 0)}"></label>
+                      <label>Test to ₹ <input name="test_hi" type="number" min="0" step="1" value="${esc(p.test_hi || 0)}"></label>
+                      <label>Labs <input name="labs" type="number" min="0" step="1" value="${esc(p.labs || 0)}"></label>
+                    </div>
+                    <button type="submit">Save</button>
+                  </form>
+                </details>
+                <form method="post" action="/admin/pages/${page.id}/catalog/product/${esc(p.id)}/delete" style="margin-top:6px">
                   <button type="submit" class="danger">Remove</button>
                 </form>
               </td>
             </tr>`
                   )
                   .join('')
-              : '<tr><td colspan="5">No custom products yet — add one above.</td></tr>'
+              : '<tr><td colspan="4">No custom products yet — add one above.</td></tr>'
           }
         </tbody>
       </table>
