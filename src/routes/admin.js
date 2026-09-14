@@ -116,8 +116,16 @@ router.post('/login', express.urlencoded({ extended: true }), (req, res) => {
   const userOk = username.toLowerCase() === expectedUser.toLowerCase();
   const passOk = password === expectedPass;
   if (userOk && passOk) {
-    req.session.admin = true;
-    return res.redirect('/admin');
+    // Single backend session — unlocks every independent page editor
+    req.session.regenerate((err) => {
+      if (err) {
+        req.session.admin = true;
+        return res.redirect('/admin');
+      }
+      req.session.admin = true;
+      return res.redirect('/admin');
+    });
+    return;
   }
   return res.redirect('/admin/login?error=1');
 });
@@ -150,6 +158,7 @@ router.get('/pages/:id', (req, res) => {
   res.send(
     pageEditor({
       page,
+      pages: listPages(),
       settings,
       saved: req.query.saved,
       reloaded: req.query.reloaded,
@@ -865,7 +874,7 @@ function loginPage(error, captcha) {
 <body class="login">
 <form class="card" method="post" action="/admin/login" autocomplete="off">
   <h1>Consult CMS</h1>
-  <p>Independent landing pages — edit each URL and all words from here.</p>
+  <p><strong>One sign-in</strong> unlocks every independent landing editor (BIS, LMPC, MSDS, uploads). No separate password per page.</p>
   ${errMsg ? `<p class="err">${esc(errMsg)}</p>` : ''}
   <label>Login ID <input type="text" name="username" autocapitalize="none" autocomplete="username" required autofocus></label>
   <label>Password <input type="password" name="password" autocapitalize="none" autocomplete="current-password" required></label>
@@ -874,7 +883,7 @@ function loginPage(error, captcha) {
     <label>Captcha answer <input type="text" name="captcha" inputmode="numeric" autocomplete="off" required placeholder="Solve the sum"></label>
   </div>
   <p class="muted" style="margin-top:0">Enter the result of the sum shown above.</p>
-  <button type="submit">Sign in</button>
+  <button type="submit">Sign in to all page editors</button>
 </form>
 </body></html>`;
 }
@@ -887,13 +896,14 @@ function adminDashboard({ settings, pages, leads, emailOk, saved }) {
     'Independent pages',
     `
     <h1>Independent landing pages</h1>
-    <p class="lede-admin">Each page stays its own landing (BIS, LMPC, MSDS, uploads). They are <strong>not merged into one page</strong>. Open any page from here. Every URL and its words are editable.</p>
+    <p class="lede-admin">You are signed into the <strong>single backend</strong>. Open any landing below to edit it — <strong>no extra password</strong> per page. Pages stay independent (not merged).</p>
+    <p class="ok" style="margin-top:-6px">Access: all landings · site settings · leads · tracking tags</p>
     ${saved ? `<p class="ok">Saved.</p>` : ''}
     <p class="muted">Site base URL: <code>${esc(base)}</code>
       · Email: <strong>${emailOk ? 'SMTP configured' : 'SMTP not configured — leads still saved'}</strong></p>
 
     <section class="panel">
-      <h2>All landings</h2>
+      <h2>All landings (edit any without signing in again)</h2>
       <table class="pages-table">
         <thead>
           <tr>
@@ -1033,7 +1043,7 @@ function adminDashboard({ settings, pages, leads, emailOk, saved }) {
   );
 }
 
-function pageEditor({ page, settings, saved, reloaded, catalogQ = '', catalogScheme = '' }) {
+function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = '', catalogScheme = '' }) {
   let roles = [];
   try {
     roles = JSON.parse(page.role_options || '[]');
@@ -1071,8 +1081,21 @@ function pageEditor({ page, settings, saved, reloaded, catalogQ = '', catalogSch
   return shell(
     `Edit ${page.slug}`,
     `
-    <p><a href="/admin">← All independent pages</a></p>
+    <div class="editor-top">
+      <p style="margin:0"><a href="/admin">← All independent pages</a></p>
+      <label class="switch-landing">Switch landing
+        <select onchange="if(this.value) location.href=this.value" aria-label="Switch landing to edit">
+          ${pages
+            .map((p) => {
+              const selected = p.id === page.id ? 'selected' : '';
+              return `<option value="/admin/pages/${p.id}" ${selected}>${esc(p.hub_label || p.slug)}</option>`;
+            })
+            .join('')}
+        </select>
+      </label>
+    </div>
     <h1>Edit landing · ${esc(page.hub_label || page.slug)}</h1>
+    <p class="muted">Same backend session — no extra password to edit this or any other landing.</p>
     ${saved ? `<p class="ok">Saved — URL and words updated.</p>` : ''}
     ${reloaded ? `<p class="ok">Words reloaded from the HTML file.</p>` : ''}
 

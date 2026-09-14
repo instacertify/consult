@@ -15,7 +15,7 @@ npm start
 ```
 
 - Site: http://localhost:3000  
-- Admin: http://localhost:3000/admin (`ADMIN_USERNAME` + `ADMIN_PASSWORD`, with captcha)
+- Admin: http://localhost:3000/admin — **one** login (`ADMIN_USERNAME` + `ADMIN_PASSWORD` + captcha) unlocks **all** independent page editors; no per-page password.
 
 ## Public routes
 
