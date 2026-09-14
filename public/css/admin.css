@@ -22,6 +22,11 @@ a{color:var(--navy)}
 .brand-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:10px}
 .brand-card{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
 .brand-card img{max-height:48px;width:auto;object-fit:contain;background:#fff;border-radius:6px;padding:4px}
+.inline-add{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.inline-add input{flex:1;min-width:200px;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.option-list{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+.catalog-layout{display:grid;grid-template-columns:1fr 1.1fr;gap:20px}
+@media(max-width:900px){.catalog-layout{grid-template-columns:1fr}}
 h1{color:var(--ink);margin:0 0 8px;letter-spacing:-.02em}
 h2{color:var(--ink);margin:0 0 12px;font-size:1.15rem}
 .muted{color:#6B8095;font-size:.92rem}

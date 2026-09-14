@@ -7,6 +7,7 @@ const {
   applyHeroContent,
   applyTrustedBy,
 } = require('./contentEditor');
+const { applyBisCatalog } = require('./bisCatalog');
 
 const PAGES_DIR = path.join(__dirname, '..', '..', 'content', 'pages');
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'content', 'uploads');
@@ -170,6 +171,9 @@ function adaptPageHtml(page, options = {}) {
 
   // BIS consulting prices (editable from CMS)
   applyBisConsultingPrices($, content);
+
+  // CMS-added products/categories for the BIS checker
+  applyBisCatalog($, content);
 
   // Hero banner words + image + trusted-by brands
   applyHeroContent($, {

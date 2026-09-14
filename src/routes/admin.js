@@ -19,7 +19,9 @@ const {
   normalizePath,
   UPLOADS_DIR,
 } = require('../services/htmlAdapter');
+const { ensureCatalog } = require('../services/bisCatalog');
 const { isEmailConfigured } = require('../services/mail');
+const cheerio = require('cheerio');
 
 const router = express.Router();
 
@@ -260,6 +262,7 @@ router.post('/pages/:id/reload-words', express.urlencoded({ extended: true }), (
       consulting_label: existing.consulting_label,
       consulting_price_crs: existing.consulting_price_crs,
       consulting_price_isi: existing.consulting_price_isi,
+      bis_catalog: existing.bis_catalog || { categories: [], products: [] },
     };
     updatePage(id, {
       title: meta.title,
@@ -340,6 +343,130 @@ router.post(
     updatePage(id, { content_json: content });
     clearPageCache();
     res.redirect(`/admin/pages/${id}?saved=trusted-deleted`);
+  }
+);
+
+function readPageContent(page) {
+  try {
+    return JSON.parse(page.content_json || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function builtinCategoriesFor(page) {
+  try {
+    const html = readSourceHtml(page);
+    const $ = cheerio.load(html);
+    const raw = $('#bis-data').html();
+    if (!raw) return [];
+    const data = JSON.parse(raw);
+    return Array.isArray(data.c) ? data.c : [];
+  } catch {
+    return [];
+  }
+}
+
+router.post(
+  '/pages/:id/catalog/category',
+  express.urlencoded({ extended: true }),
+  (req, res) => {
+    const id = Number(req.params.id);
+    const page = getPageById(id);
+    if (!page) return res.status(404).send('Page not found');
+    const content = readPageContent(page);
+    const catalog = ensureCatalog(content);
+    const name = String(req.body.category_name || '').trim();
+    if (!name) return res.redirect(`/admin/pages/${id}?error=category`);
+    const builtin = builtinCategoriesFor(page);
+    if (!catalog.categories.includes(name) && !builtin.includes(name)) {
+      catalog.categories.push(name);
+    }
+    content.bis_catalog = catalog;
+    updatePage(id, { content_json: content });
+    clearPageCache();
+    res.redirect(`/admin/pages/${id}?saved=category#catalog`);
+  }
+);
+
+router.post(
+  '/pages/:id/catalog/product',
+  express.urlencoded({ extended: true }),
+  (req, res) => {
+    const id = Number(req.params.id);
+    const page = getPageById(id);
+    if (!page) return res.status(404).send('Page not found');
+    const content = readPageContent(page);
+    const catalog = ensureCatalog(content);
+    const b = req.body;
+    const name = String(b.product_name || '').trim();
+    const category = String(b.category || '').trim();
+    if (!name || !category) {
+      return res.redirect(`/admin/pages/${id}?error=product#catalog`);
+    }
+    // ensure category exists in custom list if not builtin
+    const builtin = builtinCategoriesFor(page);
+    if (!builtin.includes(category) && !catalog.categories.includes(category)) {
+      catalog.categories.push(category);
+    }
+    catalog.products.unshift({
+      id: `p_${Date.now()}`,
+      scheme: b.scheme === 'crs' ? 'crs' : 'isi',
+      category,
+      name,
+      standard: String(b.standard || '').trim(),
+      hsn4: String(b.hsn4 || '').trim(),
+      hsn8: String(b.hsn8 || '').trim(),
+      status: Number(b.status || 0),
+      fee_micro: Number(b.fee_micro || 0),
+      fee_small: Number(b.fee_small || 0),
+      fee_large: Number(b.fee_large || 0),
+      test_lo: Number(b.test_lo || 0),
+      test_hi: Number(b.test_hi || 0),
+      labs: Number(b.labs || 0),
+    });
+    content.bis_catalog = catalog;
+    updatePage(id, { content_json: content });
+    clearPageCache();
+    res.redirect(`/admin/pages/${id}?saved=product#catalog`);
+  }
+);
+
+router.post(
+  '/pages/:id/catalog/product/:pid/delete',
+  express.urlencoded({ extended: true }),
+  (req, res) => {
+    const id = Number(req.params.id);
+    const page = getPageById(id);
+    if (!page) return res.status(404).send('Page not found');
+    const content = readPageContent(page);
+    const catalog = ensureCatalog(content);
+    catalog.products = catalog.products.filter((p) => p.id !== req.params.pid);
+    content.bis_catalog = catalog;
+    updatePage(id, { content_json: content });
+    clearPageCache();
+    res.redirect(`/admin/pages/${id}?saved=product-deleted#catalog`);
+  }
+);
+
+router.post(
+  '/pages/:id/dropdown-option',
+  express.urlencoded({ extended: true }),
+  (req, res) => {
+    const id = Number(req.params.id);
+    const page = getPageById(id);
+    if (!page) return res.status(404).send('Page not found');
+    let roles = [];
+    try {
+      roles = JSON.parse(page.role_options || '[]');
+    } catch {
+      roles = [];
+    }
+    const opt = String(req.body.option_text || '').trim();
+    if (opt && !roles.includes(opt)) roles.push(opt);
+    updatePage(id, { role_options: roles });
+    clearPageCache();
+    res.redirect(`/admin/pages/${id}?saved=dropdown#dropdowns`);
   }
 );
 
@@ -650,9 +777,19 @@ function pageEditor({ page, settings, saved, reloaded }) {
     content = {};
   }
   const sections = Array.isArray(content.sections) ? content.sections : [];
+  const catalog = ensureCatalog(content);
+  const builtinCats = builtinCategoriesFor(page);
+  const allCategories = [...builtinCats];
+  for (const c of catalog.categories) {
+    if (!allCategories.includes(c)) allCategories.push(c);
+  }
   const base = baseUrlOf(settings);
   const pathPart = normalizePath(page.canonical_path || `/${page.slug}`);
   const live = `${base}${pathPart}`;
+  const isBis =
+    page.slug === 'bis-certification' ||
+    page.source_file === 'bis-certification.html' ||
+    builtinCats.length > 0;
 
   return shell(
     `Edit ${page.slug}`,
@@ -731,11 +868,16 @@ function pageEditor({ page, settings, saved, reloaded }) {
             <label>Form subtext <textarea name="form_sub" rows="3">${esc(content.form_sub || '')}</textarea></label>
             <label>Phone on this page <input name="phone" value="${esc(page.phone)}"></label>
             <label>WhatsApp prefill text <input name="whatsapp_text" value="${esc(page.whatsapp_text)}"></label>
-            <label>Role dropdown options (one per line)
-              <textarea name="role_options" rows="6">${esc(roles.join('\n'))}</textarea>
-            </label>
           </div>
         </div>
+        <h3 class="subhead" id="dropdowns">Form dropdown options (add more anytime)</h3>
+        <p class="muted">These power the role / category dropdown on the contact form. Add one option at a time or edit the full list.</p>
+        <div class="option-list">
+          ${roles.map((r) => `<span class="pill on">${esc(r)}</span>`).join(' ') || '<span class="muted">No options yet</span>'}
+        </div>
+        <label>Full dropdown list (one per line)
+          <textarea name="role_options" rows="6">${esc(roles.join('\n'))}</textarea>
+        </label>
         <h3 class="subhead">Hero tick points</h3>
         <div class="ticks-grid">
           ${(content.ticks && content.ticks.length
@@ -753,7 +895,7 @@ function pageEditor({ page, settings, saved, reloaded }) {
       </fieldset>
 
       ${
-        page.slug === 'bis-certification' || page.source_file === 'bis-certification.html'
+        isBis
           ? `<fieldset>
         <legend>BIS · Consulting Starts At (editable price)</legend>
         <p class="muted">Shown in the product checker and hero. Label defaults to “Consulting Starts At”.</p>
@@ -829,6 +971,93 @@ function pageEditor({ page, settings, saved, reloaded }) {
         <button type="submit">Add trusted brand</button>
       </form>
     </section>
+
+    <section class="panel" id="quick-dropdown">
+      <h2>Quick add — form dropdown option</h2>
+      <p class="muted">Add one more choice to the contact-form dropdown without editing the full list.</p>
+      <form method="post" action="/admin/pages/${page.id}/dropdown-option" class="inline-add">
+        <input name="option_text" placeholder="New dropdown option…" required>
+        <button type="submit">Add to dropdown</button>
+      </form>
+    </section>
+
+    ${
+      isBis
+        ? `<section class="panel" id="catalog">
+      <h2>BIS products by category (checker dropdown / search)</h2>
+      <p class="muted">Add more products into any category. They appear in the BIS product checker search on the front end.</p>
+
+      <div class="catalog-layout">
+        <div>
+          <h3 class="subhead">Categories</h3>
+          <div class="option-list">
+            ${allCategories.map((c) => `<span class="pill ${catalog.categories.includes(c) ? 'on' : ''}">${esc(c)}${catalog.categories.includes(c) ? ' · custom' : ''}</span>`).join(' ')}
+          </div>
+          <form method="post" action="/admin/pages/${page.id}/catalog/category" class="inline-add" style="margin-top:12px">
+            <input name="category_name" placeholder="New category name…" required>
+            <button type="submit">Add category</button>
+          </form>
+        </div>
+        <div>
+          <h3 class="subhead">Add product into a category</h3>
+          <form method="post" action="/admin/pages/${page.id}/catalog/product" class="stack">
+            <label>Category
+              <select name="category" required>
+                <option value="">Select category…</option>
+                ${allCategories.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}
+              </select>
+            </label>
+            <label>Scheme
+              <select name="scheme">
+                <option value="isi">ISI Mark</option>
+                <option value="crs">CRS (electronics)</option>
+              </select>
+            </label>
+            <label>Product name <input name="product_name" required placeholder="e.g. LED Panel Lights"></label>
+            <label>IS / standard <input name="standard" placeholder="e.g. IS 10322"></label>
+            <label>HSN (4 digit) <input name="hsn4" placeholder="9405"></label>
+            <label>HSN (8 digit) <input name="hsn8" placeholder="94054090"></label>
+            <label>QCO status (ISI)
+              <select name="status">
+                <option value="0">Mandatory — QCO in force</option>
+                <option value="1">Mandatory — phased</option>
+                <option value="2">Notified — verify</option>
+                <option value="4">No QCO traced — ISI voluntary</option>
+              </select>
+            </label>
+            <button type="submit">Add product to category</button>
+          </form>
+        </div>
+      </div>
+
+      <h3 class="subhead">Custom products added from backend</h3>
+      <table>
+        <thead><tr><th>Product</th><th>Category</th><th>Scheme</th><th>Standard</th><th></th></tr></thead>
+        <tbody>
+          ${
+            catalog.products.length
+              ? catalog.products
+                  .map(
+                    (p) => `<tr>
+              <td><strong>${esc(p.name)}</strong></td>
+              <td>${esc(p.category)}</td>
+              <td>${esc((p.scheme || 'isi').toUpperCase())}</td>
+              <td>${esc(p.standard || '')}</td>
+              <td>
+                <form method="post" action="/admin/pages/${page.id}/catalog/product/${esc(p.id)}/delete">
+                  <button type="submit" class="danger">Remove</button>
+                </form>
+              </td>
+            </tr>`
+                  )
+                  .join('')
+              : '<tr><td colspan="5">No custom products yet — add one above.</td></tr>'
+          }
+        </tbody>
+      </table>
+    </section>`
+        : ''
+    }
 
     <form method="post" action="/admin/pages/${page.id}/reload-words" style="margin-top:18px">
       <button type="submit" class="btn-ghost">Reload words from HTML file</button>
