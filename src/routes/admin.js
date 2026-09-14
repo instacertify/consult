@@ -963,7 +963,7 @@ function adminDashboard({ settings, pages, leads, emailOk, saved, credError, adm
     ${credErrMsg ? `<p class="err">${esc(credErrMsg)}</p>` : ''}
     <p class="muted">Domain: <code>${esc(base)}</code>
       · <strong>${totalOnDomain}</strong> URLs (${pages.length} landings + hub)
-      · ${liveCount} live · ${hiddenCount} hidden
+      · ${liveCount} landings live · ${hiddenCount} hidden
       · Email: <strong>${emailOk ? 'SMTP configured' : 'SMTP not configured — leads still saved'}</strong>
       · Signed in as <code>${esc(adminUsername || 'admin')}</code></p>
 
