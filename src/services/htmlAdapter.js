@@ -289,6 +289,9 @@ function adaptPageHtml(page, options = {}) {
     if ($img.length) $img.attr('src', site.logoUrl);
   }
 
+  // Compact contact card: merge country into phone, reduce form size
+  compactContactForm($);
+
   if (!$('script[data-lead-enhancer]').length) {
     $('body').append(`
 <script data-lead-enhancer="1">
@@ -329,6 +332,64 @@ function adaptPageHtml(page, options = {}) {
   cache.set(cacheKey, html);
   if (cache.size > 40) cache.delete(cache.keys().next().value);
   return html;
+}
+
+/**
+ * Merge country code into the phone row and shrink the contact form card.
+ */
+function compactContactForm($) {
+  const $form = $('form.formcard, form[data-adapted="1"]').first();
+  if (!$form.length) return;
+
+  const $ccField = $form.find('select#f-cc, select[name="country_code"]').first().closest('.field');
+  const $phoneField = $form.find('#f-phone, input[name="phone"]').first().closest('.field');
+  const $cc = $form.find('select#f-cc, select[name="country_code"]').first();
+  const $telIn = $phoneField.find('.tel-in').first();
+
+  if ($cc.length && $telIn.length) {
+    // Move country select into phone input row
+    $cc.addClass('tel-cc');
+    $cc.attr('aria-label', 'Country code');
+    $telIn.prepend($cc);
+    $telIn.addClass('tel-in--merged');
+    $telIn.find('#f-dial').remove();
+    if ($ccField.length) $ccField.remove();
+    const $phoneLabel = $phoneField.find('label').first();
+    if ($phoneLabel.length) {
+      $phoneLabel.html(
+        'Mobile number <span class="req">*</span> <span class="field-hint">with country</span>'
+      );
+    }
+  }
+
+  $form.addClass('formcard--compact');
+
+  if (!$('style[data-compact-form]').length) {
+    $('head').append(`<style data-compact-form="1">
+.formcard.formcard--compact{padding:16px 16px 14px;border-radius:12px}
+.formcard.formcard--compact h2{font-size:18px;margin:0 0 4px}
+.formcard.formcard--compact .formcard__sub{font-size:12.5px;margin:0 0 10px;line-height:1.4}
+.formcard.formcard--compact .field{margin-bottom:8px}
+.formcard.formcard--compact .field label{font-size:11.5px;margin-bottom:3px}
+.formcard.formcard--compact .field-hint{font-weight:500;color:var(--muted);font-size:10.5px}
+.formcard.formcard--compact input,
+.formcard.formcard--compact select,
+.formcard.formcard--compact textarea{
+  padding:8px 10px;font-size:13.5px;border-radius:8px;min-height:0
+}
+.formcard.formcard--compact textarea{min-height:52px;resize:vertical}
+.formcard.formcard--compact .btn{padding:11px 16px;font-size:14.5px;border-radius:8px}
+.formcard.formcard--compact .tel-in--merged{
+  display:grid;grid-template-columns:108px 1fr;gap:6px;align-items:stretch
+}
+.formcard.formcard--compact .tel-cc{
+  width:100%;max-width:100%;padding:8px 6px;font-size:12.5px;line-height:1.2
+}
+@media(max-width:420px){
+  .formcard.formcard--compact .tel-in--merged{grid-template-columns:1fr}
+}
+</style>`);
+  }
 }
 
 function normalizePath(p) {

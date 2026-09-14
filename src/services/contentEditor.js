@@ -152,8 +152,10 @@ function applyHeroContent($, content = {}) {
 
   if (!$('style[data-hero-media]').length) {
     $('head').append(`<style data-hero-media="1">
-.hero__stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:26px;width:100%;max-width:100%}
-@media(max-width:560px){.hero__stats{grid-template-columns:1fr}}
+.hero ul.ticks{margin-bottom:0}
+.hero__stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
+  margin-top:36px;padding-top:8px;width:100%;max-width:100%}
+@media(max-width:560px){.hero__stats{grid-template-columns:1fr;margin-top:28px}}
 .hero__stat{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.1);
   border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 14px;min-width:0}
 .hero__stat-icon{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.12);
