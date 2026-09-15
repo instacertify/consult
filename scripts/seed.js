@@ -30,7 +30,7 @@ const DEFAULT_SITE = {
   baseUrl: process.env.BASE_URL || 'https://consult.instacertify.com',
   hubTitle: 'Choose your certification path',
   hubDescription:
-    'Pick the compliance path that matches your product — BIS, LMPC, MSDS / GHS, IMEI ICDR & TAC, or EPR. Fast quotes from Instacertify.',
+    'Pick the compliance path that matches your product — BIS, LMPC, MSDS, IMEI, EPR, or IP testing. Fast quotes from Instacertify.',
   hubEyebrow: 'Instacertify Consult',
   hubSupport:
     'Not sure which path you need? Call us and we will map it in one conversation.',
@@ -213,6 +213,42 @@ const SEED_PAGES = [
     source_file: 'epr-registration.html',
     source_type: 'seed',
   },
+  {
+    slug: 'ip-testing',
+    title: 'IP Testing IEC 60529 — IP65, IP67, IP68, IP 69K | Instacertify',
+    meta_description:
+      'Ingress protection testing to IEC 60529 — dust and water ratings including IP 69K. Right rating, NABL / BIS-recognised labs, design review before samples.',
+    canonical_path: '/ip-testing',
+    robots: 'index, follow',
+    og_title: 'IP Testing to IEC 60529 | Instacertify',
+    og_description:
+      'IP65–IP68 and IP 69K testing booked at labs that can run the method. Free rating guidance before samples ship.',
+    hero_h1: 'IP testing to IEC 60529— booked at the lab that can actually run it.',
+    hero_lede: '',
+    form_heading: 'Get your IP testing quote',
+    whatsapp_text: 'Hi, I need IP testing / IEC 60529 help.',
+    phone: '+91 99991 18039',
+    role_options: [
+      'Not sure — advise me',
+      'IP54',
+      'IP55',
+      'IP65',
+      'IP66',
+      'IP67',
+      'IP68',
+      'IP 69K',
+      'IPX4 only',
+      'Other / specified by my buyer',
+    ],
+    enabled: 1,
+    sort_order: 6,
+    hub_label: 'IP Testing',
+    hub_blurb:
+      'IEC 60529 ingress testing — IP65 to IP 69K at labs that can run the method.',
+    hub_badge: 'IEC 60529',
+    source_file: 'ip-testing.html',
+    source_type: 'seed',
+  },
 ];
 
 function seed({ force = false } = {}) {
@@ -280,6 +316,17 @@ function seed({ force = false } = {}) {
     }
     setSetting('seo_human_v1', true);
     console.log('Applied human SEO copy (seo_human_v1)');
+  }
+
+  // Keep hub directory copy in sync when new landings are added
+  if (getSetting('hub_desc_ip_v1') !== true) {
+    const site = getSetting('site') || {};
+    setSetting('site', {
+      ...site,
+      hubDescription: DEFAULT_SITE.hubDescription,
+    });
+    setSetting('hub_desc_ip_v1', true);
+    console.log('Updated hub description for IP testing (hub_desc_ip_v1)');
   }
 }
 

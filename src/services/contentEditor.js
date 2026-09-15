@@ -386,6 +386,7 @@ function pageKind(slug = '') {
   if (s.includes('cdsco')) return 'cdsco';
   if (s.includes('imei') || s.includes('icdr') || s.includes('tac')) return 'imei';
   if (s.includes('epr')) return 'epr';
+  if (s.includes('ip-testing') || s.includes('ip-rating') || s.includes('iec-60529')) return 'ip';
   return 'generic';
 }
 
@@ -478,6 +479,23 @@ function defaultAboutForSlug(slug = '') {
       image_url: '/img/epr-certificate-visual.jpg',
       image_alt: 'Illustrative EPR registration certificate layout',
       caption: 'Illustrative layout — your CPCB registration number appears after grant.',
+    };
+  }
+  if (kind === 'ip') {
+    return {
+      enabled: true,
+      eyebrow: 'Ingress Protection · IEC 60529',
+      title: 'What is IP testing?',
+      body:
+        'An IP rating (IEC 60529) describes how well an enclosure keeps out dust and water. Nobody issues an “IP certificate” — you buy a lab test report at a defined rating, from a lab that can actually run that method.',
+      points: [
+        'Covers IP1X–IP6X dust and IPX1–IPX9 water, including IP 69K',
+        'NABL partner labs — BIS-recognised where your filing needs it',
+        'Design review before samples ship so the first attempt can pass',
+      ],
+      image_url: '/img/ip-rating-visual.jpg',
+      image_alt: 'Illustrative IEC 60529 IP rating plate',
+      caption: 'Illustrative rating plate — your exact code and lab report number appear after testing.',
     };
   }
   // BIS default (and generic fallback)
@@ -740,6 +758,38 @@ function defaultRouteVisuals(slug = '') {
       },
     ];
   }
+  if (kind === 'ip') {
+    return [
+      {
+        key: 'ip65',
+        tag: 'Common',
+        title: 'IP65 / IP66',
+        blurb: 'Dust-tight with water jet protection for outdoor gear',
+        tone: 'navy',
+      },
+      {
+        key: 'ip67',
+        tag: 'Immersion',
+        title: 'IP67 / IP68',
+        blurb: 'Temporary or continuous immersion — method matters',
+        tone: 'teal',
+      },
+      {
+        key: 'ip69k',
+        tag: 'Washdown',
+        title: 'IP 69K',
+        blurb: 'High-pressure, high-temperature washdown (different setup)',
+        tone: 'orange',
+      },
+      {
+        key: 'decoder',
+        tag: 'Plan first',
+        title: 'Right rating, right lab',
+        blurb: 'We map the code and book a lab that can run that test',
+        tone: 'slate',
+      },
+    ];
+  }
   // BIS
   return [
     {
@@ -810,6 +860,13 @@ function defaultRouteSectionMeta(slug = '') {
       lede: 'Plastic, e-waste, battery, used oil and waste tyre are separate CPCB pathways. Getting the category wrong follows you into every annual return.',
     };
   }
+  if (kind === 'ip') {
+    return {
+      eyebrow: 'Common ratings',
+      title: 'IP65, IP67, IP68 or IP 69K — the lab setup changes',
+      lede: 'Pick the rating your buyer actually needs, then book a lab that can run that exact method — including IP 69K washdown where required.',
+    };
+  }
   return {
     eyebrow: 'Which route applies',
     title: 'ISI, CRS, FMCS or Scheme X — they are not interchangeable',
@@ -818,16 +875,16 @@ function defaultRouteSectionMeta(slug = '') {
 }
 
 function schemeVisualIcon(key) {
-  if (key === 'fmcs' || key === 'export' || key === 'importer' || key === 'icdr' || key === 'plastic') {
+  if (key === 'fmcs' || key === 'export' || key === 'importer' || key === 'icdr' || key === 'plastic' || key === 'ip65') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>`;
   }
-  if (key === 'crs' || key === 'docs' || key === 'ecommerce' || key === 'tac' || key === 'ewaste') {
+  if (key === 'crs' || key === 'docs' || key === 'ecommerce' || key === 'tac' || key === 'ewaste' || key === 'ip67') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>`;
   }
-  if (key === 'schemex' || key === 'manufacturer' || key === 'device' || key === 'both' || key === 'battery') {
+  if (key === 'schemex' || key === 'manufacturer' || key === 'device' || key === 'both' || key === 'battery' || key === 'ip69k') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h16M6 20V10l6-4 6 4v10M10 20v-4h4v4"/></svg>`;
   }
-  if (key === 'packer' || key === 'ghs' || key === 'cosmetic' || key === 'brand' || key === 'oiltyre') {
+  if (key === 'packer' || key === 'ghs' || key === 'cosmetic' || key === 'brand' || key === 'oiltyre' || key === 'decoder') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>`;
   }
   if (key === 'buyer' || key === 'drug') {
@@ -926,6 +983,7 @@ function defaultHeroBgForSlug(slug = '') {
   if (kind === 'cdsco') return '/img/bis-hero-atmosphere.jpg';
   if (kind === 'imei') return '/img/imei-hero-atmosphere.jpg';
   if (kind === 'epr') return '/img/epr-hero-atmosphere.jpg';
+  if (kind === 'ip') return '/img/ip-hero-atmosphere.jpg';
   return '';
 }
 

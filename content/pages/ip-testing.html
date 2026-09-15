@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IP Testing (IEC 60529) — IP65, IP67, IP68, IP 69K | Instacertify</title>
+<meta name="description" content="Ingress protection testing to IEC 60529 — IP1X to IP6X dust and IPX1 to IPX9 water, including IP 69K. We set the right rating, match a NABL or BIS-recognised lab with the right rig, review the sample first and manage the report.">
+<link rel="canonical" href="https://consult.instacertify.com/ip-testing">
+<meta name="robots" content="noindex, follow">
+<meta property="og:title" content="IP Testing to IEC 60529 — Right Rating, Right Lab">
+<meta property="og:description" content="Dust and water ingress testing for enclosures, lighting, EV, electronics and industrial equipment. Free IP code decoder — see the test the lab actually runs.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0A3A52">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0A3A52; --navy-2:#0E5277; --navy-3:#13618C;
+  --orange:#E8702A; --orange-dk:#C85A1B; --orange-lt:#FFF1E8;
+  --ink:#0F2230; --body:#40566A; --muted:#6B8095;
+  --line:#DCE6ED; --line-soft:#EAF1F6;
+  --bg:#FFFFFF; --bg-alt:#F4F8FB; --bg-tint:#EAF2F7;
+  --green:#12805C; --green-lt:#E6F5EF; --red:#B3261E; --red-lt:#FDECEA;
+  --shadow:0 1px 2px rgba(10,58,82,.05),0 8px 28px -12px rgba(10,58,82,.18);
+  --shadow-lg:0 2px 4px rgba(10,58,82,.06),0 24px 56px -20px rgba(10,58,82,.28);
+  --r:14px; --maxw:1140px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:84px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--body);
+  font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased;padding-bottom:66px}
+h1,h2,h3,h4{font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);
+  letter-spacing:-.015em;line-height:1.2;margin:0 0 .5em;font-weight:700}
+h1{font-size:clamp(27px,4.8vw,45px);line-height:1.15;letter-spacing:-.022em}
+h2{font-size:clamp(22px,3.3vw,33px);letter-spacing:-.018em}
+h3{font-size:clamp(17px,2vw,20px)}
+p{margin:0 0 1em}
+a{color:var(--navy-2)}
+img{max-width:100%}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:20px}
+.sec{padding-block:clamp(46px,6.6vw,80px)}
+.sec--alt{background:var(--bg-alt);border-block:1px solid var(--line-soft)}
+.eyebrow{font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:12px;font-weight:600;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--orange);margin:0 0 12px}
+.lede{font-size:clamp(16px,1.7vw,18.5px);color:var(--body);max-width:62ch}
+.center{text-align:center}.center .lede{margin-inline:auto}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-weight:600;font-size:16px;
+  padding:15px 26px;border-radius:10px;border:1.5px solid transparent;
+  text-decoration:none;cursor:pointer;transition:transform .12s,box-shadow .16s,background .16s;
+  line-height:1.2;text-align:center}
+.btn:active{transform:translateY(1px)}
+.btn--primary{background:var(--orange);color:#fff;box-shadow:0 6px 18px -6px rgba(232,112,42,.6)}
+.btn--primary:hover{background:var(--orange-dk)}
+.btn--ghost{background:rgba(255,255,255,.07);color:#fff;border-color:rgba(255,255,255,.42)}
+.btn--ghost:hover{background:rgba(255,255,255,.16)}
+.btn--navy{background:var(--navy);color:#fff}
+.btn--navy:hover{background:var(--navy-2)}
+.btn--wide{width:100%}
+.btn--sm{padding:11px 19px;font-size:14.5px}
+
+/* header */
+.hdr{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.97);
+  backdrop-filter:saturate(160%) blur(10px);border-bottom:1px solid var(--line)}
+.hdr__in{max-width:var(--maxw);margin:0 auto;padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px}
+.hdr__logo{display:flex;align-items:center;text-decoration:none}
+.hdr__logo img{height:clamp(30px,4.4vw,38px);width:auto;display:block}
+.hdr__cta{display:flex;align-items:center;gap:14px}
+@media(max-width:700px){.hdr__cta .btn[href^="#"]{display:none}}
+
+/* hero */
+.hero{background:linear-gradient(168deg,var(--navy) 0%,var(--navy-2) 62%,var(--navy-3) 100%);
+  color:#E8F2F8;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(760px 360px at 82% 6%,rgba(232,112,42,.20),transparent 62%),
+             radial-gradient(560px 300px at 4% 94%,rgba(255,255,255,.09),transparent 60%)}
+.hero__in{position:relative;z-index:1;display:grid;gap:36px;grid-template-columns:1fr;
+  padding-block:clamp(32px,4.6vw,56px) clamp(38px,5vw,62px)}
+@media(min-width:980px){.hero__in{grid-template-columns:1.06fr .94fr;gap:52px;align-items:start}}
+.hero h1{color:#fff}
+.hero h1 em{font-style:normal;color:#FFC79E;display:block}
+.hero__sub{font-size:clamp(15.5px,1.75vw,18px);color:#C7DEEC;max-width:56ch;margin-bottom:20px}
+.flag{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.26);color:#DCEDF6;border-radius:999px;
+  padding:6px 14px 6px 10px;font-size:12.5px;font-weight:600;margin-bottom:16px;
+  font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.flag b{color:#FFC79E;font-weight:700}
+.dot{width:7px;height:7px;border-radius:50%;background:#4ADE80;flex:none;
+  box-shadow:0 0 0 3px rgba(74,222,128,.22)}
+.hero__acts{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.hero__acts .btn{flex:1 1 auto;min-width:188px}
+.ticks{display:grid;gap:9px;margin:0;padding:0;list-style:none}
+.ticks li{position:relative;padding-left:24px;font-size:14.8px;color:#D3E6F1;line-height:1.5}
+.ticks li svg{position:absolute;left:0;top:4px}
+.ticks b{color:#fff;font-weight:600}
+.pricechip{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:13px 16px;margin:0 0 18px}
+.pricechip__amt{font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:27px;font-weight:700;
+  color:#fff;line-height:1;letter-spacing:-.02em;white-space:nowrap}
+.pricechip__amt s{display:block;font-size:14px;font-weight:500;color:#8FB6CC;
+  text-decoration-thickness:1.5px;margin-top:5px;letter-spacing:0}
+.pricechip__lbl{font-size:12.5px;color:#B6D3E4;line-height:1.42}
+.pricechip__lbl b{color:#FFC79E;display:block;font-size:13px}
+
+/* form */
+.formcard{background:#fff;border-radius:var(--r);padding:25px 22px 22px;
+  box-shadow:var(--shadow-lg)}
+.formcard h2{font-size:21px;margin-bottom:5px}
+.formcard__sub{font-size:13.5px;color:var(--muted);margin:0 0 16px;line-height:1.5}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:5px}
+.field .req{color:var(--orange)}
+.field input,.field select,.field textarea{width:100%;padding:12px 13px;font:inherit;font-size:15px;
+  border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);
+  transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none}
+.field select{background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%236B8095' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--navy-2);
+  box-shadow:0 0 0 3px rgba(14,82,119,.14)}
+.field textarea{min-height:64px;resize:vertical}
+.tel-in{display:flex}
+.tel-in span{display:grid;place-items:center;padding:0 13px;font-size:14.5px;font-weight:600;
+  color:var(--body);background:var(--bg-alt);border:1.5px solid var(--line);border-right:0;
+  border-radius:9px 0 0 9px;flex:none;min-width:56px}
+.tel-in input{border-radius:0 9px 9px 0;flex:1;min-width:0}
+.consent{display:flex;gap:9px;align-items:flex-start;font-size:11.5px;color:var(--muted);
+  line-height:1.5;margin:12px 0 14px}
+.consent input{margin:2px 0 0;flex:none;width:15px;height:15px;accent-color:var(--navy-2)}
+.formcard__foot{display:flex;align-items:center;justify-content:center;gap:7px;
+  font-size:12px;color:var(--muted);margin-top:12px}
+
+/* trust strip */
+.strip{background:var(--navy);border-top:1px solid rgba(255,255,255,.12)}
+.strip__in{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;
+  background:rgba(255,255,255,.1);border-inline:1px solid rgba(255,255,255,.1)}
+@media(min-width:760px){.strip__in{grid-template-columns:repeat(4,1fr)}}
+.strip__i{background:var(--navy);padding:18px 14px;text-align:center}
+.strip__n{font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:clamp(19px,2.5vw,25px);
+  font-weight:700;color:#fff;line-height:1;letter-spacing:-.02em;margin-bottom:5px}
+.strip__l{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#8FB6CC;font-weight:500}
+
+/* marquee */
+.marq{background:#fff;border-bottom:1px solid var(--line-soft);padding-block:24px;overflow:hidden}
+.marq__lbl{text-align:center;font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:11.5px;
+  font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+.marq__vp{position:relative;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.marq__track{display:flex;width:max-content;animation:marq 34s linear infinite}
+.marq__vp:hover .marq__track{animation-play-state:paused}
+.marq__set{display:flex;align-items:center;gap:clamp(30px,5vw,62px);padding-right:clamp(30px,5vw,62px)}
+.marq__set img{height:clamp(26px,3.2vw,34px);width:auto;opacity:.6;filter:grayscale(100%);
+  transition:opacity .18s,filter .18s}
+.marq__set img:hover{opacity:1;filter:grayscale(0)}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.marq__track{animation:none}
+  .marq__vp{overflow-x:auto;-webkit-mask-image:none;mask-image:none}}
+.marq__note{text-align:center;font-size:12.5px;color:var(--muted);margin:16px 0 0}
+
+/* generic cards */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr}
+@media(min-width:700px){.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}}
+@media(min-width:1000px){.g3{grid-template-columns:repeat(3,1fr)}}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:22px 20px;box-shadow:var(--shadow)}
+.card h3{margin-bottom:7px}
+.card p{font-size:14.5px;margin:0;color:var(--body)}
+.card__ic{width:42px;height:42px;border-radius:11px;background:var(--orange-lt);
+  display:grid;place-items:center;margin-bottom:13px;color:var(--orange-dk)}
+.num{font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:13px;font-weight:700;color:#fff;
+  background:var(--navy-2);width:27px;height:27px;border-radius:8px;
+  display:grid;place-items:center;margin-bottom:12px}
+
+/* IP decoder */
+.dec{background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow-lg);overflow:hidden}
+.dec__picks{padding:22px 22px 6px;border-bottom:1px solid var(--line-soft);background:var(--bg-tint)}
+.dec__lbl{font-size:11.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 9px}
+.dec__chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{font:inherit;font-size:13.5px;font-weight:600;color:var(--navy-2);background:#fff;
+  border:1.5px solid var(--line);border-radius:999px;padding:7px 15px;cursor:pointer;
+  transition:background .14s,border-color .14s,color .14s}
+.chip:hover{border-color:var(--navy-2)}
+.chip--on{background:var(--navy);border-color:var(--navy);color:#fff}
+.dec__selects{display:grid;gap:13px;padding-bottom:16px}
+@media(min-width:640px){.dec__selects{grid-template-columns:1fr 1fr;gap:16px}}
+.dec__f label{display:block;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:5px}
+.dec__f select{width:100%;padding:12px 34px 12px 13px;font:inherit;font-size:15px;
+  border:1.5px solid var(--line);border-radius:9px;background-color:#fff;color:var(--ink);
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%236B8095' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 13px center}
+.dec__f select:focus{outline:none;border-color:var(--navy-2);box-shadow:0 0 0 3px rgba(14,82,119,.14)}
+.dec__out{padding:22px}
+.dec__code{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:18px}
+.dec__code span{font-size:clamp(28px,4.4vw,38px);font-weight:700;color:var(--navy);
+  letter-spacing:-.025em;line-height:1}
+.dec__code em{font-style:normal;font-size:13.5px;color:var(--muted);line-height:1.45}
+.dec__pair{display:grid;gap:14px}
+@media(min-width:780px){.dec__pair{grid-template-columns:1fr 1fr;gap:16px}}
+.dcard{border:1px solid var(--line);border-radius:12px;padding:19px 18px;background:#fff;
+  border-top:4px solid var(--navy-2)}
+.dcard--water{border-top-color:var(--orange)}
+.dcard__h{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:7px}
+.dcard h3{margin:0 0 7px;font-size:18px}
+.dcard__d{font-size:14.3px;margin:0 0 14px;color:var(--body);line-height:1.55}
+.dcard__test{background:var(--bg-alt);border-radius:9px;padding:13px 14px}
+.dcard__test span{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--navy-2);margin-bottom:5px}
+.dcard__test p{margin:0;font-size:13.8px;line-height:1.55;color:var(--body)}
+.dcard__dur{display:inline-flex;align-items:center;gap:6px;margin-top:11px;font-size:12.8px;
+  font-weight:600;color:var(--navy-2)}
+.dec__note{display:flex;gap:10px;align-items:flex-start;margin-top:16px;
+  background:var(--bg-tint);border-radius:10px;padding:13px 15px}
+.dec__note svg{flex:none;margin-top:2px}
+.dec__note p{margin:0;font-size:13.8px;line-height:1.55;color:var(--body)}
+.dec__note--warn{background:var(--red-lt)}
+.dec__foot{border-top:1px solid var(--line-soft);background:var(--bg-alt);padding:17px 22px;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px}
+.dec__foot p{margin:0;font-size:12.8px;color:var(--muted);line-height:1.55;max-width:62ch}
+
+/* lab match rows */
+.labs{display:grid;gap:13px;margin-top:22px}
+.lab{display:grid;gap:4px 16px;background:#fff;border:1px solid var(--line);border-radius:12px;
+  padding:17px 18px;box-shadow:var(--shadow)}
+@media(min-width:760px){.lab{grid-template-columns:200px 1fr;align-items:start}}
+.lab__k{font-weight:700;color:var(--ink);font-size:15px}
+.lab__k em{display:block;font-style:normal;font-size:12.3px;font-weight:500;color:var(--orange-dk);
+  margin-top:2px}
+.lab__v{font-size:14.3px;line-height:1.58;margin:0}
+
+/* honest block */
+.honest{background:var(--navy);color:#D5E8F2;border-radius:var(--r);
+  padding:clamp(26px,4vw,42px);position:relative;overflow:hidden}
+.honest::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(520px 300px at 88% 0%,rgba(232,112,42,.20),transparent 64%)}
+.honest>*{position:relative;z-index:1}
+.honest h2{color:#fff;max-width:24ch}
+.honest .lede{color:#B9D5E5;font-size:16.5px}
+.cmp{display:grid;gap:14px;margin-top:26px}
+@media(min-width:760px){.cmp{grid-template-columns:1fr 1fr;gap:18px}}
+.cmp__c{border-radius:12px;padding:20px 19px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06)}
+.cmp__c--good{background:rgba(74,222,128,.10);border-color:rgba(74,222,128,.34)}
+.cmp__t{font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-weight:700;font-size:14.5px;
+  color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.cmp ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.cmp li{font-size:14.2px;line-height:1.55;color:#C6DEEC;position:relative;padding-left:24px}
+.cmp li svg{position:absolute;left:0;top:4px}
+.cmp__c--good li{color:#DFF3E9}
+.cmp__c--good li b{color:#fff}
+
+/* inclusion list */
+.incl{background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--shadow)}
+.incl__hd{background:var(--bg-tint);padding:20px 22px;border-bottom:1px solid var(--line);
+  display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:10px}
+.incl__hd h3{margin:0;font-size:18px}
+.incl__price{font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:27px;font-weight:700;
+  color:var(--navy);letter-spacing:-.02em;line-height:1}
+.incl__price small{display:block;font-size:11.5px;color:var(--muted);font-weight:500;
+  letter-spacing:.04em;text-transform:uppercase;font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin-top:3px}
+.incl ul{margin:0;padding:8px 0;list-style:none}
+.incl li{position:relative;padding:11px 22px 11px 45px;font-size:14.8px;
+  border-bottom:1px solid var(--line-soft);line-height:1.55}
+.incl li:last-child{border-bottom:0}
+.incl li svg{position:absolute;left:22px;top:15px}
+.incl li b{color:var(--ink);font-weight:600}
+.incl__note{background:var(--bg-alt);padding:15px 22px;font-size:13px;color:var(--muted);
+  border-top:1px solid var(--line);line-height:1.55}
+
+/* certificate showcase */
+.certwrap{display:grid;gap:28px;align-items:center}
+@media(min-width:860px){.certwrap{grid-template-columns:.85fr 1.15fr;gap:40px}}
+.certshot{background:#fff;border:1px solid var(--line);border-radius:12px;
+  padding:11px;box-shadow:var(--shadow-lg);max-width:420px;margin-inline:auto}
+.certshot img{display:block;border-radius:5px;width:100%}
+.certshot__cap{font-size:12px;color:var(--muted);text-align:center;margin:10px 0 0;line-height:1.45}
+.certpts{display:grid;gap:13px;margin:20px 0 0;padding:0;list-style:none}
+.certpts li{position:relative;padding-left:32px;font-size:15px;line-height:1.55}
+.certpts li b{color:var(--ink);font-weight:600;display:block;font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:15px;margin-bottom:1px}
+.certpts__n{position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:6px;
+  background:var(--navy-2);color:#fff;display:grid;place-items:center;
+  font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:11.5px;font-weight:700}
+
+/* bundles */
+.bundle{display:grid;gap:16px;margin-top:24px}
+@media(min-width:760px){.bundle{grid-template-columns:repeat(3,1fr)}}
+.bcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:20px 19px;box-shadow:var(--shadow)}
+.bcard__t{font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-weight:700;font-size:15.5px;
+  color:var(--ink);margin-bottom:8px}
+.bcard p{font-size:14.2px;margin:0;color:var(--body)}
+.bcard__tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--orange-dk);background:var(--orange-lt);
+  padding:4px 9px;border-radius:5px;margin-bottom:10px;font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.callout{background:var(--bg-tint);border:1px solid #C9DEEA;border-radius:var(--r);
+  padding:22px;margin-top:24px}
+.callout h3{font-size:17.5px;margin-bottom:8px}
+.callout p{font-size:14.6px;margin:0;color:var(--body)}
+
+/* docs */
+.doclist{margin:0;padding:0;list-style:none;display:grid;gap:9px}
+.doclist li{position:relative;padding-left:24px;font-size:14.5px;color:var(--body);line-height:1.5}
+.doclist li svg{position:absolute;left:0;top:4px}
+
+/* states */
+.states{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.pill{background:#fff;border:1px solid var(--line);border-radius:999px;
+  padding:7px 14px;font-size:13.2px;color:var(--body);font-weight:500;white-space:nowrap}
+.pill--more{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:600}
+
+/* offices */
+.off{display:grid;gap:16px;margin-top:26px}
+@media(min-width:760px){.off{grid-template-columns:repeat(3,1fr)}}
+.ocard{background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:22px 20px;box-shadow:var(--shadow);position:relative}
+.ocard__pin{width:36px;height:36px;border-radius:10px;background:var(--bg-tint);
+  display:grid;place-items:center;color:var(--navy-2);margin-bottom:12px}
+.ocard__st{font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-weight:700;font-size:16.5px;
+  color:var(--ink);margin-bottom:6px}
+.ocard__ad{font-size:13.8px;color:var(--body);line-height:1.6;margin:0}
+
+/* penalty */
+.warn{background:var(--red-lt);border:1px solid #F3C9C4;border-left:4px solid var(--red);
+  border-radius:12px;padding:22px}
+.warn h3{color:#7A1A14;display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.warn p{font-size:14.5px;color:#6E2A25;margin-bottom:.7em}
+.warn p:last-child{margin-bottom:0}
+.warn__cite{font-size:12.2px;color:#8C5450;font-style:italic}
+
+/* quotes */
+.quote{background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:22px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.quote p{font-size:14.8px;color:var(--ink);margin-bottom:16px;flex:1}
+.quote__by{display:flex;align-items:center;gap:11px;border-top:1px solid var(--line-soft);padding-top:14px}
+.quote__av{width:37px;height:37px;border-radius:50%;background:var(--navy-2);color:#fff;
+  display:grid;place-items:center;font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-weight:700;
+  font-size:14px;flex:none}
+.quote__n{font-size:13.8px;font-weight:600;color:var(--ink);line-height:1.3}
+.quote__r{font-size:12.2px;color:var(--muted)}
+.stars{color:var(--orange);font-size:13px;letter-spacing:2px;margin-bottom:10px}
+
+/* faq */
+.faq{max-width:800px;margin:0 auto}
+details{background:#fff;border:1px solid var(--line);border-radius:11px;margin-bottom:10px;overflow:hidden}
+details[open]{border-color:#BFD6E3;box-shadow:var(--shadow)}
+summary{cursor:pointer;padding:16px 46px 16px 19px;font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-weight:600;font-size:15.6px;color:var(--ink);list-style:none;position:relative;line-height:1.4}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";position:absolute;right:19px;top:50%;width:9px;height:9px;
+  border-right:2px solid var(--navy-2);border-bottom:2px solid var(--navy-2);
+  transform:translateY(-70%) rotate(45deg);transition:transform .18s}
+details[open] summary::after{transform:translateY(-30%) rotate(-135deg)}
+details .ans{padding:0 19px 17px;font-size:14.7px;color:var(--body)}
+details .ans p{margin-bottom:.7em}details .ans p:last-child{margin-bottom:0}
+
+/* final */
+.final{background:linear-gradient(150deg,var(--navy),var(--navy-2) 70%,var(--navy-3));
+  color:#fff;text-align:center;position:relative;overflow:hidden}
+.final::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(600px 300px at 50% 0%,rgba(232,112,42,.24),transparent 64%)}
+.final>*{position:relative;z-index:1}
+.final h2{color:#fff;max-width:20ch;margin-inline:auto}
+.final .lede{color:#BDD8E8;margin:0 auto 26px;max-width:56ch}
+.final__acts{display:flex;flex-wrap:wrap;gap:13px;justify-content:center;align-items:stretch}
+.final__acts .btn{min-width:210px}
+@media(max-width:520px){.final__acts{flex-direction:column}
+  .final__acts .btn{width:100%;min-width:0}}
+
+/* footer */
+.ftr{background:#08303F;color:#8FB0C2;padding:36px 0 26px;font-size:13.2px}
+.ftr__logo{height:34px;width:auto;margin-bottom:14px;display:block}
+.ftr__in{display:grid;gap:24px}
+@media(min-width:800px){.ftr__in{grid-template-columns:1.5fr 1fr 1fr}}
+.ftr strong{color:#fff;display:block;font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:14.5px;margin-bottom:9px}
+.ftr a{color:#BBD5E3;text-decoration:none}
+.ftr a:hover{text-decoration:underline}
+.ftr ul{margin:0;padding:0;list-style:none;display:grid;gap:7px}
+.ftr__legal{border-top:1px solid rgba(255,255,255,.11);margin-top:24px;padding-top:16px;
+  font-size:11.8px;color:#6F94A9;line-height:1.65}
+
+/* email line under WhatsApp */
+.mailline{font-size:12.5px;color:var(--muted);text-align:center;margin:14px 0 0;line-height:1.5;
+  padding-top:13px;border-top:1px solid var(--line-soft)}
+.mailline a{font-weight:600;color:var(--navy-2)}
+
+/* back to top */
+.totop{position:fixed;right:18px;bottom:82px;z-index:65;width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--line);background:#fff;color:var(--navy-2);display:grid;place-items:center;
+  box-shadow:0 6px 20px -6px rgba(10,58,82,.35);cursor:pointer;opacity:0;visibility:hidden;
+  transform:translateY(8px);transition:opacity .2s,transform .2s,visibility .2s}
+.totop.on{opacity:1;visibility:visible;transform:none}
+.totop:hover{background:var(--bg-alt)}
+@media(min-width:980px){.totop{bottom:24px;right:24px}}
+@media(prefers-reduced-motion:reduce){.totop{transition:none}}
+
+/* sticky mobile bar */
+.mbar{position:fixed;left:0;right:0;bottom:0;z-index:70;display:grid;
+  grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.16);
+  box-shadow:0 -6px 22px rgba(10,58,82,.24)}
+.mbar a{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px 8px;
+  font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-weight:600;font-size:15px;
+  text-decoration:none;color:#fff}
+.mbar__call{background:var(--orange)}
+.mbar__wa{background:#128C4A}
+@media(min-width:980px){.mbar{display:none}body{padding-bottom:0}}
+</style>
+</head>
+<body><!-- ===== HEADER ===== -->
+<header class="hdr">
+  <div class="hdr__in">
+    <a href="https://instacertify.com" class="hdr__logo">
+      <img src="data:image/png;base64,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" alt="Instacertify — certifications made simple" width="560" height="112">
+    </a>
+    <div class="hdr__cta">
+      <a class="btn btn--navy btn--sm" href="tel:+919999118039" data-cta="header-call">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+        Call now
+      </a>
+      <a class="btn btn--primary btn--sm" href="#apply" data-cta="header-apply">Get a quote</a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="wrap hero__in">
+    <div>
+      <span class="flag"><span class="dot"></span>Right rating, right lab. <b>Tested once, not twice.</b></span>
+
+      <h1>IP testing to IEC 60529<em>— booked at the lab that can actually run it.</em></h1>
+
+      <p class="hero__sub">Dust and water ingress testing for enclosures, lighting, electronics, EV
+      and industrial equipment. We work out the rating your product genuinely needs, match it to a lab
+      with the right rig and scope, and manage the samples, the report and the retest if one is needed.</p>
+
+      <div class="hero__acts">
+        <a class="btn btn--primary" href="tel:+919999118039" data-cta="hero-call">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+          Call now
+        </a>
+        <a class="btn btn--ghost" href="#apply" data-cta="hero-form">Get a quote in 30 minutes</a>
+      </div>
+
+      <ul class="ticks">
+        <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>IP1X to IP6X and IPX1 to IPX9</b> — including IP 69K washdown</li>
+        <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>NABL-accredited partner labs</b> — and BIS-recognised where your filing needs it</li>
+        <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Design review before you ship samples</b> — so the first attempt is the one that passes</li>
+      </ul>
+    </div>
+
+    <div id="apply" style="scroll-margin-top:92px">
+      <form class="formcard" id="ip-form" method="post" action="/ip-submit" novalidate>
+        <h2>Get your IP testing quote</h2>
+        <p class="formcard__sub">Tell us what the product is and where it has to survive. We'll come
+        back within 30 minutes with the rating we'd recommend, the labs that can run it and what it costs.</p>
+
+        <div class="field">
+          <label for="f-name">Full name <span class="req">*</span></label>
+          <input id="f-name" name="name" type="text" autocomplete="name" placeholder="Your name" required>
+        </div>
+
+        <div class="field">
+          <label for="f-email">Work email <span class="req">*</span></label>
+          <input id="f-email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+        </div>
+
+        <div class="field">
+          <label for="f-cc">Country <span class="req">*</span></label>
+            <select id="f-cc" name="country_code" aria-label="Country code">
+              <optgroup label="Most common">
+              <option value="+91" data-iso="IN" selected>🇮🇳 India +91</option>
+              <option value="+86" data-iso="CN">🇨🇳 China +86</option>
+              <option value="+84" data-iso="VN">🇻🇳 Vietnam +84</option>
+              <option value="+49" data-iso="DE">🇩🇪 Germany +49</option>
+              <option value="+1" data-iso="US">🇺🇸 United States +1</option>
+              <option value="+44" data-iso="GB">🇬🇧 United Kingdom +44</option>
+              <option value="+971" data-iso="AE">🇦🇪 United Arab Emirates +971</option>
+              <option value="+65" data-iso="SG">🇸🇬 Singapore +65</option>
+              <option value="+82" data-iso="KR">🇰🇷 South Korea +82</option>
+              <option value="+81" data-iso="JP">🇯🇵 Japan +81</option>
+              <option value="+886" data-iso="TW">🇹🇼 Taiwan +886</option>
+              <option value="+852" data-iso="HK">🇭🇰 Hong Kong +852</option>
+              </optgroup>
+              <optgroup label="All countries">
+              <option value="+93" data-iso="AF">🇦🇫 Afghanistan +93</option>
+              <option value="+355" data-iso="AL">🇦🇱 Albania +355</option>
+              <option value="+213" data-iso="DZ">🇩🇿 Algeria +213</option>
+              <option value="+1" data-iso="AS">🇦🇸 American Samoa +1</option>
+              <option value="+376" data-iso="AD">🇦🇩 Andorra +376</option>
+              <option value="+244" data-iso="AO">🇦🇴 Angola +244</option>
+              <option value="+1" data-iso="AI">🇦🇮 Anguilla +1</option>
+              <option value="+1" data-iso="AG">🇦🇬 Antigua and Barbuda +1</option>
+              <option value="+54" data-iso="AR">🇦🇷 Argentina +54</option>
+              <option value="+374" data-iso="AM">🇦🇲 Armenia +374</option>
+              <option value="+297" data-iso="AW">🇦🇼 Aruba +297</option>
+              <option value="+61" data-iso="AU">🇦🇺 Australia +61</option>
+              <option value="+43" data-iso="AT">🇦🇹 Austria +43</option>
+              <option value="+994" data-iso="AZ">🇦🇿 Azerbaijan +994</option>
+              <option value="+1" data-iso="BS">🇧🇸 Bahamas +1</option>
+              <option value="+973" data-iso="BH">🇧🇭 Bahrain +973</option>
+              <option value="+880" data-iso="BD">🇧🇩 Bangladesh +880</option>
+              <option value="+1" data-iso="BB">🇧🇧 Barbados +1</option>
+              <option value="+375" data-iso="BY">🇧🇾 Belarus +375</option>
+              <option value="+32" data-iso="BE">🇧🇪 Belgium +32</option>
+              <option value="+501" data-iso="BZ">🇧🇿 Belize +501</option>
+              <option value="+229" data-iso="BJ">🇧🇯 Benin +229</option>
+              <option value="+1" data-iso="BM">🇧🇲 Bermuda +1</option>
+              <option value="+975" data-iso="BT">🇧🇹 Bhutan +975</option>
+              <option value="+591" data-iso="BO">🇧🇴 Bolivia +591</option>
+              <option value="+599" data-iso="BQ">🇧🇶 Bonaire, Sint Eustatius and Saba +599</option>
+              <option value="+387" data-iso="BA">🇧🇦 Bosnia and Herzegovina +387</option>
+              <option value="+267" data-iso="BW">🇧🇼 Botswana +267</option>
+              <option value="+55" data-iso="BR">🇧🇷 Brazil +55</option>
+              <option value="+246" data-iso="IO">🇮🇴 British Indian Ocean Territory +246</option>
+              <option value="+673" data-iso="BN">🇧🇳 Brunei Darussalam +673</option>
+              <option value="+359" data-iso="BG">🇧🇬 Bulgaria +359</option>
+              <option value="+226" data-iso="BF">🇧🇫 Burkina Faso +226</option>
+              <option value="+257" data-iso="BI">🇧🇮 Burundi +257</option>
+              <option value="+238" data-iso="CV">🇨🇻 Cabo Verde +238</option>
+              <option value="+855" data-iso="KH">🇰🇭 Cambodia +855</option>
+              <option value="+237" data-iso="CM">🇨🇲 Cameroon +237</option>
+              <option value="+1" data-iso="CA">🇨🇦 Canada +1</option>
+              <option value="+1" data-iso="KY">🇰🇾 Cayman Islands +1</option>
+              <option value="+236" data-iso="CF">🇨🇫 Central African Republic +236</option>
+              <option value="+235" data-iso="TD">🇹🇩 Chad +235</option>
+              <option value="+56" data-iso="CL">🇨🇱 Chile +56</option>
+              <option value="+61" data-iso="CX">🇨🇽 Christmas Island +61</option>
+              <option value="+61" data-iso="CC">🇨🇨 Cocos (Keeling) Islands +61</option>
+              <option value="+57" data-iso="CO">🇨🇴 Colombia +57</option>
+              <option value="+269" data-iso="KM">🇰🇲 Comoros +269</option>
+              <option value="+242" data-iso="CG">🇨🇬 Congo +242</option>
+              <option value="+243" data-iso="CD">🇨🇩 Congo, The Democratic Republic of the +243</option>
+              <option value="+682" data-iso="CK">🇨🇰 Cook Islands +682</option>
+              <option value="+506" data-iso="CR">🇨🇷 Costa Rica +506</option>
+              <option value="+385" data-iso="HR">🇭🇷 Croatia +385</option>
+              <option value="+53" data-iso="CU">🇨🇺 Cuba +53</option>
+              <option value="+599" data-iso="CW">🇨🇼 Curaçao +599</option>
+              <option value="+357" data-iso="CY">🇨🇾 Cyprus +357</option>
+              <option value="+420" data-iso="CZ">🇨🇿 Czechia +420</option>
+              <option value="+225" data-iso="CI">🇨🇮 Côte d&#x27;Ivoire +225</option>
+              <option value="+45" data-iso="DK">🇩🇰 Denmark +45</option>
+              <option value="+253" data-iso="DJ">🇩🇯 Djibouti +253</option>
+              <option value="+1" data-iso="DM">🇩🇲 Dominica +1</option>
+              <option value="+1" data-iso="DO">🇩🇴 Dominican Republic +1</option>
+              <option value="+593" data-iso="EC">🇪🇨 Ecuador +593</option>
+              <option value="+20" data-iso="EG">🇪🇬 Egypt +20</option>
+              <option value="+503" data-iso="SV">🇸🇻 El Salvador +503</option>
+              <option value="+240" data-iso="GQ">🇬🇶 Equatorial Guinea +240</option>
+              <option value="+291" data-iso="ER">🇪🇷 Eritrea +291</option>
+              <option value="+372" data-iso="EE">🇪🇪 Estonia +372</option>
+              <option value="+268" data-iso="SZ">🇸🇿 Eswatini +268</option>
+              <option value="+251" data-iso="ET">🇪🇹 Ethiopia +251</option>
+              <option value="+500" data-iso="FK">🇫🇰 Falkland Islands (Malvinas) +500</option>
+              <option value="+298" data-iso="FO">🇫🇴 Faroe Islands +298</option>
+              <option value="+679" data-iso="FJ">🇫🇯 Fiji +679</option>
+              <option value="+358" data-iso="FI">🇫🇮 Finland +358</option>
+              <option value="+33" data-iso="FR">🇫🇷 France +33</option>
+              <option value="+594" data-iso="GF">🇬🇫 French Guiana +594</option>
+              <option value="+689" data-iso="PF">🇵🇫 French Polynesia +689</option>
+              <option value="+241" data-iso="GA">🇬🇦 Gabon +241</option>
+              <option value="+220" data-iso="GM">🇬🇲 Gambia +220</option>
+              <option value="+995" data-iso="GE">🇬🇪 Georgia +995</option>
+              <option value="+233" data-iso="GH">🇬🇭 Ghana +233</option>
+              <option value="+350" data-iso="GI">🇬🇮 Gibraltar +350</option>
+              <option value="+30" data-iso="GR">🇬🇷 Greece +30</option>
+              <option value="+299" data-iso="GL">🇬🇱 Greenland +299</option>
+              <option value="+1" data-iso="GD">🇬🇩 Grenada +1</option>
+              <option value="+590" data-iso="GP">🇬🇵 Guadeloupe +590</option>
+              <option value="+1" data-iso="GU">🇬🇺 Guam +1</option>
+              <option value="+502" data-iso="GT">🇬🇹 Guatemala +502</option>
+              <option value="+44" data-iso="GG">🇬🇬 Guernsey +44</option>
+              <option value="+224" data-iso="GN">🇬🇳 Guinea +224</option>
+              <option value="+245" data-iso="GW">🇬🇼 Guinea-Bissau +245</option>
+              <option value="+592" data-iso="GY">🇬🇾 Guyana +592</option>
+              <option value="+509" data-iso="HT">🇭🇹 Haiti +509</option>
+              <option value="+39" data-iso="VA">🇻🇦 Holy See (Vatican City State) +39</option>
+              <option value="+504" data-iso="HN">🇭🇳 Honduras +504</option>
+              <option value="+36" data-iso="HU">🇭🇺 Hungary +36</option>
+              <option value="+354" data-iso="IS">🇮🇸 Iceland +354</option>
+              <option value="+62" data-iso="ID">🇮🇩 Indonesia +62</option>
+              <option value="+98" data-iso="IR">🇮🇷 Iran +98</option>
+              <option value="+964" data-iso="IQ">🇮🇶 Iraq +964</option>
+              <option value="+353" data-iso="IE">🇮🇪 Ireland +353</option>
+              <option value="+44" data-iso="IM">🇮🇲 Isle of Man +44</option>
+              <option value="+972" data-iso="IL">🇮🇱 Israel +972</option>
+              <option value="+39" data-iso="IT">🇮🇹 Italy +39</option>
+              <option value="+1" data-iso="JM">🇯🇲 Jamaica +1</option>
+              <option value="+44" data-iso="JE">🇯🇪 Jersey +44</option>
+              <option value="+962" data-iso="JO">🇯🇴 Jordan +962</option>
+              <option value="+7" data-iso="KZ">🇰🇿 Kazakhstan +7</option>
+              <option value="+254" data-iso="KE">🇰🇪 Kenya +254</option>
+              <option value="+686" data-iso="KI">🇰🇮 Kiribati +686</option>
+              <option value="+965" data-iso="KW">🇰🇼 Kuwait +965</option>
+              <option value="+996" data-iso="KG">🇰🇬 Kyrgyzstan +996</option>
+              <option value="+856" data-iso="LA">🇱🇦 Laos +856</option>
+              <option value="+371" data-iso="LV">🇱🇻 Latvia +371</option>
+              <option value="+961" data-iso="LB">🇱🇧 Lebanon +961</option>
+              <option value="+266" data-iso="LS">🇱🇸 Lesotho +266</option>
+              <option value="+231" data-iso="LR">🇱🇷 Liberia +231</option>
+              <option value="+218" data-iso="LY">🇱🇾 Libya +218</option>
+              <option value="+423" data-iso="LI">🇱🇮 Liechtenstein +423</option>
+              <option value="+370" data-iso="LT">🇱🇹 Lithuania +370</option>
+              <option value="+352" data-iso="LU">🇱🇺 Luxembourg +352</option>
+              <option value="+853" data-iso="MO">🇲🇴 Macao +853</option>
+              <option value="+261" data-iso="MG">🇲🇬 Madagascar +261</option>
+              <option value="+265" data-iso="MW">🇲🇼 Malawi +265</option>
+              <option value="+60" data-iso="MY">🇲🇾 Malaysia +60</option>
+              <option value="+960" data-iso="MV">🇲🇻 Maldives +960</option>
+              <option value="+223" data-iso="ML">🇲🇱 Mali +223</option>
+              <option value="+356" data-iso="MT">🇲🇹 Malta +356</option>
+              <option value="+692" data-iso="MH">🇲🇭 Marshall Islands +692</option>
+              <option value="+596" data-iso="MQ">🇲🇶 Martinique +596</option>
+              <option value="+222" data-iso="MR">🇲🇷 Mauritania +222</option>
+              <option value="+230" data-iso="MU">🇲🇺 Mauritius +230</option>
+              <option value="+262" data-iso="YT">🇾🇹 Mayotte +262</option>
+              <option value="+52" data-iso="MX">🇲🇽 Mexico +52</option>
+              <option value="+691" data-iso="FM">🇫🇲 Micronesia, Federated States of +691</option>
+              <option value="+373" data-iso="MD">🇲🇩 Moldova +373</option>
+              <option value="+377" data-iso="MC">🇲🇨 Monaco +377</option>
+              <option value="+976" data-iso="MN">🇲🇳 Mongolia +976</option>
+              <option value="+382" data-iso="ME">🇲🇪 Montenegro +382</option>
+              <option value="+1" data-iso="MS">🇲🇸 Montserrat +1</option>
+              <option value="+212" data-iso="MA">🇲🇦 Morocco +212</option>
+              <option value="+258" data-iso="MZ">🇲🇿 Mozambique +258</option>
+              <option value="+95" data-iso="MM">🇲🇲 Myanmar +95</option>
+              <option value="+264" data-iso="NA">🇳🇦 Namibia +264</option>
+              <option value="+674" data-iso="NR">🇳🇷 Nauru +674</option>
+              <option value="+977" data-iso="NP">🇳🇵 Nepal +977</option>
+              <option value="+31" data-iso="NL">🇳🇱 Netherlands +31</option>
+              <option value="+687" data-iso="NC">🇳🇨 New Caledonia +687</option>
+              <option value="+64" data-iso="NZ">🇳🇿 New Zealand +64</option>
+              <option value="+505" data-iso="NI">🇳🇮 Nicaragua +505</option>
+              <option value="+227" data-iso="NE">🇳🇪 Niger +227</option>
+              <option value="+234" data-iso="NG">🇳🇬 Nigeria +234</option>
+              <option value="+683" data-iso="NU">🇳🇺 Niue +683</option>
+              <option value="+672" data-iso="NF">🇳🇫 Norfolk Island +672</option>
+              <option value="+850" data-iso="KP">🇰🇵 North Korea +850</option>
+              <option value="+389" data-iso="MK">🇲🇰 North Macedonia +389</option>
+              <option value="+1" data-iso="MP">🇲🇵 Northern Mariana Islands +1</option>
+              <option value="+47" data-iso="NO">🇳🇴 Norway +47</option>
+              <option value="+968" data-iso="OM">🇴🇲 Oman +968</option>
+              <option value="+92" data-iso="PK">🇵🇰 Pakistan +92</option>
+              <option value="+680" data-iso="PW">🇵🇼 Palau +680</option>
+              <option value="+970" data-iso="PS">🇵🇸 Palestine, State of +970</option>
+              <option value="+507" data-iso="PA">🇵🇦 Panama +507</option>
+              <option value="+675" data-iso="PG">🇵🇬 Papua New Guinea +675</option>
+              <option value="+595" data-iso="PY">🇵🇾 Paraguay +595</option>
+              <option value="+51" data-iso="PE">🇵🇪 Peru +51</option>
+              <option value="+63" data-iso="PH">🇵🇭 Philippines +63</option>
+              <option value="+48" data-iso="PL">🇵🇱 Poland +48</option>
+              <option value="+351" data-iso="PT">🇵🇹 Portugal +351</option>
+              <option value="+1" data-iso="PR">🇵🇷 Puerto Rico +1</option>
+              <option value="+974" data-iso="QA">🇶🇦 Qatar +974</option>
+              <option value="+40" data-iso="RO">🇷🇴 Romania +40</option>
+              <option value="+7" data-iso="RU">🇷🇺 Russian Federation +7</option>
+              <option value="+250" data-iso="RW">🇷🇼 Rwanda +250</option>
+              <option value="+262" data-iso="RE">🇷🇪 Réunion +262</option>
+              <option value="+590" data-iso="BL">🇧🇱 Saint Barthélemy +590</option>
+              <option value="+290" data-iso="SH">🇸🇭 Saint Helena, Ascension and Tristan da Cunha +290</option>
+              <option value="+1" data-iso="KN">🇰🇳 Saint Kitts and Nevis +1</option>
+              <option value="+1" data-iso="LC">🇱🇨 Saint Lucia +1</option>
+              <option value="+590" data-iso="MF">🇲🇫 Saint Martin (French part) +590</option>
+              <option value="+508" data-iso="PM">🇵🇲 Saint Pierre and Miquelon +508</option>
+              <option value="+1" data-iso="VC">🇻🇨 Saint Vincent and the Grenadines +1</option>
+              <option value="+685" data-iso="WS">🇼🇸 Samoa +685</option>
+              <option value="+378" data-iso="SM">🇸🇲 San Marino +378</option>
+              <option value="+239" data-iso="ST">🇸🇹 Sao Tome and Principe +239</option>
+              <option value="+966" data-iso="SA">🇸🇦 Saudi Arabia +966</option>
+              <option value="+221" data-iso="SN">🇸🇳 Senegal +221</option>
+              <option value="+381" data-iso="RS">🇷🇸 Serbia +381</option>
+              <option value="+248" data-iso="SC">🇸🇨 Seychelles +248</option>
+              <option value="+232" data-iso="SL">🇸🇱 Sierra Leone +232</option>
+              <option value="+1" data-iso="SX">🇸🇽 Sint Maarten (Dutch part) +1</option>
+              <option value="+421" data-iso="SK">🇸🇰 Slovakia +421</option>
+              <option value="+386" data-iso="SI">🇸🇮 Slovenia +386</option>
+              <option value="+677" data-iso="SB">🇸🇧 Solomon Islands +677</option>
+              <option value="+252" data-iso="SO">🇸🇴 Somalia +252</option>
+              <option value="+27" data-iso="ZA">🇿🇦 South Africa +27</option>
+              <option value="+211" data-iso="SS">🇸🇸 South Sudan +211</option>
+              <option value="+34" data-iso="ES">🇪🇸 Spain +34</option>
+              <option value="+94" data-iso="LK">🇱🇰 Sri Lanka +94</option>
+              <option value="+249" data-iso="SD">🇸🇩 Sudan +249</option>
+              <option value="+597" data-iso="SR">🇸🇷 Suriname +597</option>
+              <option value="+47" data-iso="SJ">🇸🇯 Svalbard and Jan Mayen +47</option>
+              <option value="+46" data-iso="SE">🇸🇪 Sweden +46</option>
+              <option value="+41" data-iso="CH">🇨🇭 Switzerland +41</option>
+              <option value="+963" data-iso="SY">🇸🇾 Syria +963</option>
+              <option value="+992" data-iso="TJ">🇹🇯 Tajikistan +992</option>
+              <option value="+255" data-iso="TZ">🇹🇿 Tanzania +255</option>
+              <option value="+66" data-iso="TH">🇹🇭 Thailand +66</option>
+              <option value="+670" data-iso="TL">🇹🇱 Timor-Leste +670</option>
+              <option value="+228" data-iso="TG">🇹🇬 Togo +228</option>
+              <option value="+690" data-iso="TK">🇹🇰 Tokelau +690</option>
+              <option value="+676" data-iso="TO">🇹🇴 Tonga +676</option>
+              <option value="+1" data-iso="TT">🇹🇹 Trinidad and Tobago +1</option>
+              <option value="+216" data-iso="TN">🇹🇳 Tunisia +216</option>
+              <option value="+993" data-iso="TM">🇹🇲 Turkmenistan +993</option>
+              <option value="+1" data-iso="TC">🇹🇨 Turks and Caicos Islands +1</option>
+              <option value="+688" data-iso="TV">🇹🇻 Tuvalu +688</option>
+              <option value="+90" data-iso="TR">🇹🇷 Türkiye +90</option>
+              <option value="+256" data-iso="UG">🇺🇬 Uganda +256</option>
+              <option value="+380" data-iso="UA">🇺🇦 Ukraine +380</option>
+              <option value="+598" data-iso="UY">🇺🇾 Uruguay +598</option>
+              <option value="+998" data-iso="UZ">🇺🇿 Uzbekistan +998</option>
+              <option value="+678" data-iso="VU">🇻🇺 Vanuatu +678</option>
+              <option value="+58" data-iso="VE">🇻🇪 Venezuela +58</option>
+              <option value="+1" data-iso="VG">🇻🇬 Virgin Islands, British +1</option>
+              <option value="+1" data-iso="VI">🇻🇮 Virgin Islands, U.S. +1</option>
+              <option value="+681" data-iso="WF">🇼🇫 Wallis and Futuna +681</option>
+              <option value="+212" data-iso="EH">🇪🇭 Western Sahara +212</option>
+              <option value="+967" data-iso="YE">🇾🇪 Yemen +967</option>
+              <option value="+260" data-iso="ZM">🇿🇲 Zambia +260</option>
+              <option value="+263" data-iso="ZW">🇿🇼 Zimbabwe +263</option>
+              <option value="+358" data-iso="AX">🇦🇽 Åland Islands +358</option>
+              </optgroup>
+            </select>
+        </div>
+
+        <div class="field">
+          <label for="f-phone">Mobile / WhatsApp <span class="req">*</span></label>
+          <div class="tel-in">
+            <span id="f-dial">+91</span>
+            <input id="f-phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel"
+                   placeholder="9999118039" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="f-prod">What is the product? <span class="req">*</span></label>
+          <input id="f-prod" name="product" type="text" required
+                 placeholder="e.g. LED street light, EV charger, control panel, sensor">
+        </div>
+
+        <div class="field">
+          <label for="f-role">Rating you think you need</label>
+          <select id="f-role" name="role">
+            <option value="">Not sure — advise me</option>
+            <option>IP54</option><option>IP55</option><option>IP65</option>
+            <option>IP66</option><option>IP67</option><option>IP68</option>
+            <option>IP 69K</option><option>IPX4 only</option>
+            <option>Other / specified by my buyer</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-why">Who's asking for it?</label>
+          <textarea id="f-why" name="reason"
+            placeholder="BIS filing, a tender, an export buyer, an e-commerce listing, or your own spec"></textarea>
+        </div>
+
+        <label class="consent">
+          <input type="checkbox" name="consent" required>
+          <span>I agree to be contacted by Instacertify Labs Pvt. Ltd. about this enquiry and accept the
+          <a href="https://instacertify.com/privacy-policy" target="_blank" rel="noopener">privacy policy</a>
+          and <a href="https://instacertify.com/terms-of-service" target="_blank" rel="noopener">terms of service</a>.</span>
+        </label>
+
+        <button class="btn btn--primary btn--wide" type="submit" data-cta="form-submit">Get my testing quote →</button>
+
+        <div class="formcard__foot">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B8095" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Drawings and samples stay confidential. NDA on request.
+        </div>
+
+        <p class="mailline">Prefer email?
+        <a href="mailto:contact@instacertify.com?subject=IP%20testing%20enquiry" data-cta="form-email">contact@instacertify.com</a></p>
+      </form>
+    </div>
+  </div>
+
+  <div class="strip">
+    <div class="wrap" style="padding:0">
+      <div class="strip__in">
+        <div class="strip__i"><div class="strip__n">IEC 60529</div><div class="strip__l">The standard we test to</div></div>
+        <div class="strip__i"><div class="strip__n">IP 69K</div><div class="strip__l">Up to washdown rating</div></div>
+        <div class="strip__i"><div class="strip__n">NABL</div><div class="strip__l">Accredited partner labs</div></div>
+        <div class="strip__i"><div class="strip__n">3</div><div class="strip__l">Offices in India</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CLIENT LOGOS =====
+     REPLACE every src with your real client logo files (SVG or transparent PNG, ~160×48).
+     Keep BOTH copies of each — the track is duplicated so the scroll loops seamlessly. -->
+<section class="marq">
+  <p class="marq__lbl">Trusted by manufacturers, importers and brand owners</p>
+  <div class="marq__vp">
+    <div class="marq__track">
+      <div class="marq__set">
+        <img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt="Client logo"><img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt="Client logo">
+        <img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt="Client logo"><img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt="Client logo">
+        <img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt="Client logo"><img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt="Client logo">
+        <img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt="Client logo"><img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt="Client logo">
+      </div>
+      <div class="marq__set" aria-hidden="true">
+        <img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt=""><img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt="">
+        <img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt=""><img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt="">
+        <img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt=""><img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt="">
+        <img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt=""><img src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='48'%3E%3Crect width='160' height='48' rx='6' fill='%23E8EEF3'/%3E%3Ctext x='80' y='29' font-family='Poppins,sans-serif' font-size='11' letter-spacing='1.5' fill='%2393A9B9' text-anchor='middle'%3ECLIENT LOGO%3C/text%3E%3C/svg%3E" alt="">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== IP CODE DECODER (the tool) ===== -->
+<section class="sec sec--alt" id="decoder" style="scroll-margin-top:84px">
+  <div class="wrap">
+    <div class="center" style="margin-bottom:26px">
+      <p class="eyebrow">Free tool · no sign-up</p>
+      <h2>Work out what your IP rating actually gets tested for</h2>
+      <p class="lede">Pick the two digits. You'll see what each one means, the test the lab will
+      physically run on your sample, how long it takes and — the part people miss — what the rating
+      does <b>not</b> cover.</p>
+    </div>
+
+    <div class="dec">
+      <div class="dec__picks">
+        <div class="dec__grp">
+          <p class="dec__lbl">Common ratings</p>
+          <div class="dec__chips" id="ip-quick">
+            <button type="button" class="chip" data-ip="54">IP54</button>
+            <button type="button" class="chip" data-ip="55">IP55</button>
+            <button type="button" class="chip" data-ip="65">IP65</button>
+            <button type="button" class="chip" data-ip="66">IP66</button>
+            <button type="button" class="chip" data-ip="67">IP67</button>
+            <button type="button" class="chip" data-ip="68">IP68</button>
+            <button type="button" class="chip" data-ip="69">IP69</button>
+            <button type="button" class="chip" data-ip="X4">IPX4</button>
+          </div>
+        </div>
+
+        <div class="dec__selects">
+          <div class="dec__f">
+            <label for="ip-s">First digit — solids &amp; dust</label>
+            <select id="ip-s">
+              <option value="X">X — not declared</option>
+              <option value="0">0 — no protection</option>
+              <option value="1">1 — objects ≥ 50 mm</option>
+              <option value="2">2 — objects ≥ 12.5 mm</option>
+              <option value="3">3 — objects ≥ 2.5 mm</option>
+              <option value="4">4 — objects ≥ 1 mm</option>
+              <option value="5">5 — dust protected</option>
+              <option value="6" selected>6 — dust tight</option>
+            </select>
+          </div>
+          <div class="dec__f">
+            <label for="ip-w">Second digit — water</label>
+            <select id="ip-w">
+              <option value="X">X — not declared</option>
+              <option value="0">0 — no protection</option>
+              <option value="1">1 — dripping water</option>
+              <option value="2">2 — dripping, tilted 15°</option>
+              <option value="3">3 — spraying water</option>
+              <option value="4">4 — splashing water</option>
+              <option value="5" selected>5 — water jets</option>
+              <option value="6">6 — powerful jets</option>
+              <option value="7">7 — immersion to 1 m</option>
+              <option value="8">8 — continuous immersion</option>
+              <option value="9">9 — high-pressure hot jets</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="dec__out" id="ip-out" aria-live="polite"></div>
+
+      <div class="dec__foot">
+        <p>Test conditions summarised from <b>IEC 60529</b>. IP 69K for road vehicles sits in
+        <b>ISO 20653</b>. Your product standard may modify or add to these — we confirm which applies
+        before anything is booked.</p>
+        <a class="btn btn--primary btn--sm" href="#apply" data-cta="decoder-form">Check my product's rating →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== THE POINT NOBODY MAKES ===== -->
+<section class="sec">
+  <div class="wrap">
+    <div class="honest">
+      <p class="eyebrow" style="color:#FFC79E">Worth knowing before you pay for anything</p>
+      <h2>Nobody issues an "IP certificate". Here's what you're actually buying.</h2>
+      <p class="lede">An IP rating is not granted by a government department and there is no central
+      register of it. It is a <b>test result</b>. A laboratory runs the tests written in IEC 60529 on
+      your sample, issues a report saying it passed at a stated rating, and you then declare that
+      rating on the product and in your literature.</p>
+      <p class="lede" style="margin-top:12px">So the only things that carry any weight are the lab
+      that did the work, the scope it is accredited for, and whether the test conditions in the report
+      match what you are claiming. That is the whole job — and it is where it usually goes wrong,
+      because a report from a lab without the right scope is a report your buyer, your BIS filing or
+      your tender officer can simply refuse.</p>
+
+      <div class="cmp">
+        <div class="cmp__c">
+          <div class="cmp__t">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+            How it usually goes
+          </div>
+          <ul>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>A rating is picked off a competitor's datasheet rather than from where the product actually sits</li>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Samples go to whichever lab answered the phone, scope unchecked</li>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>It fails on a gasket or a cable gland nobody looked at first</li>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>New samples, new slot, second invoice — and the launch date moves</li>
+          </ul>
+        </div>
+        <div class="cmp__c cmp__c--good">
+          <div class="cmp__t">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.5 2.5 4.5-4.7"/></svg>
+            How we do it
+          </div>
+          <ul>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Set the rating from the real duty</b> — where it is mounted, what hits it, who is asking.</li>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Check the lab's scope against your rating</b>, not just its name — including size of chamber and the IPX9 rig if you need it.</li>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Review the sample before it ships</b> — seals, glands, vents, drain paths, breather placement.</li>
+            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Read the report before you publish it</b> — so the rating on your box matches the conditions on page two.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== THE FOUR MISTAKES ===== -->
+<section class="sec sec--alt">
+  <div class="wrap">
+    <div class="center" style="margin-bottom:30px">
+      <p class="eyebrow">Four things people get wrong</p>
+      <h2>Most failed IP tests are failures of the paperwork, not the product</h2>
+      <p class="lede">These four come up on almost every first call.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <div class="num">1</div>
+        <h3>IP67 does not include IP65</h3>
+        <p>Immersion and jetting are different physics. A sealed box can sit in a metre of still water
+        for half an hour and still let a pressure jet past a joint. Up to IPX6 the levels build on each
+        other — IPX7 and IPX8 do not. If your product needs both, it is declared as a pair, such as
+        IP66/IP68, and both tests are booked and paid for.</p>
+      </div>
+      <div class="card">
+        <div class="num">2</div>
+        <h3>X does not mean zero</h3>
+        <p>IPX5 means water was tested and solids were not declared. IP6X means the opposite. Writing
+        IPX5 when you meant IP65 quietly drops your dust claim, and buyers who read specs properly will
+        notice. If both digits matter to you, both have to be tested.</p>
+      </div>
+      <div class="card">
+        <div class="num">3</div>
+        <h3>"Waterproof" is not an IP term</h3>
+        <p>IEC 60529 describes what happened under a defined test for a defined time. It is not a
+        promise about hot water, chemicals, steam, pressure changes or years of UV. Advertising a
+        product as waterproof when the report says IPX7 is a claim you cannot support if it is ever
+        questioned.</p>
+      </div>
+      <div class="card">
+        <div class="num">4</div>
+        <h3>IP 69K is a different standard</h3>
+        <p>The 80 °C, 80-bar close-range washdown test is written into ISO 20653 for road vehicles and
+        appears in IEC 60529 as IPX9. They are close but not identical, and a buyer asking for one will
+        not always accept a report written against the other. We confirm which one your customer means
+        before booking.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHO ASKS FOR IT ===== -->
+<section class="sec">
+  <div class="wrap">
+    <div class="center" style="margin-bottom:30px">
+      <p class="eyebrow">Where the demand comes from</p>
+      <h2>Who is asking you for an IP rating</h2>
+      <p class="lede">The reason behind the request usually decides which lab the report has to come
+      from — so it is the first thing we ask.</p>
+    </div>
+    <div class="labs">
+      <div class="lab">
+        <div class="lab__k">A BIS filing<em>ISI mark or CRS registration</em></div>
+        <p class="lab__v">Several product standards carry an IP requirement inside them — luminaires,
+        control gear, enclosures, charging equipment. Where the filing is BIS, the test report generally
+        has to come from a <b>BIS-recognised laboratory</b>, not merely an accredited one. A perfectly
+        valid NABL report from the wrong lab gets the application returned.</p>
+      </div>
+      <div class="lab">
+        <div class="lab__k">A tender or a government buyer<em>Public procurement</em></div>
+        <p class="lab__v">Tender specs name a rating and often name the accreditation too. We read the
+        clause before quoting, because the difference between "IP65" and "IP65 tested at an NABL
+        laboratory with the report in the bidder's own name" is the difference between qualifying and
+        being disqualified on technicals.</p>
+      </div>
+      <div class="lab">
+        <div class="lab__k">An export customer<em>EU, Middle East, US buyers</em></div>
+        <p class="lab__v">Overseas buyers usually want a report they can read in English against
+        IEC 60529 or EN 60529, with the sample clearly identified and photographs of it on the rig.
+        We make sure the report is written so it survives being forwarded to someone who has never
+        heard of the lab.</p>
+      </div>
+      <div class="lab">
+        <div class="lab__k">A marketplace listing<em>Amazon, Flipkart and retail chains</em></div>
+        <p class="lab__v">Platforms increasingly ask for evidence behind a durability claim on the
+        listing. A test report at the exact rating printed on the packaging is what closes that,
+        and it needs to name the model that is actually on sale.</p>
+      </div>
+      <div class="lab">
+        <div class="lab__k">Your own engineering<em>Before you commit to tooling</em></div>
+        <p class="lab__v">The cheapest time to find out a gasket groove is wrong is before the mould
+        is cut. A short pre-compliance run on a prototype costs a fraction of a failed formal test plus
+        a tooling change, and nothing about it has to be declared.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHAT WE TEST ===== -->
+<section class="sec sec--alt">
+  <div class="wrap">
+    <div class="center" style="margin-bottom:30px">
+      <p class="eyebrow">Product types</p>
+      <h2>What we most often put on the rig</h2>
+    </div>
+    <div class="grid g3">
+      <div class="card">
+        <div class="card__ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2Z"/></svg></div>
+        <h3>Lighting &amp; luminaires</h3>
+        <p>Street lights, flood lights, high bays, façade and landscape fittings, downlights and
+        drivers. Typically IP65 or IP66, and often tested alongside the luminaire standard rather
+        than on its own.</p>
+      </div>
+      <div class="card">
+        <div class="card__ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h4M7 12h6M17 8v8"/></svg></div>
+        <h3>Enclosures &amp; panels</h3>
+        <p>Control panels, junction boxes, feeder pillars, meter boxes, distribution boards. The
+        failures here are nearly always the gland plate, the door seal or a vent that was added late.</p>
+      </div>
+      <div class="card">
+        <div class="card__ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2 6 13h5l-1 9 8-11h-5l1-9Z"/></svg></div>
+        <h3>EV charging &amp; batteries</h3>
+        <p>AC and DC charge points, connectors, battery packs and BMS housings. Usually IP65 upward,
+        and frequently required alongside the electrical safety testing rather than after it.</p>
+      </div>
+      <div class="card">
+        <div class="card__ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2.5"/><path d="M11 18h2"/></svg></div>
+        <h3>Consumer electronics</h3>
+        <p>Handsets, earbuds, wearables, smart home devices, trackers. IP67 and IP68 dominate, and
+        the declared IPX8 depth and duration need deciding before the sample is sent.</p>
+      </div>
+      <div class="card">
+        <div class="card__ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V10l6-5 6 5v11M10 21v-5h4v5"/></svg></div>
+        <h3>Industrial &amp; food plant</h3>
+        <p>Motors, sensors, weighing equipment, conveyors and anything that meets a hose or a steam
+        cleaner. This is where IPX6, IPX9 and IP 69K actually earn their keep.</p>
+      </div>
+      <div class="card">
+        <div class="card__ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg></div>
+        <h3>Solar &amp; outdoor systems</h3>
+        <p>Junction boxes, inverters, combiner boxes, string monitoring, outdoor CCTV and telecom
+        cabinets. Long UV and weather exposure means the seal choice matters as much as the rating.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROCESS ===== -->
+<section class="sec">
+  <div class="wrap">
+    <div class="center" style="margin-bottom:30px">
+      <p class="eyebrow">How it works</p>
+      <h2>Five steps, and the thinking happens before the samples move</h2>
+    </div>
+    <div class="grid g3">
+      <div class="card">
+        <div class="num">1</div>
+        <h3>We work out the rating</h3>
+        <p>Where the product is mounted, what it meets in service, and who is asking for the rating.
+        Over-rating costs you money on the test and on the tooling; under-rating costs you the sale.</p>
+      </div>
+      <div class="card">
+        <div class="num">2</div>
+        <h3>We match the lab</h3>
+        <p>Scope, accreditation, chamber size and rig availability, checked against your rating and
+        your sample's dimensions. Where your filing needs a BIS-recognised lab, that is the constraint
+        we start from.</p>
+      </div>
+      <div class="card">
+        <div class="num">3</div>
+        <h3>Sample review</h3>
+        <p>We look at the seals, glands, vents, fasteners and drain paths before anything ships, and
+        tell you plainly if we think it will fail. Fixing it now is far cheaper than a retest slot.</p>
+      </div>
+      <div class="card">
+        <div class="num">4</div>
+        <h3>Testing and witnessing</h3>
+        <p>Samples logged in, tests run to the standard, photographs taken on the rig. We stay on the
+        file through the slot rather than handing you a lab contact and disappearing.</p>
+      </div>
+      <div class="card">
+        <div class="num">5</div>
+        <h3>Report, and what you do with it</h3>
+        <p>We check the report says what you need it to say, and help you word the rating on the
+        product, the datasheet and the packaging so the claim and the evidence match.</p>
+      </div>
+      <div class="card" style="background:var(--navy);border-color:var(--navy)">
+        <h3 style="color:#fff">If it fails</h3>
+        <p style="color:#B9D5E5">We tell you what let it in and where, usually from the photographs
+        and the ingress pattern. Then we agree the fix and requote the retest honestly — including
+        whether a partial retest is enough or the whole sequence has to run again.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHAT WE NEED ===== -->
+<section class="sec sec--alt">
+  <div class="wrap">
+    <div class="grid g2" style="gap:30px;align-items:start">
+      <div>
+        <p class="eyebrow">What we need from you</p>
+        <h2>Drawings, samples, and an honest description of the duty</h2>
+        <p class="lede">The last one matters more than people expect. A light that sits under an eave
+        and a light that sits on a pole in open rain are not the same test, even if they are the same
+        product.</p>
+        <p class="lede" style="margin-top:14px">Send what you have and we'll tell you what is missing.
+        Nothing has to be final to start the conversation.</p>
+        <div style="margin-top:22px;display:flex;flex-wrap:wrap;gap:11px">
+          <a class="btn btn--primary" href="#apply" data-cta="need-form">Send your product details</a>
+        </div>
+      </div>
+
+      <div class="incl">
+        <div class="incl__hd">
+          <h3>Your checklist</h3>
+        </div>
+        <ul>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12805C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Product name, model number and a photograph</b> — exactly as it will be sold</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12805C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Overall dimensions and weight</b> — these decide which chambers and rigs can take it</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12805C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Mounting position in service</b> — wall, pole, floor, vehicle, handheld, submerged</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12805C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Enclosure drawing or exploded view</b>, with gasket, gland and vent detail if you have it</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12805C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Who asked for the rating</b> — BIS filing, tender clause, buyer spec or your own claim</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12805C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>Samples</b> — usually more than one, because some tests are hard on a unit</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12805C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><b>For IPX8 only:</b> the depth and duration you intend to declare</li>
+        </ul>
+        <!-- PRICING: add your IP testing consulting fee here once confirmed, e.g. "Consulting starts at
+             ₹X. Lab charges are billed at actual and shown to you before booking." Delete this comment after. -->
+        <div class="incl__note">Lab charges depend on the rating, the size of the sample and the rig
+        it needs. We show you the lab's figure and our fee separately, before anything is booked —
+        no bundled number that hides which is which.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHY IT MATTERS ===== -->
+<section class="sec">
+  <div class="wrap">
+    <div class="grid g2" style="gap:28px;align-items:start">
+      <div>
+        <p class="eyebrow">Why it matters</p>
+        <h2>A rating you cannot evidence is worse than no rating at all</h2>
+        <p class="lede">Printing IP66 on a product is a claim. If the report behind it was run at a
+        lower rating, or on a different variant, or at a lab without that scope, the claim is standing
+        on nothing.</p>
+        <p class="lede">That surfaces at the worst moments — a tender technical evaluation, a customer
+        audit, a warranty dispute over water damage, or a platform asking for evidence behind a listing.</p>
+      </div>
+      <div class="warn">
+        <h3><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#B3261E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>What a weak report costs you</h3>
+        <p>A <b>BIS application returned</b> because the report came from a lab without the right
+        recognition — and the queue restarted.</p>
+        <p>A <b>tender bid rejected on technicals</b> for a report in the wrong name or against the
+        wrong clause, with no route to appeal it.</p>
+        <p>A <b>field failure</b> where the product met its rating but the rating was never the right
+        one for where it was installed.</p>
+        <p class="warn__cite">General guidance on IEC 60529 and how test evidence is usually assessed.
+        Requirements vary by product standard, buyer and tender — we confirm yours before booking.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section class="sec sec--alt">
+  <div class="wrap">
+    <div class="center" style="margin-bottom:28px">
+      <p class="eyebrow">Client feedback</p>
+      <h2>What manufacturers say afterwards</h2>
+    </div>
+    <div class="grid g3">
+      <div class="quote">
+        <div class="stars">★★★★★</div>
+        <p>They told us the gland plate would leak before we shipped anything. We changed it, and the
+        IP66 passed first time. The previous round with another consultant cost us two failed attempts.</p>
+        <div class="quote__by"><span class="quote__av">R</span>
+          <div><div class="quote__n">Rakesh M.</div><div class="quote__r">Lighting manufacturer, Noida</div></div></div>
+      </div>
+      <div class="quote">
+        <div class="stars">★★★★★</div>
+        <p>We needed the report to be acceptable for a BIS filing, not just valid. That distinction was
+        explained to us on the first call and it saved a restart.</p>
+        <div class="quote__by"><span class="quote__av">S</span>
+          <div><div class="quote__n">Sunita K.</div><div class="quote__r">Electrical accessories, Vadodara</div></div></div>
+      </div>
+      <div class="quote">
+        <div class="stars">★★★★★</div>
+        <p>Our buyer asked for IP 69K and we'd have booked IPX9 by mistake. They caught it, checked with
+        the buyer, and booked the right one.</p>
+        <div class="quote__by"><span class="quote__av">A</span>
+          <div><div class="quote__n">Amit D.</div><div class="quote__r">Food processing equipment, Pune</div></div></div>
+      </div>
+    </div>
+    <p class="marq__note">Names shortened at our clients' request. References available on request for
+    serious enquiries.</p>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="sec">
+  <div class="wrap">
+    <div class="center" style="margin-bottom:28px">
+      <p class="eyebrow">FAQ</p>
+      <h2>Questions we get on the first call</h2>
+    </div>
+    <div class="faq">
+      <details open>
+        <summary>Is IP testing mandatory in India?</summary>
+        <div class="ans"><p>Not on its own. There is no standalone law that says every product must
+        carry an IP rating.</p>
+        <p>What happens instead is that IP requirements sit <i>inside</i> other things — a product
+        standard you are certifying to, a tender specification, a buyer's purchase condition, or a
+        marketplace's evidence policy. So whether it is compulsory for you depends entirely on which
+        of those applies. That is the first thing we establish, because it also decides which lab the
+        report has to come from.</p></div>
+      </details>
+      <details>
+        <summary>What rating does my product need?</summary>
+        <div class="ans"><p>Work backwards from where it lives and what reaches it.</p>
+        <p>Indoors, dust only, no water — IP5X or IP54 is usually honest. Outdoors in rain, mounted
+        on a pole or wall — IP65 or IP66. Handheld or portable, where being dropped in water is a real
+        risk — IP67. Permanently submerged or buried — IP68, with the depth and duration you declare.
+        Hosed down with hot water — IPX9 or IP 69K.</p>
+        <p>The commonest error is going higher than the duty needs. Every step up costs money in
+        sealing, in tooling and in test, and buyers rarely pay more for a rating they did not ask for.</p></div>
+      </details>
+      <details>
+        <summary>How long does IP testing take?</summary>
+        <div class="ans"><p>The tests themselves are short. Solids probes take under an hour. The dust
+        chamber runs for 8 hours. Most water tests are between 3 and 30 minutes of actual exposure.</p>
+        <p>What sets the calendar is lab queue and sample logistics, not the test. Plan for one to two
+        weeks in normal conditions once samples reach the lab, longer if you need a rig that is in
+        demand or a chamber big enough for a large enclosure. We tell you the realistic date when we
+        quote, not the optimistic one.</p></div>
+      </details>
+      <details>
+        <summary>Does an IP rating expire?</summary>
+        <div class="ans"><p>The test report does not expire by itself. What ends its usefulness is a
+        change to the product.</p>
+        <p>If you change the enclosure, the gasket material, a gland, a vent, a fastener pattern or
+        the moulding tool, the report no longer describes what you are selling and the rating should
+        be retested. Some certification schemes that reference the report also set their own validity
+        periods, which is a separate matter from the report itself.</p></div>
+      </details>
+      <details>
+        <summary>Can one product carry two ratings?</summary>
+        <div class="ans"><p>Yes, and for many products it is the correct way to declare it.</p>
+        <p>Because IPX7 and IPX8 do not include the jet tests, a product that has to survive both a
+        hose and immersion is declared as a pair — IP66/IP68, for example — with both tests run and
+        both shown on the report. Declaring only IP68 on such a product quietly leaves the hose-down
+        claim unevidenced.</p></div>
+      </details>
+      <details>
+        <summary>What does IP testing cost?</summary>
+        <div class="ans"><p>There are two numbers and we always show them separately.</p>
+        <p><b>The lab charge</b>, which depends on the rating, the size and weight of your sample and
+        which rigs it needs — a dust chamber run plus IPX9 costs very differently from a single IPX4.
+        And <b>our fee</b>, for the rating assessment, the lab matching, the sample review and managing
+        the file through to the report.</p>
+        <p>You see the lab's figure before we book, not after. If a retest becomes necessary we requote
+        it honestly rather than treating it as included.</p></div>
+      </details>
+      <details>
+        <summary>Can you test a prototype before we commit to tooling?</summary>
+        <div class="ans"><p>Yes, and for anything with a moulded enclosure we usually suggest it.</p>
+        <p>A pre-compliance run on a prototype is faster, cheaper and does not have to be declared
+        anywhere. If it fails, you learn where the water gets in while the tool can still be changed.
+        The formal test then follows on production samples.</p></div>
+      </details>
+      <details>
+        <summary>Do you do the testing yourselves?</summary>
+        <div class="ans"><p>No, and we would be careful of anyone who says they do both.</p>
+        <p>Testing is done by accredited laboratories. Our job is to decide the right rating, find the
+        lab with the right scope and rig for your product, prepare the sample and the paperwork so the
+        first attempt is the one that passes, and make sure the report you receive says what your buyer
+        or your filing actually needs it to say.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section class="sec final">
+  <div class="wrap">
+    <h2>Tell us the product. We'll tell you the rating and the lab.</h2>
+    <p class="lede">Send the model, roughly where it gets installed and who is asking for the rating.
+    You'll get a straight answer on what to test for, which laboratory can run it, and what it costs —
+    lab charge and our fee shown separately.</p>
+    <div class="final__acts">
+      <a class="btn btn--primary" href="tel:+919999118039" data-cta="final-call">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+        Call now
+      </a>
+      <a class="btn btn--ghost" href="#apply" data-cta="final-form">Request a callback</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr__in">
+      <div>
+        <img class="ftr__logo" src="data:image/png;base64,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" alt="Instacertify" width="560" height="112" loading="lazy">
+        <strong>Instacertify Labs Private Limited</strong>
+        Registered office: PK-01, Sector 63A, Noida,<br>Uttar Pradesh 201301, India<br>
+        CIN U74999UP2022PTC170291<br>
+        <a href="tel:+919999118039">+91 99991 18039</a> · <a href="mailto:contact@instacertify.com">contact@instacertify.com</a>
+      </div>
+      <div>
+        <strong>Offices</strong>
+        <ul>
+          <li>Noida, Delhi NCR</li>
+          <li>Vadodara, Gujarat</li>
+          <li>Kalyan, Maharashtra</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Also handled by our team</strong>
+        <ul>
+          <li>BIS — ISI Mark &amp; CRS</li>
+          <li>EPR registration</li>
+          <li>WPC ETA</li>
+          <li>IMEI ICDR &amp; TAC</li>
+          <li>MSDS / SDS authoring</li>
+          <li>RoHS &amp; REACH compliance</li>
+        </ul>
+        <p style="margin:10px 0 0"><a href="tel:+919999118039" data-cta="footer-services-call">Contact our team →</a></p>
+        <strong style="margin-top:16px">Policies</strong>
+        <ul>
+          <li><a href="https://instacertify.com/privacy-policy">Privacy Policy</a></li>
+          <li><a href="https://instacertify.com/terms-of-service">Terms of Service</a></li>
+          <li><a href="https://instacertify.com/refund-policy">Refund Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ftr__legal">
+      Instacertify Labs Private Limited is a private compliance consultancy. We are not a testing laboratory and we are
+      not a certification body. Ingress protection testing is carried out by independent accredited
+      laboratories; our role is to determine the appropriate rating, match your product to a laboratory
+      with the correct scope and equipment, prepare the sample and documentation, and manage the file
+      through to the report. Test reports are issued solely by the testing laboratory. Test conditions
+      summarised on this page are a plain-language guide to IEC 60529 and are not a substitute for the
+      standard; IP 69K for road vehicles is specified in ISO 20653. Product standards, tender clauses
+      and buyer requirements vary and are confirmed for your product before any testing is booked.
+      Timelines depend on laboratory scheduling. Information here is general guidance and is not legal
+      advice. © 2026 Instacertify Labs Private Limited.
+    </div>
+  </div>
+</footer>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<!-- ===== STICKY MOBILE BAR ===== -->
+<nav class="mbar" aria-label="Quick contact">
+  <a class="mbar__call" href="tel:+919999118039" data-cta="sticky-call">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+    Call now
+  </a>
+  <a class="mbar__wa" href="https://wa.me/919999118039?text=Hi%2C%20I%20need%20IP%20testing%20for%20a%20product." data-cta="sticky-whatsapp" rel="noopener">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.8-.9-2-1s-.5-.2-.7.1-.8 1-.9 1.2-.3.2-.6.1a8 8 0 0 1-2.4-1.5 9 9 0 0 1-1.6-2c-.2-.3 0-.5.1-.6l.5-.6.3-.5v-.5l-1-2.3c-.2-.6-.5-.5-.7-.5h-.6a1.1 1.1 0 0 0-.8.4 3.3 3.3 0 0 0-1 2.5A5.8 5.8 0 0 0 7.3 12a13 13 0 0 0 5 4.4c2.5 1 2.5.6 3 .6a2.9 2.9 0 0 0 2-1.4 2.4 2.4 0 0 0 .2-1.4ZM12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Z"/></svg>
+    WhatsApp
+  </a>
+</nav>
+
+<!-- ===== CONVERSION TRACKING =====
+     Replace AW-XXXXXXXXX and the three labels with your real Google Ads IDs.
+     Also add the base gtag snippet in <head> — see section 4 of the ads pack. -->
+<script>
+(function(){
+  var AW_ID = 'AW-XXXXXXXXX';
+  var LABELS = { call:'CALL_LABEL_HERE', whatsapp:'WHATSAPP_LABEL_HERE', lead:'LEAD_LABEL_HERE' };
+
+  function fire(label, extra){
+    if (typeof gtag !== 'function' || !label || label.indexOf('_HERE') > -1) {
+      console.log('[ip] conversion (not sent — configure IDs):', label, extra || {});
+      return;
+    }
+    gtag('event','conversion', Object.assign({send_to: AW_ID + '/' + label}, extra || {}));
+  }
+
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[data-cta]');
+    if (!a) return;
+    var cta = a.getAttribute('data-cta') || '';
+    if (a.href.indexOf('tel:') === 0)         fire(LABELS.call,     {cta_location: cta});
+    else if (a.href.indexOf('wa.me') > -1)    fire(LABELS.whatsapp, {cta_location: cta});
+    else if (a.href.indexOf('mailto:') === 0) fire(LABELS.lead,     {cta_location: cta, lead_type: 'email'});
+  });
+
+  var form = document.getElementById('ip-form');
+  if (form) {
+    form.addEventListener('submit', function(){
+      fire(LABELS.lead, {lead_type: (document.getElementById('f-role')||{}).value || ''});
+    });
+    var ph = document.getElementById('f-phone'), cc = document.getElementById('f-cc'),
+        dial = document.getElementById('f-dial');
+    function limit(){
+      var india = cc && cc.value === '+91';
+      if (dial && cc) dial.textContent = cc.value;
+      ph.value = ph.value.replace(/\D/g,'').slice(0, india ? 10 : 15);
+      ph.placeholder = india ? '10-digit number' : 'Phone number';
+    }
+    if (ph) {
+      ph.addEventListener('input', limit);
+      if (cc) cc.addEventListener('change', limit);
+      limit();
+    }
+  }
+
+  // jumping to the form puts the cursor in it
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href="#apply"]');
+    if (!a) return;
+    setTimeout(function(){
+      var n = document.getElementById('f-name');
+      if (n) n.focus({preventScroll:true});
+    }, 550);
+  });
+
+  // back to top
+  var top = document.getElementById('totop');
+  if (top) {
+    top.addEventListener('click', function(){
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+    window.addEventListener('scroll', function(){
+      top.classList.toggle('on', window.scrollY > 900);
+    }, {passive:true});
+  }
+
+  var hit = {};
+  window.addEventListener('scroll', function(){
+    var pct = (window.scrollY + window.innerHeight) / document.body.scrollHeight * 100;
+    [50,90].forEach(function(m){
+      if (pct >= m && !hit[m]) { hit[m] = true;
+        if (typeof gtag === 'function') gtag('event','scroll_depth',{percent:m}); }
+    });
+  }, {passive:true});
+})();
+</script>
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org","@type":"ProfessionalService",
+  "name":"Instacertify Labs Private Limited",
+  "url":"https://instacertify.com",
+  "telephone":"+91-99991-18039",
+  "email":"contact@instacertify.com",
+  "description":"Ingress protection (IP) testing coordination to IEC 60529 for manufacturers, importers and brand owners in India.",
+  "address":[
+    {"@type":"PostalAddress","streetAddress":"A-34, Sector 63 A","addressLocality":"Noida","addressRegion":"Uttar Pradesh","postalCode":"201301","addressCountry":"IN"},
+    {"@type":"PostalAddress","streetAddress":"FF/17 Umannagar Shopping Center, Soma Talav","addressLocality":"Vadodara","addressRegion":"Gujarat","postalCode":"390025","addressCountry":"IN"},
+    {"@type":"PostalAddress","streetAddress":"1st Floor, Abha Building, Valipeer Road, Kalyan (West)","addressLocality":"Kalyan","addressRegion":"Maharashtra","postalCode":"421301","addressCountry":"IN"}
+  ]
+}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is IP testing mandatory in India?","acceptedAnswer":{"@type":"Answer","text":"There is no standalone law requiring every product to carry an IP rating. IP requirements sit inside other things: a product standard being certified to, a tender specification, a buyer's purchase condition, or a marketplace evidence policy. Which of those applies also decides which laboratory the test report has to come from."}},
+{"@type":"Question","name":"What is the difference between IP67 and IP65?","acceptedAnswer":{"@type":"Answer","text":"IP65 is tested with a 6.3 mm water jet at 12.5 litres per minute from about 3 metres. IP67 is tested by full immersion in 1 metre of water for 30 minutes. They are different tests and IPX7 does not include IPX5, so a product needing both jet and immersion protection is declared as a pair, such as IP66/IP68, with both tests run."}},
+{"@type":"Question","name":"How long does IP testing take?","acceptedAnswer":{"@type":"Answer","text":"The tests themselves are short: solids probes under an hour, the dust chamber 8 hours, most water tests between 3 and 30 minutes of exposure. Lab queue and sample logistics set the calendar, so one to two weeks after samples reach the laboratory is typical."}},
+{"@type":"Question","name":"Does an IP rating expire?","acceptedAnswer":{"@type":"Answer","text":"The test report does not expire by itself. It stops describing your product if the enclosure, gasket material, glands, vents, fastener pattern or moulding tool change, and the rating should then be retested. Certification schemes that reference the report may set their own validity periods separately."}},
+{"@type":"Question","name":"What is IP 69K and how is it different from IPX9?","acceptedAnswer":{"@type":"Answer","text":"Both describe close-range high-pressure hot water jetting at roughly 80 degrees Celsius and 80 bar. IPX9 is in IEC 60529; IP 69K is written into ISO 20653 for road vehicles. They are close but not identical, and a buyer asking for one will not always accept a report written against the other."}}]}
+</script>
+
+<script>
+(function(){
+  var S = {
+    'X': {t:'Not declared', d:'The manufacturer has not declared or not tested solid-object protection. X does not mean zero — it means no claim is being made.', test:'No solids test is run.', dur:''},
+    '0': {t:'No protection', d:'No protection against solid foreign objects or contact with live parts.', test:'No solids test is run.', dur:''},
+    '1': {t:'Objects 50 mm and larger', d:'Keeps out large objects and stops the back of a hand reaching live parts.', test:'A 50 mm sphere probe is pushed against every opening at 50 N. It must not enter, and must stay clear of hazardous parts.', dur:'Under an hour'},
+    '2': {t:'Objects 12.5 mm and larger', d:'Keeps out fingers and objects of that size.', test:'A 12.5 mm sphere at 30 N, plus a jointed test finger (12 mm × 80 mm) at 10 N applied to every opening in every position.', dur:'Under an hour'},
+    '3': {t:'Objects 2.5 mm and larger', d:'Keeps out tools and thick wires.', test:'A 2.5 mm steel rod at 3 N must not enter any opening at all.', dur:'Under an hour'},
+    '4': {t:'Objects 1 mm and larger', d:'Keeps out most wires, screws and small fasteners.', test:'A 1.0 mm steel wire at 1 N must not enter any opening.', dur:'Under an hour'},
+    '5': {t:'Dust protected', d:'Dust may get in, but not enough to interfere with operation or safety. This is the honest rating for most vented enclosures.', test:'Talcum powder dust chamber, 2 kg of talc per cubic metre kept in suspension. Enclosures that would normally see reduced internal pressure are held under vacuum. Ingress is allowed but must not impair the product.', dur:'8 hours in the chamber'},
+    '6': {t:'Dust tight', d:'No dust gets in at all. Required before most IP6X claims on outdoor and sealed products.', test:'Same talc chamber as IP5X, but the pass condition is stricter — no dust deposit inside the enclosure when it is opened and inspected.', dur:'8 hours in the chamber'}
+  };
+  var W = {
+    'X': {t:'Not declared', d:'No water protection is being claimed. Again, X is not zero — it is silence.', test:'No water test is run.', dur:'', not:''},
+    '0': {t:'No protection', d:'No protection against water.', test:'No water test is run.', dur:'', not:''},
+    '1': {t:'Dripping water', d:'Water falling straight down cannot get in.', test:'The sample sits under a drip box producing the equivalent of 1 mm of rainfall per minute, falling vertically.', dur:'10 minutes', not:'Nothing angled, sprayed or splashed.'},
+    '2': {t:'Dripping water, tilted 15°', d:'Still vertical drips, but the product is tilted to four positions.', test:'Drip box at 3 mm/min of rainfall, sample tilted 15° in four different directions.', dur:'2.5 minutes per position, 10 minutes total', not:'Anything coming in sideways.'},
+    '3': {t:'Spraying water', d:'Water sprayed at up to 60° either side of vertical — think rain with some wind in it.', test:'Oscillating tube swinging ±60°, or a hand-held spray nozzle with its shield fitted at roughly 10 litres a minute and 80–100 kPa.', dur:'Minimum 5 minutes, 1 minute per m² of surface', not:'Water from the side or below. That is IPX4.'},
+    '4': {t:'Splashing water', d:'Water splashing from any direction at all, including underneath.', test:'The same rig as IPX3 with the tube swinging a full ±180°, or the spray nozzle with its shield removed so water arrives from every angle.', dur:'Minimum 5 minutes', not:'Pressurised jets. That is IPX5.'},
+    '5': {t:'Water jets', d:'A hose jet from any direction cannot get in. The usual minimum for outdoor and washdown equipment.', test:'A 6.3 mm nozzle at 12.5 litres a minute, roughly 30 kPa, held 2.5–3 m away and played over every surface and every joint.', dur:'Minimum 3 minutes, 1 minute per m²', not:'Immersion. A product can pass IPX5 and flood in a bucket.'},
+    '6': {t:'Powerful water jets', d:'A heavy hose jet — marine decks, wash bays, mining and site equipment.', test:'A 12.5 mm nozzle at 100 litres a minute, roughly 100 kPa, from 2.5–3 m. Eight times the water of IPX5.', dur:'Minimum 3 minutes, 1 minute per m²', not:'Immersion, and not the hot high-pressure jets of IPX9.'},
+    '7': {t:'Immersion to 1 metre', d:'Temporary immersion — dropped in a sink, a puddle, a wash tank.', test:'The sample is fully submerged so the top is at least 150 mm under the surface and the bottom no more than 1 m down.', dur:'30 minutes', not:'Jets. IPX7 does not include IPX5 or IPX6 — they are different failure mechanics and separate tests.'},
+    '8': {t:'Continuous immersion', d:'Immersion deeper or longer than IPX7, on conditions you and the lab agree and then print on the product.', test:'Depth, duration and water conditions are set by the manufacturer and must be more severe than IPX7. Whatever you declare is what gets tested — so the declaration has to be realistic.', dur:'As declared — commonly 1.5 m for 30 minutes', not:'Jets, unless separately tested. IPX8 alone says nothing about hose-down.'},
+    '9': {t:'High-pressure, high-temperature jets', d:'Close-range steam-cleaning and pressure-washing. Food processing, dairy, commercial kitchens, vehicle washdown.', test:'Water at 80 °C and 8,000–10,000 kPa from a fan nozzle 100–150 mm away, at 0°, 30°, 60° and 90°, with the sample on a turntable.', dur:'30 seconds at each of the four angles', not:'Immersion. For road vehicles this test lives in ISO 20653 and is written IP 69K.'}
+  };
+  var USE = {
+    '65':'Outdoor lighting, control boxes, EV charge points, solar junction boxes',
+    '66':'Marine and dockside gear, mining equipment, wash bays, railway enclosures',
+    '67':'Handsets, wearables, torches, portable instruments, sensors near water',
+    '68':'Underwater and buried equipment, submersible pumps, dive gear',
+    '69':'Food and dairy plant, commercial kitchens, vehicle washdown equipment',
+    '54':'Indoor industrial panels, vented enclosures, general-purpose fittings',
+    '55':'Vented outdoor enclosures, garden and agricultural equipment',
+    '44':'Splash-exposed indoor equipment, bathroom fittings'
+  };
+  var sEl = document.getElementById('ip-s'), wEl = document.getElementById('ip-w'),
+      out = document.getElementById('ip-out');
+  if (!sEl || !wEl || !out) return;
+
+  function esc(x){ return String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+  function render(){
+    var s = sEl.value, w = wEl.value, so = S[s], wo = W[w];
+    var code = 'IP' + s + w;
+    var cum = (w !== 'X' && w !== '0' && +w <= 6)
+      ? 'Up to IPX6 the water levels build on each other — passing IPX' + w + ' means the lower ones are covered too.'
+      : (w === '7' || w === '8')
+        ? 'If the product also has to survive a hose, book the jet test as well and declare the pair — IP66/IP68, for example. Both tests run, both appear on the report.'
+        : (w === '9')
+          ? 'IPX9 sits on its own. A product that also needs jetting or immersion cover has those tested separately and declared alongside it.'
+          : '';
+    var uses = USE[s + w] || '';
+
+    out.innerHTML =
+      '<div class="dec__code"><span>' + esc(code) + '</span>' +
+        (uses ? '<em>' + esc(uses) + '</em>' : '<em>Set both digits to see typical products</em>') + '</div>' +
+      '<div class="dec__pair">' +
+        card('First digit &middot; ' + esc(s), so, 'dust') +
+        card('Second digit &middot; ' + esc(w), wo, 'water') +
+      '</div>' +
+      (cum ? '<div class="dec__note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E5277" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><p>' + cum + '</p></div>' : '') +
+      (wo.not ? '<div class="dec__note dec__note--warn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B3261E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><p><b>What IPX' + esc(w) + ' does not cover:</b> ' + wo.not + '</p></div>' : '');
+
+    var q = document.querySelectorAll('#ip-quick .chip');
+    for (var i = 0; i < q.length; i++){
+      q[i].classList.toggle('chip--on', q[i].getAttribute('data-ip') === s + w);
+    }
+  }
+
+  function card(head, o, kind){
+    return '<div class="dcard dcard--' + kind + '">' +
+      '<div class="dcard__h">' + head + '</div>' +
+      '<h3>' + o.t + '</h3>' +
+      '<p class="dcard__d">' + o.d + '</p>' +
+      '<div class="dcard__test"><span>What the lab actually does</span><p>' + o.test + '</p></div>' +
+      (o.dur ? '<div class="dcard__dur"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' + o.dur + '</div>' : '') +
+      '</div>';
+  }
+
+  sEl.addEventListener('change', render);
+  wEl.addEventListener('change', render);
+  var chips = document.querySelectorAll('#ip-quick .chip');
+  for (var i = 0; i < chips.length; i++){
+    chips[i].addEventListener('click', function(){
+      var v = this.getAttribute('data-ip');
+      sEl.value = v.charAt(0); wEl.value = v.charAt(1); render();
+    });
+  }
+  render();
+})();
+</script>
+
+</body>
+</html>
