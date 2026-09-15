@@ -30,7 +30,7 @@ const DEFAULT_SITE = {
   baseUrl: process.env.BASE_URL || 'https://consult.instacertify.com',
   hubTitle: 'Choose your certification path',
   hubDescription:
-    'Pick the compliance path that matches your product — BIS, LMPC / Legal Metrology, MSDS / GHS, or IMEI ICDR & TAC. Fast quotes from Instacertify.',
+    'Pick the compliance path that matches your product — BIS, LMPC, MSDS / GHS, IMEI ICDR & TAC, or EPR. Fast quotes from Instacertify.',
   hubEyebrow: 'Instacertify Consult',
   hubSupport:
     'Not sure which path you need? Call us and we will map it in one conversation.',
@@ -176,6 +176,41 @@ const SEED_PAGES = [
       'ICDR registration for Indian networks, plus GSMA brand / TAC allocation for new IMEIs.',
     hub_badge: 'Devices',
     source_file: 'imei-icdr.html',
+    source_type: 'seed',
+  },
+  {
+    slug: 'epr-registration',
+    title: 'EPR Registration & Annual Compliance | Instacertify',
+    meta_description:
+      'EPR registration with CPCB for plastic, e-waste, battery, used oil and waste tyre — plus annual returns and ongoing compliance.',
+    canonical_path: '/epr-registration',
+    robots: 'index, follow',
+    og_title: 'EPR Registration | Instacertify',
+    og_description:
+      'Plastic, e-waste, battery, used oil and tyre EPR — filed right, with annual returns handled.',
+    hero_h1: 'EPR registration— filed right, and kept right after that.',
+    hero_lede: '',
+    form_heading: 'Get your EPR quote',
+    whatsapp_text: 'Hi, I need EPR registration help.',
+    phone: '+91 99991 18039',
+    role_options: [
+      'EPR — Plastic packaging',
+      'EPR — E-waste',
+      'EPR — Battery waste',
+      'EPR — Used oil',
+      'EPR — Waste tyre',
+      'More than one category',
+      'Annual return or renewal only',
+      'Registration done wrong — need it corrected',
+      'Not sure — please advise',
+    ],
+    enabled: 1,
+    sort_order: 5,
+    hub_label: 'EPR Registration',
+    hub_blurb:
+      'Plastic, e-waste, battery, oil & tyre EPR with CPCB — registration plus annual compliance.',
+    hub_badge: 'CPCB',
+    source_file: 'epr-registration.html',
     source_type: 'seed',
   },
 ];
