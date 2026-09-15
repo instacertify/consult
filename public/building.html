@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What we are building — Instacertify Consult</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0A3A52;--orange:#E8702A;--ink:#0F2230;--body:#40566A;--bg:#F4F8FB;--line:#DCE6ED}
+*{box-sizing:border-box}body{margin:0;font-family:Poppins,system-ui,sans-serif;background:linear-gradient(180deg,#0A3A52 0%,#0E5277 40%,#F4F8FB 40%);color:var(--body);min-height:100vh}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 64px}
+.hero{color:#fff;padding:12px 0 40px}
+.hero .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#FFB484;font-weight:600}
+.hero h1{font-size:clamp(28px,5vw,44px);margin:8px 0;letter-spacing:-.03em;line-height:1.1}
+.hero p{max-width:54ch;color:#C9DCE8;font-size:1.05rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:-10px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 12px 32px -18px rgba(10,58,82,.35)}
+.card h2{margin:0 0 8px;color:var(--ink);font-size:1.1rem}
+.card .n{display:inline-block;background:#FFF1E8;color:var(--orange);font-weight:700;font-size:12px;padding:4px 8px;border-radius:8px;margin-bottom:10px}
+.card a{display:inline-block;margin-top:12px;font-weight:700;color:var(--navy);text-decoration:none}
+.flow{margin-top:28px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}
+.flow h2{margin:0 0 12px;color:var(--ink)}
+.flow ol{margin:0;padding-left:1.2rem;line-height:1.7}
+code{background:#EAF2F7;padding:2px 6px;border-radius:6px;font-size:.9em}
+.note{margin-top:10px;padding:12px;background:#FFF1E8;border-radius:10px;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <p class="eyebrow">consult.instacertify.com</p>
+    <h1>What we are building</h1>
+    <p>Independent landing pages (BIS, LMPC, MSDS — not merged into one page), each with its own URL. Backend lists every URL and lets you edit the URL and all words.</p>
+  </section>
+  <div class="grid">
+    <div class="card"><span class="n">1 · Landings</span><h2>Independent pages</h2><p>BIS, LMPC and MSDS stay separate landings with their own URLs and content.</p><a href="/admin">Open in backend →</a></div>
+    <div class="card"><span class="n">2 · Backend</span><h2>URL shown & editable</h2><p>Admin shows the full URL for each page. Change the path anytime.</p><a href="/admin">Edit URLs →</a></div>
+    <div class="card"><span class="n">3 · Words</span><h2>Every word editable</h2><p>Title, meta, H1, hero copy, section headings, dropdown options — per page.</p><a href="/admin">Edit words →</a></div>
+    <div class="card"><span class="n">4 · Leads</span><h2>Email + store</h2><p>Forms from each landing are saved and emailed to contact@instacertify.com.</p><a href="/admin/leads">Open leads →</a></div>
+  </div>
+  <section class="flow">
+    <h2>How it works</h2>
+    <ol>
+      <li>Each landing is stored as its own HTML and public URL</li>
+      <li>Backend lists every landing with its full URL and Open / Edit actions</li>
+      <li>Edit that page’s URL path and words without touching the other landings</li>
+      <li>Optional directory at <code>/</code> only links to the independent pages — it does not merge their content</li>
+    </ol>
+    <p class="note">Example URLs: <code>/bis-certification</code>, <code>/lmpc-certificate</code>, <code>/msds-certificate</code> — each fully editable in admin.</p>
+  </section>
+</div>
+</body>
+</html>
