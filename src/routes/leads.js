@@ -15,7 +15,7 @@ function pickLead(body, fallbackSlug) {
     email: body.email || '',
     country_code: body.country_code || body.cc || '',
     phone: body.phone || '',
-    role: body.role || body.rating || '',
+    role: body.role || body.rating || body.markets || '',
     product: body.product || body.prod || '',
     consent: body.consent === '1' || body.consent === 'on' || body.consent === true,
     raw: body,

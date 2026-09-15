@@ -387,6 +387,7 @@ function pageKind(slug = '') {
   if (s.includes('imei') || s.includes('icdr') || s.includes('tac')) return 'imei';
   if (s.includes('epr')) return 'epr';
   if (s.includes('ip-testing') || s.includes('ip-rating') || s.includes('iec-60529')) return 'ip';
+  if (s.includes('emc') || s.includes('emi-emc') || s.includes('cispr')) return 'emc';
   return 'generic';
 }
 
@@ -496,6 +497,23 @@ function defaultAboutForSlug(slug = '') {
       image_url: '/img/ip-rating-visual.jpg',
       image_alt: 'Illustrative IEC 60529 IP rating plate',
       caption: 'Illustrative rating plate — your exact code and lab report number appear after testing.',
+    };
+  }
+  if (kind === 'emc') {
+    return {
+      enabled: true,
+      eyebrow: 'EMI · EMC · CISPR & IEC 61000',
+      title: 'What is EMC testing?',
+      body:
+        'EMC (electromagnetic compatibility) is emission and immunity testing — does your product interfere with others, and can it survive interference itself. Your BIS certificate almost never covers this; you need the right CISPR / IEC 61000 standard and a lab with that scope.',
+      points: [
+        'Emission (CISPR) and immunity (IEC 61000) planned as one campaign',
+        'NABL partner labs — TEC-designated where MTCTE / ETA needs it',
+        'Pre-compliance before the formal slot — EMC fixes are hardware fixes',
+      ],
+      image_url: '/img/emc-report-visual.jpg',
+      image_alt: 'Illustrative EMC test report layout',
+      caption: 'Illustrative layout — your standards and lab report number appear after testing.',
     };
   }
   // BIS default (and generic fallback)
@@ -790,6 +808,38 @@ function defaultRouteVisuals(slug = '') {
       },
     ];
   }
+  if (kind === 'emc') {
+    return [
+      {
+        key: 'emission',
+        tag: 'Emission',
+        title: 'CISPR emission',
+        blurb: 'Radiated & conducted — Class A / B and product-family limits',
+        tone: 'navy',
+      },
+      {
+        key: 'immunity',
+        tag: 'Immunity',
+        title: 'IEC 61000 immunity',
+        blurb: 'ESD, RF, burst, surge, dips and related immunity methods',
+        tone: 'teal',
+      },
+      {
+        key: 'precomp',
+        tag: 'Before chamber',
+        title: 'Pre-compliance',
+        blurb: 'Find layout / filter issues before the formal booking',
+        tone: 'orange',
+      },
+      {
+        key: 'standards',
+        tag: 'Plan first',
+        title: 'Right standard, right lab',
+        blurb: 'Map the obligation, then book a lab with that exact scope',
+        tone: 'slate',
+      },
+    ];
+  }
   // BIS
   return [
     {
@@ -867,6 +917,13 @@ function defaultRouteSectionMeta(slug = '') {
       lede: 'Pick the rating your buyer actually needs, then book a lab that can run that exact method — including IP 69K washdown where required.',
     };
   }
+  if (kind === 'emc') {
+    return {
+      eyebrow: 'What the campaign covers',
+      title: 'Emission, immunity, pre-compliance — planned as one set',
+      lede: 'Pick the standards your market and product family actually require, then book a lab that can run that full campaign — not a partial scan.',
+    };
+  }
   return {
     eyebrow: 'Which route applies',
     title: 'ISI, CRS, FMCS or Scheme X — they are not interchangeable',
@@ -875,16 +932,16 @@ function defaultRouteSectionMeta(slug = '') {
 }
 
 function schemeVisualIcon(key) {
-  if (key === 'fmcs' || key === 'export' || key === 'importer' || key === 'icdr' || key === 'plastic' || key === 'ip65') {
+  if (key === 'fmcs' || key === 'export' || key === 'importer' || key === 'icdr' || key === 'plastic' || key === 'ip65' || key === 'emission') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>`;
   }
-  if (key === 'crs' || key === 'docs' || key === 'ecommerce' || key === 'tac' || key === 'ewaste' || key === 'ip67') {
+  if (key === 'crs' || key === 'docs' || key === 'ecommerce' || key === 'tac' || key === 'ewaste' || key === 'ip67' || key === 'immunity') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>`;
   }
-  if (key === 'schemex' || key === 'manufacturer' || key === 'device' || key === 'both' || key === 'battery' || key === 'ip69k') {
+  if (key === 'schemex' || key === 'manufacturer' || key === 'device' || key === 'both' || key === 'battery' || key === 'ip69k' || key === 'precomp') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h16M6 20V10l6-4 6 4v10M10 20v-4h4v4"/></svg>`;
   }
-  if (key === 'packer' || key === 'ghs' || key === 'cosmetic' || key === 'brand' || key === 'oiltyre' || key === 'decoder') {
+  if (key === 'packer' || key === 'ghs' || key === 'cosmetic' || key === 'brand' || key === 'oiltyre' || key === 'decoder' || key === 'standards') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>`;
   }
   if (key === 'buyer' || key === 'drug') {
@@ -984,6 +1041,7 @@ function defaultHeroBgForSlug(slug = '') {
   if (kind === 'imei') return '/img/imei-hero-atmosphere.jpg';
   if (kind === 'epr') return '/img/epr-hero-atmosphere.jpg';
   if (kind === 'ip') return '/img/ip-hero-atmosphere.jpg';
+  if (kind === 'emc') return '/img/emc-hero-atmosphere.jpg';
   return '';
 }
 

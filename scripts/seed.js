@@ -30,7 +30,7 @@ const DEFAULT_SITE = {
   baseUrl: process.env.BASE_URL || 'https://consult.instacertify.com',
   hubTitle: 'Choose your certification path',
   hubDescription:
-    'Pick the compliance path that matches your product — BIS, LMPC, MSDS, IMEI, EPR, or IP testing. Fast quotes from Instacertify.',
+    'Pick the compliance path that matches your product — BIS, LMPC, MSDS, IMEI, EPR, IP, or EMC testing. Fast quotes from Instacertify.',
   hubEyebrow: 'Instacertify Consult',
   hubSupport:
     'Not sure which path you need? Call us and we will map it in one conversation.',
@@ -249,6 +249,39 @@ const SEED_PAGES = [
     source_file: 'ip-testing.html',
     source_type: 'seed',
   },
+  {
+    slug: 'emc-testing',
+    title: 'EMI & EMC Testing — CISPR & IEC 61000 | Instacertify',
+    meta_description:
+      'EMI and EMC testing for electronics, appliances, lighting, EV, telecom and industrial gear. Emission and immunity to CISPR and IEC 61000 at NABL / TEC labs.',
+    canonical_path: '/emc-testing',
+    robots: 'index, follow',
+    og_title: 'EMI & EMC Testing — Right Standard, Right Lab | Instacertify',
+    og_description:
+      'Find the EMC standard your product gets tested to, then plan emission and immunity at a lab with that scope.',
+    hero_h1: 'EMI & EMC testing— planned properly, so you pay for one campaign.',
+    hero_lede: '',
+    form_heading: 'Get your EMC test plan',
+    whatsapp_text: 'Hi, I need EMI / EMC testing help.',
+    phone: '+91 99991 18039',
+    role_options: [
+      'India only',
+      'India and export',
+      'European Union',
+      'United States',
+      'United Kingdom',
+      'Gulf / GCC',
+      'Several — not sure yet',
+    ],
+    enabled: 1,
+    sort_order: 7,
+    hub_label: 'EMC Testing',
+    hub_blurb:
+      'EMI / EMC emission & immunity — CISPR and IEC 61000 at NABL / TEC labs.',
+    hub_badge: 'CISPR / IEC',
+    source_file: 'emc-testing.html',
+    source_type: 'seed',
+  },
 ];
 
 function seed({ force = false } = {}) {
@@ -327,6 +360,53 @@ function seed({ force = false } = {}) {
     });
     setSetting('hub_desc_ip_v1', true);
     console.log('Updated hub description for IP testing (hub_desc_ip_v1)');
+  }
+
+  if (getSetting('hub_desc_emc_v1') !== true) {
+    const site = getSetting('site') || {};
+    setSetting('site', {
+      ...site,
+      hubDescription: DEFAULT_SITE.hubDescription,
+    });
+    setSetting('hub_desc_emc_v1', true);
+    console.log('Updated hub description for EMC testing (hub_desc_emc_v1)');
+  }
+
+  // Seed editable page visuals into content_json when empty (admin Page visuals)
+  try {
+    const {
+      extractPageMetaFromHtml,
+    } = require('../src/services/htmlAdapter');
+    const { applyPageVisualDefaults } = require('../src/services/contentEditor');
+    const rows = db.prepare(`SELECT id, slug, source_file, content_json FROM pages WHERE source_type = 'seed'`).all();
+    const updJson = db.prepare(
+      `UPDATE pages SET content_json = ?, updated_at = datetime('now') WHERE id = ?`
+    );
+    for (const row of rows) {
+      let existing = {};
+      try {
+        existing = JSON.parse(row.content_json || '{}') || {};
+      } catch {
+        existing = {};
+      }
+      const hasVisuals =
+        String(existing.hero_bg_url || '').trim() &&
+        (existing.about || existing.about_bis) &&
+        Array.isArray(existing.scheme_visuals) &&
+        existing.scheme_visuals.length;
+      if (hasVisuals) continue;
+      const filePath = path.join(PAGES_DIR, row.source_file || `${row.slug}.html`);
+      if (!fs.existsSync(filePath)) continue;
+      const html = fs.readFileSync(filePath, 'utf8');
+      const meta = extractPageMetaFromHtml(html, row.slug);
+      const content = applyPageVisualDefaults(
+        { ...(meta.content_json || {}), ...existing },
+        row.slug
+      );
+      updJson.run(JSON.stringify(content), row.id);
+    }
+  } catch (err) {
+    console.warn('content_json seed note:', err.message);
   }
 }
 
