@@ -216,20 +216,17 @@ function applyHeroContent($, content = {}) {
     top:88px;
   }
 }
-/* Stats sit under both columns so form stays level with side copy */
-.hero > .hero__stats,
-.hero .wrap + .hero__stats,
-.hero__in + .hero__stats{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
-  margin:8px auto 0;padding:28px 20px 8px;width:100%;max-width:var(--maxw,1120px);box-sizing:border-box
+/* Stats sit in the left column, beside the contact form */
+.hero__in > div:first-child .hero__stats,
+.hero__in .hero__stats{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;
+  margin:22px 0 0;padding:0;width:100%;max-width:none;box-sizing:border-box
 }
-.hero__stats[data-count="1"]{grid-template-columns:minmax(0,1fr);max-width:320px}
+.hero__stats[data-count="1"]{grid-template-columns:minmax(0,1fr);max-width:280px}
 .hero__stats[data-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:560px){
-  .hero > .hero__stats,
-  .hero .wrap + .hero__stats,
-  .hero__in + .hero__stats,
-  .hero__stats[data-count="2"]{grid-template-columns:1fr;padding-top:20px}
+  .hero__in .hero__stats,
+  .hero__stats[data-count="2"]{grid-template-columns:1fr}
 }
 .hero__stat{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.1);
   border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 14px;min-width:0;min-height:74px}
@@ -347,26 +344,24 @@ function applyHeroStats(hero, $, content) {
     })
     .join('');
 
-  // Place stats under the two-column hero grid so the contact form
-  // stays top-aligned with the side content on every landing.
+  // Place stats in the left hero column so they sit beside the contact
+  // form (not full-width underneath both columns).
   const heroIn = hero.find('.hero__in').first();
+  const leftCol = heroIn.children('div').first();
   const html = `<div class="hero__stats" data-count="${cardsStats.length}" aria-label="Key figures">${cards}</div>`;
-  if (!wrap.length) {
-    if (heroIn.length) heroIn.after(html);
-    else {
-      const ticks = hero.find('ul.ticks').first();
-      const target = ticks.length ? ticks : hero.find('.hero__acts').first();
-      if (target.length) target.after(html);
-    }
+
+  if (wrap.length) wrap.remove();
+
+  if (leftCol.length) {
+    const ticks = leftCol.find('ul.ticks').first();
+    const acts = leftCol.find('.hero__acts').first();
+    if (ticks.length) ticks.after(html);
+    else if (acts.length) acts.after(html);
+    else leftCol.append(html);
   } else {
-    // Move out of left column if an older adapt put it there
-    if (heroIn.length && wrap.closest('.hero__in').length) {
-      wrap.remove();
-      heroIn.after(html);
-    } else {
-      wrap.attr('data-count', String(cardsStats.length));
-      wrap.html(cards);
-    }
+    const ticks = hero.find('ul.ticks').first();
+    const target = ticks.length ? ticks : hero.find('.hero__acts').first();
+    if (target.length) target.after(html);
   }
 }
 
