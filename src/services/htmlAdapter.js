@@ -6,8 +6,10 @@ const {
   extractHeroContent,
   applyHeroContent,
   applyTrustedBy,
-  applyAboutBisSection,
+  applyAboutSection,
   applySchemeVisuals,
+  applyPageVisualDefaults,
+  pageKind,
 } = require('./contentEditor');
 const { applyBisCatalog } = require('./bisCatalog');
 const { applyTrackingTags } = require('./trackingTags');
@@ -179,13 +181,14 @@ function adaptPageHtml(page, options = {}) {
   applyBisCatalog($, content);
 
   // Hero banner words + atmosphere image + trusted-by brands
+  const visualContent = applyPageVisualDefaults(content, page.slug);
   applyHeroContent($, {
-    ...content,
+    ...visualContent,
     hero_h1: page.hero_h1,
     hero_lede: page.hero_lede,
-    form_heading: page.form_heading || content.form_heading,
+    form_heading: page.form_heading || visualContent.form_heading,
   });
-  applyTrustedBy($, content);
+  applyTrustedBy($, visualContent);
 
   // SEO / URL
   if (page.title) $('title').text(page.title);
@@ -235,12 +238,12 @@ function adaptPageHtml(page, options = {}) {
     }
   }
 
-  // BIS visual bands AFTER h2 remapping so CMS section indexes stay stable
-  const isBis =
-    page.slug === 'bis-certification' ||
-    String(page.canonical_path || '').includes('bis');
-  applyAboutBisSection($, content, { force: isBis });
-  applySchemeVisuals($, content, { force: isBis });
+  // Page visual bands AFTER h2 remapping so CMS section indexes stay stable
+  const kind = pageKind(page.slug);
+  const hasHero = Boolean($('.hero').first().length);
+  const forceVisuals = hasHero && ['bis', 'lmpc', 'msds', 'cdsco'].includes(kind);
+  applyAboutSection($, visualContent, { force: forceVisuals, slug: page.slug });
+  applySchemeVisuals($, visualContent, { force: forceVisuals, slug: page.slug });
 
   // Role dropdown options
   let roleOptions = [];

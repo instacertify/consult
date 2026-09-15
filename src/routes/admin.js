@@ -24,7 +24,10 @@ const {
   listBuiltinProducts,
   normKey,
 } = require('../services/bisCatalog');
-const { normalizeHeroStats } = require('../services/contentEditor');
+const {
+  normalizeHeroStats,
+  defaultAboutForSlug,
+} = require('../services/contentEditor');
 const { isEmailConfigured } = require('../services/mail');
 const { createMathCaptcha, captchaMatches } = require('../services/captcha');
 const {
@@ -215,21 +218,27 @@ router.post('/pages/:id', express.urlencoded({ extended: true }), (req, res) => 
   // Keep atmosphere / about visuals unless explicitly cleared via upload forms
   if (b.hero_bg_url !== undefined) content.hero_bg_url = String(b.hero_bg_url || '').trim();
   if (b.about_bis_enabled_present) {
-    content.about_bis = {
-      ...(content.about_bis && typeof content.about_bis === 'object' ? content.about_bis : {}),
+    const prevAbout =
+      (content.about && typeof content.about === 'object' && content.about) ||
+      (content.about_bis && typeof content.about_bis === 'object' && content.about_bis) ||
+      {};
+    const defaults = defaultAboutForSlug(existing.slug);
+    const about = {
+      ...defaults,
+      ...prevAbout,
       enabled: b.about_bis_enabled === '1' || b.about_bis_enabled === 'on',
       eyebrow: String(b.about_bis_eyebrow || '').trim(),
       title: String(b.about_bis_title || '').trim(),
       body: String(b.about_bis_body || '').trim(),
       caption: String(b.about_bis_caption || '').trim(),
       image_alt: String(b.about_bis_image_alt || '').trim(),
-      image_url:
-        (content.about_bis && content.about_bis.image_url) ||
-        '/img/bis-mark-visual.jpg',
+      image_url: prevAbout.image_url || defaults.image_url,
       points: [0, 1, 2]
         .map((i) => String(b[`about_bis_point_${i}`] || '').trim())
         .filter(Boolean),
     };
+    content.about = about;
+    content.about_bis = about; // keep legacy key in sync
   }
   // legacy inset hero image feature removed
   delete content.hero_image_url;
@@ -400,12 +409,15 @@ router.post('/pages/:id/about-bis-image', mediaUpload.single('image'), (req, res
   } catch {
     content = {};
   }
-  const about = content.about_bis && typeof content.about_bis === 'object' ? content.about_bis : {};
-  content.about_bis = {
-    ...about,
-    enabled: about.enabled !== false,
+  const about = {
+    ...((content.about && typeof content.about === 'object' && content.about) ||
+      (content.about_bis && typeof content.about_bis === 'object' && content.about_bis) ||
+      {}),
+    enabled: true,
     image_url: `/media/${req.file.filename}`,
   };
+  content.about = about;
+  content.about_bis = about;
   updatePage(id, { content_json: content });
   clearPageCache();
   res.redirect(`/admin/pages/${id}?saved=about-image#page-visuals`);
@@ -1272,6 +1284,12 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
     page.source_file === 'bis-certification.html' ||
     builtinCats.length > 0;
 
+  const aboutCfg =
+    (content.about && typeof content.about === 'object' && content.about) ||
+    (content.about_bis && typeof content.about_bis === 'object' && content.about_bis) ||
+    defaultAboutForSlug(page.slug);
+  const aboutTitle = aboutCfg.title || 'What is this certification?';
+
   return shell(
     `Edit ${page.slug}`,
     `
@@ -1467,8 +1485,8 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
     </section>
 
     <section class="panel media-panel" id="page-visuals">
-      <h2>Page visuals — where images go</h2>
-      <p class="muted">Inspired by high-converting BIS landings: atmosphere behind the hero form, and a clear “What is BIS” mark visual after the product search.</p>
+      <h2>Page visuals — hero, What is…, routes</h2>
+      <p class="muted">Same pattern on every landing: atmosphere behind the hero form, a “What is…?” visual band, and route / who-it-covers tiles.</p>
       <div class="grid-2" style="margin-top:12px">
         <div>
           <h3 class="subhead">1. Hero atmosphere (full-bleed background)</h3>
@@ -1476,26 +1494,26 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
           ${
             content.hero_bg_url
               ? `<div class="media-preview"><img src="${esc(content.hero_bg_url)}" alt="Hero atmosphere"></div>`
-              : '<p class="muted">No atmosphere image yet — default lab photo will be used on BIS after seed.</p>'
+              : '<p class="muted">Default atmosphere image is applied automatically for this landing.</p>'
           }
           <form method="post" action="/admin/pages/${page.id}/hero-bg" enctype="multipart/form-data" class="stack">
             <label>Upload hero background <input type="file" name="image" accept="image/*" required></label>
             <button type="submit">Upload hero atmosphere</button>
           </form>
           <label style="margin-top:10px">Or paste image URL
-            <input form="page-main-form" name="hero_bg_url" value="${esc(content.hero_bg_url || '')}" placeholder="/img/bis-hero-atmosphere.jpg">
+            <input form="page-main-form" name="hero_bg_url" value="${esc(content.hero_bg_url || '')}" placeholder="/img/…-hero-atmosphere.jpg">
           </label>
         </div>
         <div>
-          <h3 class="subhead">2. “What is BIS” mark visual</h3>
-          <p class="muted">Large educational graphic beside short explanation — the strongest image slot on competitor BIS pages.</p>
+          <h3 class="subhead">2. “What is…?” visual</h3>
+          <p class="muted">Large educational graphic beside short explanation (certificate / SDS / mark).</p>
           ${
-            (content.about_bis && content.about_bis.image_url)
-              ? `<div class="media-preview"><img src="${esc(content.about_bis.image_url)}" alt="About BIS"></div>`
-              : '<p class="muted">Default BIS mark plate will show until you upload your own.</p>'
+            aboutCfg.image_url
+              ? `<div class="media-preview"><img src="${esc(aboutCfg.image_url)}" alt="${esc(aboutCfg.image_alt || 'About visual')}"></div>`
+              : '<p class="muted">Upload a mark / certificate / SDS visual.</p>'
           }
           <form method="post" action="/admin/pages/${page.id}/about-bis-image" enctype="multipart/form-data" class="stack">
-            <label>Upload mark / certificate visual <input type="file" name="image" accept="image/*" required></label>
+            <label>Upload about image <input type="file" name="image" accept="image/*" required></label>
             <button type="submit">Upload about image</button>
           </form>
         </div>
@@ -1503,21 +1521,21 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
       <input form="page-main-form" type="hidden" name="about_bis_enabled_present" value="1">
       <label style="display:flex;flex-direction:row;align-items:center;gap:8px;margin-top:14px">
         <input form="page-main-form" type="checkbox" name="about_bis_enabled" value="1" ${
-          !content.about_bis || content.about_bis.enabled !== false ? 'checked' : ''
+          aboutCfg.enabled !== false ? 'checked' : ''
         }>
-        Show “What is BIS” visual section
+        Show “${esc(aboutTitle)}” section
       </label>
       <div class="form-grid" style="margin-top:8px">
         <fieldset>
-          <legend>About BIS copy</legend>
-          <label>Eyebrow <input form="page-main-form" name="about_bis_eyebrow" value="${esc((content.about_bis && content.about_bis.eyebrow) || 'Bureau of Indian Standards')}"></label>
-          <label>Title <input form="page-main-form" name="about_bis_title" value="${esc((content.about_bis && content.about_bis.title) || 'What is BIS certification?')}"></label>
-          <label>Body <textarea form="page-main-form" name="about_bis_body" rows="4">${esc((content.about_bis && content.about_bis.body) || '')}</textarea></label>
-          <label>Image alt <input form="page-main-form" name="about_bis_image_alt" value="${esc((content.about_bis && content.about_bis.image_alt) || '')}"></label>
-          <label>Caption <input form="page-main-form" name="about_bis_caption" value="${esc((content.about_bis && content.about_bis.caption) || '')}"></label>
+          <legend>About section copy</legend>
+          <label>Eyebrow <input form="page-main-form" name="about_bis_eyebrow" value="${esc(aboutCfg.eyebrow || '')}"></label>
+          <label>Title <input form="page-main-form" name="about_bis_title" value="${esc(aboutCfg.title || '')}"></label>
+          <label>Body <textarea form="page-main-form" name="about_bis_body" rows="4">${esc(aboutCfg.body || '')}</textarea></label>
+          <label>Image alt <input form="page-main-form" name="about_bis_image_alt" value="${esc(aboutCfg.image_alt || '')}"></label>
+          <label>Caption <input form="page-main-form" name="about_bis_caption" value="${esc(aboutCfg.caption || '')}"></label>
           ${[0, 1, 2]
             .map((i) => {
-              const pts = (content.about_bis && content.about_bis.points) || [];
+              const pts = aboutCfg.points || [];
               return `<label>Point ${i + 1} <input form="page-main-form" name="about_bis_point_${i}" value="${esc(pts[i] || '')}"></label>`;
             })
             .join('')}

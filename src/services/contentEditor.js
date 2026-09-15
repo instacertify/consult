@@ -378,7 +378,73 @@ function applyHeroBackground(hero, $, content = {}) {
   );
 }
 
+function pageKind(slug = '') {
+  const s = String(slug || '').toLowerCase();
+  if (s.includes('bis')) return 'bis';
+  if (s.includes('lmpc')) return 'lmpc';
+  if (s.includes('msds') || s.includes('sds')) return 'msds';
+  if (s.includes('cdsco')) return 'cdsco';
+  return 'generic';
+}
+
 function defaultAboutBis() {
+  return defaultAboutForSlug('bis-certification');
+}
+
+function defaultAboutForSlug(slug = '') {
+  const kind = pageKind(slug);
+  if (kind === 'lmpc') {
+    return {
+      enabled: true,
+      eyebrow: 'Legal Metrology',
+      title: 'What is an LMPC certificate?',
+      body:
+        'LMPC is the Legal Metrology Packaged Commodities registration under Rule 27. Importers, manufacturers and packers need it before selling pre-packaged goods in India — one central registration, not state by state.',
+      points: [
+        'Required for most pre-packaged goods sold in India',
+        'Covers importers, Indian manufacturers and packers',
+        'Typically issued in about one working day when documents are complete',
+      ],
+      image_url: '/img/lmpc-cert-visual.jpg',
+      image_alt: 'Illustrative LMPC certificate layout',
+      caption: 'Illustrative layout — your licence number appears after grant.',
+    };
+  }
+  if (kind === 'msds') {
+    return {
+      enabled: true,
+      eyebrow: 'Safety Data Sheets',
+      title: 'What is an MSDS / SDS?',
+      body:
+        'An MSDS (now SDS) is the Safety Data Sheet for a chemical or mixture. Buyers, freight forwarders and customs ask for it so hazards, handling and transport classification are clear — drafted to UN GHS and adapted to the market you sell into.',
+      points: [
+        'Asked for export, import, e-commerce listing and buyer compliance',
+        'All 16 GHS sections completed — not a truncated template',
+        'Published pricing from ₹2,999 per product so you can compare',
+      ],
+      image_url: '/img/msds-sds-visual.jpg',
+      image_alt: 'Illustrative Safety Data Sheet document',
+      caption: 'Illustrative SDS layout — your product name and hazards are filled after drafting.',
+    };
+  }
+  if (kind === 'cdsco') {
+    return {
+      enabled: true,
+      eyebrow: 'Central Drugs Standard Control Organisation',
+      title: 'What is a CDSCO license?',
+      body:
+        'CDSCO regulates drugs, medical devices and cosmetics in India. The right registration or import licence depends on your product class — we map the pathway before paperwork starts.',
+      points: [
+        'Required for many drugs, devices and cosmetics pathways',
+        'Different routes for manufacture, import and registration',
+        'Document checklist and portal filing handled end to end',
+      ],
+      image_url: '/img/bis-mark-visual.jpg',
+      image_alt: 'Regulatory compliance visual',
+      caption: 'Pathway depends on your product class — confirmed on the first call.',
+    };
+  }
+  // BIS default (and generic fallback)
   return {
     enabled: true,
     eyebrow: 'Bureau of Indian Standards',
@@ -396,13 +462,23 @@ function defaultAboutBis() {
   };
 }
 
-function applyAboutBisSection($, content = {}, { force = false } = {}) {
-  const existing = $('section.about-bis').first();
-  const hasCms = content.about_bis && typeof content.about_bis === 'object';
-  const cfg = {
-    ...defaultAboutBis(),
-    ...(hasCms ? content.about_bis : {}),
+function resolveAboutConfig(content = {}, slug = '') {
+  const fromAbout = content.about && typeof content.about === 'object' ? content.about : null;
+  const fromBis = content.about_bis && typeof content.about_bis === 'object' ? content.about_bis : null;
+  return {
+    ...defaultAboutForSlug(slug),
+    ...(fromBis || {}),
+    ...(fromAbout || {}),
   };
+}
+
+function applyAboutSection($, content = {}, { force = false, slug = '' } = {}) {
+  const existing = $('section.about-bis, section.about-page').first();
+  const hasCms = Boolean(
+    (content.about && typeof content.about === 'object') ||
+      (content.about_bis && typeof content.about_bis === 'object')
+  );
+  const cfg = resolveAboutConfig(content, slug);
   const show = hasCms ? cfg.enabled !== false : Boolean(force);
   if (!show) {
     existing.remove();
@@ -426,16 +502,12 @@ function applyAboutBisSection($, content = {}, { force = false } = {}) {
 
   const visual = img
     ? `<figure class="about-bis__visual">
-        <img src="${escapeAttr(img)}" alt="${escapeAttr(cfg.image_alt || 'BIS certification mark')}" loading="lazy" decoding="async">
-        ${
-          cfg.caption
-            ? `<figcaption>${escapeHtml(cfg.caption)}</figcaption>`
-            : ''
-        }
+        <img src="${escapeAttr(img)}" alt="${escapeAttr(cfg.image_alt || cfg.title || 'Certification visual')}" loading="lazy" decoding="async">
+        ${cfg.caption ? `<figcaption>${escapeHtml(cfg.caption)}</figcaption>` : ''}
       </figure>`
     : '';
 
-  const html = `<section class="sec about-bis" id="about-bis">
+  const html = `<section class="sec about-bis about-page" id="about-page">
   <div class="wrap about-bis__in">
     <div>
       ${cfg.eyebrow ? `<p class="eyebrow">${escapeHtml(cfg.eyebrow)}</p>` : ''}
@@ -454,14 +526,121 @@ function applyAboutBisSection($, content = {}, { force = false } = {}) {
 
   const marq = $('section.marq').first();
   const checker = $('#checker').first();
-  // Keep the standards search (#checker) high on the page — insert the
-  // educational “What is BIS” visual AFTER the checker, not before it.
+  const hero = $('section.hero').first();
+  // Keep product search high when present; otherwise place after trusted-by / hero
   if (checker.length) checker.after(html);
   else if (marq.length) marq.after(html);
-  else $('section.hero').first().after(html);
+  else if (hero.length) hero.after(html);
 }
 
-function defaultSchemeVisuals() {
+/** @deprecated use applyAboutSection */
+function applyAboutBisSection($, content = {}, opts = {}) {
+  return applyAboutSection($, content, opts);
+}
+
+function defaultSchemeVisuals(slug = '') {
+  return defaultRouteVisuals(slug);
+}
+
+function defaultRouteVisuals(slug = '') {
+  const kind = pageKind(slug);
+  if (kind === 'lmpc') {
+    return [
+      {
+        key: 'importer',
+        tag: 'Import',
+        title: 'Importer',
+        blurb: 'Bringing packaged goods into India for sale',
+        tone: 'navy',
+      },
+      {
+        key: 'manufacturer',
+        tag: 'Make',
+        title: 'Manufacturer',
+        blurb: 'Indian factories packing goods for the market',
+        tone: 'teal',
+      },
+      {
+        key: 'packer',
+        tag: 'Pack',
+        title: 'Packer',
+        blurb: 'Contract packing / re-packing under Rule 27',
+        tone: 'orange',
+      },
+      {
+        key: 'central',
+        tag: 'Coverage',
+        title: 'One registration',
+        blurb: 'Issued centrally — valid across India',
+        tone: 'slate',
+      },
+    ];
+  }
+  if (kind === 'msds') {
+    return [
+      {
+        key: 'export',
+        tag: 'Export',
+        title: 'Export & shipping',
+        blurb: 'Freight and customs ask before the consignment moves',
+        tone: 'navy',
+      },
+      {
+        key: 'buyer',
+        tag: 'Buyer',
+        title: 'Buyer compliance',
+        blurb: 'Domestic and overseas buyers request GHS SDS',
+        tone: 'teal',
+      },
+      {
+        key: 'ecommerce',
+        tag: 'Online',
+        title: 'E-commerce listing',
+        blurb: 'Marketplaces and portals need the sheet on file',
+        tone: 'orange',
+      },
+      {
+        key: 'ghs',
+        tag: 'Standard',
+        title: 'UN GHS aligned',
+        blurb: 'Adapted to the destination market you sell into',
+        tone: 'slate',
+      },
+    ];
+  }
+  if (kind === 'cdsco') {
+    return [
+      {
+        key: 'drug',
+        tag: 'Drugs',
+        title: 'Drug pathway',
+        blurb: 'Manufacture / import registrations by category',
+        tone: 'navy',
+      },
+      {
+        key: 'device',
+        tag: 'Devices',
+        title: 'Medical devices',
+        blurb: 'Class-based registration and import licences',
+        tone: 'teal',
+      },
+      {
+        key: 'cosmetic',
+        tag: 'Beauty',
+        title: 'Cosmetics',
+        blurb: 'Import and manufacture filings under CDSCO',
+        tone: 'orange',
+      },
+      {
+        key: 'docs',
+        tag: 'Filing',
+        title: 'Portal filing',
+        blurb: 'Checklist, forms and follow-through handled',
+        tone: 'slate',
+      },
+    ];
+  }
+  // BIS
   return [
     {
       key: 'isi',
@@ -494,48 +673,69 @@ function defaultSchemeVisuals() {
   ];
 }
 
+function defaultRouteSectionMeta(slug = '') {
+  const kind = pageKind(slug);
+  if (kind === 'lmpc') {
+    return {
+      eyebrow: 'Who it covers',
+      title: 'Importer, manufacturer or packer — pick the right lane',
+      lede: 'The form asks which one you are because the documents change. The registration itself is still one central LMPC.',
+    };
+  }
+  if (kind === 'msds') {
+    return {
+      eyebrow: 'When you will be asked',
+      title: 'Export, buyers, platforms — same sheet, different trigger',
+      lede: 'You are not buying a government stamp. You are buying a complete Safety Data Sheet your counterparty will accept.',
+    };
+  }
+  if (kind === 'cdsco') {
+    return {
+      eyebrow: 'Pathways',
+      title: 'Drugs, devices and cosmetics are not one form',
+      lede: 'We map the CDSCO route to your product class before you gather documents.',
+    };
+  }
+  return {
+    eyebrow: 'Which route applies',
+    title: 'ISI, CRS, FMCS or Scheme X — they are not interchangeable',
+    lede: 'The single most expensive mistake in BIS is starting down the wrong route.',
+  };
+}
+
 function schemeVisualIcon(key) {
-  if (key === 'fmcs') {
+  if (key === 'fmcs' || key === 'export' || key === 'importer') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>`;
   }
-  if (key === 'crs') {
+  if (key === 'crs' || key === 'docs' || key === 'ecommerce') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>`;
   }
-  if (key === 'schemex') {
+  if (key === 'schemex' || key === 'manufacturer' || key === 'device') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h16M6 20V10l6-4 6 4v10M10 20v-4h4v4"/></svg>`;
+  }
+  if (key === 'packer' || key === 'ghs' || key === 'cosmetic') {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>`;
+  }
+  if (key === 'buyer' || key === 'drug') {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`;
+  }
+  if (key === 'central') {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
   }
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-5h6v5M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg>`;
 }
 
-function applySchemeVisuals($, content = {}, { force = false } = {}) {
+function applySchemeVisuals($, content = {}, { force = false, slug = '' } = {}) {
   $('div.scheme-visuals').remove();
+  $('section.route-visuals-sec').remove();
   if (content.scheme_visuals_enabled === false) return;
 
   const rows = Array.isArray(content.scheme_visuals) && content.scheme_visuals.length
     ? content.scheme_visuals
     : force
-      ? defaultSchemeVisuals()
+      ? defaultRouteVisuals(slug)
       : [];
   if (!rows.length) return;
-
-  let host = null;
-  $('section.sec').each((_, el) => {
-    const $sec = $(el);
-    const t = $sec.find('h2').first().text().toLowerCase();
-    if (t.includes('isi') && (t.includes('crs') || t.includes('scheme') || t.includes('fmcs'))) {
-      host = $sec;
-      return false;
-    }
-    if ($sec.find('table.ctable').length && t.includes('interchangeable')) {
-      host = $sec;
-      return false;
-    }
-  });
-  if (!host) {
-    const table = $('table.ctable').first();
-    if (table.length) host = table.closest('section.sec');
-  }
-  if (!host || !host.length) return;
 
   const cards = rows
     .map((r) => {
@@ -549,11 +749,86 @@ function applySchemeVisuals($, content = {}, { force = false } = {}) {
     })
     .join('');
 
-  const wrap = host.find('.wrap').first();
-  const center = wrap.find('.center').first();
-  const html = `<div class="scheme-visuals" aria-label="BIS schemes">${cards}</div>`;
-  if (center.length) center.after(html);
-  else if (wrap.length) wrap.prepend(html);
+  const kind = pageKind(slug);
+  // BIS: nest into existing scheme comparison section when present
+  if (kind === 'bis') {
+    let host = null;
+    $('section.sec').each((_, el) => {
+      const $sec = $(el);
+      const t = $sec.find('h2').first().text().toLowerCase();
+      if (t.includes('isi') && (t.includes('crs') || t.includes('scheme') || t.includes('fmcs'))) {
+        host = $sec;
+        return false;
+      }
+      if ($sec.find('table.ctable').length && t.includes('interchangeable')) {
+        host = $sec;
+        return false;
+      }
+    });
+    if (!host) {
+      const table = $('table.ctable').first();
+      if (table.length) host = table.closest('section.sec');
+    }
+    if (host && host.length) {
+      const wrap = host.find('.wrap').first();
+      const center = wrap.find('.center').first();
+      const html = `<div class="scheme-visuals" aria-label="Certification routes">${cards}</div>`;
+      if (center.length) center.after(html);
+      else if (wrap.length) wrap.prepend(html);
+      return;
+    }
+  }
+
+  const meta = {
+    ...defaultRouteSectionMeta(slug),
+    ...(content.route_section && typeof content.route_section === 'object'
+      ? content.route_section
+      : {}),
+  };
+  const sectionHtml = `<section class="sec route-visuals-sec" id="routes">
+  <div class="wrap">
+    <div class="center" style="margin-bottom:22px">
+      ${meta.eyebrow ? `<p class="eyebrow">${escapeHtml(meta.eyebrow)}</p>` : ''}
+      ${meta.title ? `<h2>${escapeHtml(meta.title)}</h2>` : ''}
+      ${meta.lede ? `<p class="lede">${escapeHtml(meta.lede)}</p>` : ''}
+    </div>
+    <div class="scheme-visuals" aria-label="Certification routes">${cards}</div>
+  </div>
+</section>`;
+
+  const about = $('section.about-bis, section.about-page, #about-page').first();
+  const checker = $('#checker').first();
+  const hero = $('section.hero').first();
+  if (about.length) about.after(sectionHtml);
+  else if (checker.length) checker.after(sectionHtml);
+  else if (hero.length) hero.after(sectionHtml);
+}
+
+function defaultHeroBgForSlug(slug = '') {
+  const kind = pageKind(slug);
+  if (kind === 'lmpc') return '/img/lmpc-hero-atmosphere.jpg';
+  if (kind === 'msds') return '/img/msds-hero-atmosphere.jpg';
+  if (kind === 'bis') return '/img/bis-hero-atmosphere.jpg';
+  if (kind === 'cdsco') return '/img/bis-hero-atmosphere.jpg';
+  return '';
+}
+
+function applyPageVisualDefaults(content = {}, slug = '') {
+  const next = { ...content };
+  if (!String(next.hero_bg_url || '').trim()) {
+    const bg = defaultHeroBgForSlug(slug);
+    if (bg) next.hero_bg_url = bg;
+  }
+  if (!next.about && !next.about_bis) {
+    next.about = defaultAboutForSlug(slug);
+  }
+  if (!Array.isArray(next.scheme_visuals) || !next.scheme_visuals.length) {
+    next.scheme_visuals = defaultRouteVisuals(slug);
+  }
+  if (!next.route_section) {
+    next.route_section = defaultRouteSectionMeta(slug);
+  }
+  return next;
 }
 
 function applyHeroStats(hero, $, content) {
@@ -674,9 +949,16 @@ module.exports = {
   applyHeroContent,
   applyTrustedBy,
   applyAboutBisSection,
+  applyAboutSection,
   applySchemeVisuals,
   defaultHeroStats,
   normalizeHeroStats,
   defaultAboutBis,
+  defaultAboutForSlug,
   defaultSchemeVisuals,
+  defaultRouteVisuals,
+  defaultRouteSectionMeta,
+  defaultHeroBgForSlug,
+  applyPageVisualDefaults,
+  pageKind,
 };
