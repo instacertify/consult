@@ -68,6 +68,13 @@ app.use(
   })
 );
 app.use(
+  '/img',
+  express.static(path.join(__dirname, '..', 'public', 'img'), {
+    maxAge: process.env.NODE_ENV === 'production' ? '7d' : 0,
+    etag: true,
+  })
+);
+app.use(
   '/media',
   express.static(path.join(__dirname, '..', 'content', 'uploads', 'media'), {
     maxAge: process.env.NODE_ENV === 'production' ? '7d' : 0,

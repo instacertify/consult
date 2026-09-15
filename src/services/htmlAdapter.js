@@ -6,6 +6,8 @@ const {
   extractHeroContent,
   applyHeroContent,
   applyTrustedBy,
+  applyAboutBisSection,
+  applySchemeVisuals,
 } = require('./contentEditor');
 const { applyBisCatalog } = require('./bisCatalog');
 const { applyTrackingTags } = require('./trackingTags');
@@ -176,7 +178,7 @@ function adaptPageHtml(page, options = {}) {
   // CMS-added products/categories for the BIS checker
   applyBisCatalog($, content);
 
-  // Hero banner words + image + trusted-by brands
+  // Hero banner words + atmosphere image + trusted-by brands
   applyHeroContent($, {
     ...content,
     hero_h1: page.hero_h1,
@@ -232,6 +234,13 @@ function adaptPageHtml(page, options = {}) {
       node.css('display', '');
     }
   }
+
+  // BIS visual bands AFTER h2 remapping so CMS section indexes stay stable
+  const isBis =
+    page.slug === 'bis-certification' ||
+    String(page.canonical_path || '').includes('bis');
+  applyAboutBisSection($, content, { force: isBis });
+  applySchemeVisuals($, content, { force: isBis });
 
   // Role dropdown options
   let roleOptions = [];

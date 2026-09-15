@@ -196,11 +196,29 @@ function applyHeroContent($, content = {}) {
   // Hero stats under headline/ticks (Happy Clients / Advisors / Offices)
   applyHeroStats(hero, $, content);
 
-  // Remove any leftover hero image boxes from older CMS versions
+  // Full-bleed atmospheric photo behind hero (edge-to-edge, not an inset card)
+  applyHeroBackground(hero, $, content);
+
+  // Remove leftover inset hero image boxes from older CMS versions
   hero.find('.hero__media').remove();
 
   if (!$('style[data-hero-media]').length) {
     $('head').append(`<style data-hero-media="1">
+.hero{isolation:isolate}
+.hero__bg{
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-size:cover;background-position:center 42%;
+  transform:scale(1.02);
+}
+.hero__bg::after{
+  content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(118deg,rgba(8,42,58,.94) 0%,rgba(10,58,82,.78) 48%,rgba(10,58,82,.62) 100%),
+    linear-gradient(180deg,rgba(8,42,58,.35) 0%,rgba(8,42,58,.55) 100%);
+}
+.hero > .wrap,
+.hero > .hero__in,
+.hero > .hero__stats{position:relative;z-index:1}
 .hero ul.ticks{margin-bottom:0}
 @media(min-width:980px){
   .hero__in{align-items:start!important}
@@ -229,7 +247,8 @@ function applyHeroContent($, content = {}) {
   .hero__stats[data-count="2"]{grid-template-columns:1fr}
 }
 .hero__stat{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.1);
-  border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 14px;min-width:0;min-height:74px}
+  border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 14px;min-width:0;min-height:74px;
+  backdrop-filter:blur(6px)}
 .hero__stat-icon{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.12);
   display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden}
 .hero__stat-icon img{width:100%;height:100%;object-fit:cover;display:block}
@@ -248,6 +267,40 @@ function applyHeroContent($, content = {}) {
 .hero__acts .btn{justify-content:center}
 .strip__in{align-items:stretch}
 .strip__i{display:flex;flex-direction:column;justify-content:center;min-height:88px}
+
+/* What is BIS — visual band (Agile-inspired image slot) */
+.about-bis{padding:64px 0;background:
+  radial-gradient(900px 420px at 85% 20%,rgba(232,114,42,.08),transparent 60%),
+  linear-gradient(180deg,#F7FBFD 0%,#EEF4F8 100%)}
+.about-bis__in{display:grid;gap:36px;align-items:center;grid-template-columns:1fr}
+@media(min-width:900px){.about-bis__in{grid-template-columns:1.05fr .95fr;gap:56px}}
+.about-bis .eyebrow{margin-bottom:10px}
+.about-bis h2{margin:0 0 14px;letter-spacing:-.02em}
+.about-bis .lede{margin:0 0 16px;max-width:54ch}
+.about-bis__points{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.about-bis__points li{display:flex;gap:10px;align-items:flex-start;color:var(--body,#40566A);font-size:.95rem;line-height:1.45}
+.about-bis__points li svg{flex:none;margin-top:3px}
+.about-bis__visual{margin:0;border-radius:18px;overflow:hidden;background:#fff;
+  border:1px solid rgba(10,58,82,.08);box-shadow:0 18px 40px -28px rgba(10,58,82,.45)}
+.about-bis__visual img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover}
+.about-bis__visual figcaption{padding:12px 16px;font-size:12px;color:#6B8095;border-top:1px solid #E8EEF3}
+
+/* Scheme visual strip above comparison table */
+.scheme-visuals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 22px}
+@media(min-width:900px){.scheme-visuals{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}}
+.scheme-visual{
+  display:flex;flex-direction:column;gap:8px;min-height:132px;padding:16px;
+  border-radius:14px;border:1px solid #DCE6ED;background:#fff;position:relative;overflow:hidden
+}
+.scheme-visual__icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
+.scheme-visual__icon svg{width:22px;height:22px}
+.scheme-visual--navy .scheme-visual__icon{background:#E7F0F5;color:#0A3A52}
+.scheme-visual--teal .scheme-visual__icon{background:#E6F5EF;color:#12805C}
+.scheme-visual--orange .scheme-visual__icon{background:#FCEFE6;color:#E8702A}
+.scheme-visual--slate .scheme-visual__icon{background:#EEF1F4;color:#40566A}
+.scheme-visual__tag{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#E8702A}
+.scheme-visual h3{margin:0;font-size:1rem;color:#0F2230;letter-spacing:-.01em}
+.scheme-visual p{margin:0;font-size:.82rem;color:#40566A;line-height:1.35}
 </style>`);
   }
 }
@@ -310,6 +363,191 @@ function defaultStatIcon(key) {
   }
   // clients / happy
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 11.5c.5 1.2.5 2.5 0 3.5"/></svg>`;
+}
+
+function applyHeroBackground(hero, $, content = {}) {
+  hero.find('.hero__bg').remove();
+  const url = String(content.hero_bg_url || '').trim();
+  if (!url) return;
+  hero.prepend(
+    `<div class="hero__bg" aria-hidden="true" style="background-image:url('${escapeAttr(url)}')"></div>`
+  );
+}
+
+function defaultAboutBis() {
+  return {
+    enabled: true,
+    eyebrow: 'Bureau of Indian Standards',
+    title: 'What is BIS certification?',
+    body:
+      'BIS is the Indian government body that sets product quality and safety standards. A valid BIS certificate means your product was tested against the right Indian Standard — and you are allowed to manufacture, import or sell it in India.',
+    points: [
+      'Mandatory for many products before import or sale in India',
+      'Covers ISI Mark, CRS, FMCS and Scheme X routes',
+      'Builds buyer trust and keeps consignments moving through customs',
+    ],
+    image_url: '/img/bis-mark-visual.jpg',
+    image_alt: 'Example BIS ISI certification mark plate',
+    caption: 'Illustrative ISI mark layout — your exact standard and CM/L number appear after grant.',
+  };
+}
+
+function applyAboutBisSection($, content = {}, { force = false } = {}) {
+  const existing = $('section.about-bis').first();
+  const hasCms = content.about_bis && typeof content.about_bis === 'object';
+  const cfg = {
+    ...defaultAboutBis(),
+    ...(hasCms ? content.about_bis : {}),
+  };
+  const show = hasCms ? cfg.enabled !== false : Boolean(force);
+  if (!show) {
+    existing.remove();
+    return;
+  }
+
+  const points = (Array.isArray(cfg.points) ? cfg.points : [])
+    .map((p) => String(p || '').trim())
+    .filter(Boolean);
+  const img = String(cfg.image_url || '').trim();
+  if (!img && !String(cfg.title || '').trim()) {
+    existing.remove();
+    return;
+  }
+
+  const pointsHtml = points
+    .map(
+      (p) => `<li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#12805C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>${escapeHtml(p)}</span></li>`
+    )
+    .join('');
+
+  const visual = img
+    ? `<figure class="about-bis__visual">
+        <img src="${escapeAttr(img)}" alt="${escapeAttr(cfg.image_alt || 'BIS certification mark')}" loading="lazy" decoding="async">
+        ${
+          cfg.caption
+            ? `<figcaption>${escapeHtml(cfg.caption)}</figcaption>`
+            : ''
+        }
+      </figure>`
+    : '';
+
+  const html = `<section class="sec about-bis" id="about-bis">
+  <div class="wrap about-bis__in">
+    <div>
+      ${cfg.eyebrow ? `<p class="eyebrow">${escapeHtml(cfg.eyebrow)}</p>` : ''}
+      ${cfg.title ? `<h2>${escapeHtml(cfg.title)}</h2>` : ''}
+      ${cfg.body ? `<p class="lede">${escapeHtml(cfg.body)}</p>` : ''}
+      ${pointsHtml ? `<ul class="about-bis__points">${pointsHtml}</ul>` : ''}
+    </div>
+    ${visual}
+  </div>
+</section>`;
+
+  if (existing.length) {
+    existing.replaceWith(html);
+    return;
+  }
+
+  const marq = $('section.marq').first();
+  const checker = $('#checker').first();
+  if (marq.length) marq.after(html);
+  else if (checker.length) checker.before(html);
+  else $('section.hero').first().after(html);
+}
+
+function defaultSchemeVisuals() {
+  return [
+    {
+      key: 'isi',
+      tag: 'Domestic',
+      title: 'ISI Mark',
+      blurb: 'Indian factories — factory audit + product testing',
+      tone: 'navy',
+    },
+    {
+      key: 'fmcs',
+      tag: 'Foreign',
+      title: 'FMCS',
+      blurb: 'Overseas manufacturers selling into India',
+      tone: 'teal',
+    },
+    {
+      key: 'crs',
+      tag: 'Electronics',
+      title: 'CRS',
+      blurb: 'IT, telecom & electronics registration',
+      tone: 'orange',
+    },
+    {
+      key: 'schemex',
+      tag: 'Machinery',
+      title: 'Scheme X',
+      blurb: 'Low-voltage / industrial equipment route',
+      tone: 'slate',
+    },
+  ];
+}
+
+function schemeVisualIcon(key) {
+  if (key === 'fmcs') {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>`;
+  }
+  if (key === 'crs') {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>`;
+  }
+  if (key === 'schemex') {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h16M6 20V10l6-4 6 4v10M10 20v-4h4v4"/></svg>`;
+  }
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-5h6v5M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg>`;
+}
+
+function applySchemeVisuals($, content = {}, { force = false } = {}) {
+  $('div.scheme-visuals').remove();
+  if (content.scheme_visuals_enabled === false) return;
+
+  const rows = Array.isArray(content.scheme_visuals) && content.scheme_visuals.length
+    ? content.scheme_visuals
+    : force
+      ? defaultSchemeVisuals()
+      : [];
+  if (!rows.length) return;
+
+  let host = null;
+  $('section.sec').each((_, el) => {
+    const $sec = $(el);
+    const t = $sec.find('h2').first().text().toLowerCase();
+    if (t.includes('isi') && (t.includes('crs') || t.includes('scheme') || t.includes('fmcs'))) {
+      host = $sec;
+      return false;
+    }
+    if ($sec.find('table.ctable').length && t.includes('interchangeable')) {
+      host = $sec;
+      return false;
+    }
+  });
+  if (!host) {
+    const table = $('table.ctable').first();
+    if (table.length) host = table.closest('section.sec');
+  }
+  if (!host || !host.length) return;
+
+  const cards = rows
+    .map((r) => {
+      const tone = String(r.tone || 'navy');
+      return `<div class="scheme-visual scheme-visual--${escapeAttr(tone)}">
+        <div class="scheme-visual__icon">${schemeVisualIcon(r.key)}</div>
+        <span class="scheme-visual__tag">${escapeHtml(r.tag || '')}</span>
+        <h3>${escapeHtml(r.title || '')}</h3>
+        <p>${escapeHtml(r.blurb || '')}</p>
+      </div>`;
+    })
+    .join('');
+
+  const wrap = host.find('.wrap').first();
+  const center = wrap.find('.center').first();
+  const html = `<div class="scheme-visuals" aria-label="BIS schemes">${cards}</div>`;
+  if (center.length) center.after(html);
+  else if (wrap.length) wrap.prepend(html);
 }
 
 function applyHeroStats(hero, $, content) {
@@ -429,6 +667,10 @@ module.exports = {
   extractHeroContent,
   applyHeroContent,
   applyTrustedBy,
+  applyAboutBisSection,
+  applySchemeVisuals,
   defaultHeroStats,
   normalizeHeroStats,
+  defaultAboutBis,
+  defaultSchemeVisuals,
 };
