@@ -1468,7 +1468,7 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
 
     <section class="panel media-panel" id="page-visuals">
       <h2>Page visuals — where images go</h2>
-      <p class="muted">Inspired by high-converting BIS landings: atmosphere behind the hero form, and a clear “What is BIS” mark visual after Trusted by.</p>
+      <p class="muted">Inspired by high-converting BIS landings: atmosphere behind the hero form, and a clear “What is BIS” mark visual after the product search.</p>
       <div class="grid-2" style="margin-top:12px">
         <div>
           <h3 class="subhead">1. Hero atmosphere (full-bleed background)</h3>

@@ -264,6 +264,10 @@ function applyHeroContent($, content = {}) {
   .fees.fees--2{grid-template-columns:repeat(2,1fr)}
   .fees.fees--3{grid-template-columns:repeat(3,1fr)}
 }
+/* Keep standards search bar obvious */
+.chk__bar{background:#fff;min-height:56px}
+.chk__bar input{font-size:16px!important}
+.chk{scroll-margin-top:88px}
 .hero__acts .btn{justify-content:center}
 .strip__in{align-items:stretch}
 .strip__i{display:flex;flex-direction:column;justify-content:center;min-height:88px}
@@ -450,8 +454,10 @@ function applyAboutBisSection($, content = {}, { force = false } = {}) {
 
   const marq = $('section.marq').first();
   const checker = $('#checker').first();
-  if (marq.length) marq.after(html);
-  else if (checker.length) checker.before(html);
+  // Keep the standards search (#checker) high on the page — insert the
+  // educational “What is BIS” visual AFTER the checker, not before it.
+  if (checker.length) checker.after(html);
+  else if (marq.length) marq.after(html);
   else $('section.hero').first().after(html);
 }
 
