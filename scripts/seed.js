@@ -30,7 +30,7 @@ const DEFAULT_SITE = {
   baseUrl: process.env.BASE_URL || 'https://consult.instacertify.com',
   hubTitle: 'Choose your certification path',
   hubDescription:
-    'Pick the compliance path that matches your product — BIS, LMPC / Legal Metrology, or MSDS / GHS Safety Data Sheets. Fast quotes from Instacertify.',
+    'Pick the compliance path that matches your product — BIS, LMPC / Legal Metrology, MSDS / GHS, or IMEI ICDR & TAC. Fast quotes from Instacertify.',
   hubEyebrow: 'Instacertify Consult',
   hubSupport:
     'Not sure which path you need? Call us and we will map it in one conversation.',
@@ -144,6 +144,40 @@ const SEED_PAGES = [
     source_file: 'msds-certificate.html',
     source_type: 'seed',
   },
+  {
+    slug: 'imei-icdr',
+    title: 'IMEI ICDR & TAC Allocation | Instacertify',
+    meta_description:
+      'IMEI ICDR registration for importers and manufacturers, plus GSMA brand registration and TAC allocation. Clear mapping of which path you need.',
+    canonical_path: '/imei-icdr',
+    robots: 'index, follow',
+    og_title: 'IMEI ICDR & TAC | Instacertify',
+    og_description:
+      'ICDR compliance and TAC allocation for devices with IMEI numbers — importers and manufacturers.',
+    hero_h1: 'IMEI ICDR compliance & TAC allocation— for device makers and importers.',
+    hero_lede: '',
+    form_heading: 'Get your ICDR / TAC quote',
+    whatsapp_text: 'Hi, I need IMEI ICDR / TAC help.',
+    phone: '+91 99991 18039',
+    role_options: [
+      'ICDR registration — importing devices with IMEIs',
+      'ICDR registration — manufacturing and selling in India',
+      'Own IMEI numbers — brand registration and TAC',
+      'Brand name approval with GSMA',
+      'Both — TAC and ICDR',
+      'Additional TAC for a new model or variant',
+      'An application has been rejected or queried',
+      'Not sure — please advise',
+    ],
+    enabled: 1,
+    sort_order: 4,
+    hub_label: 'IMEI ICDR & TAC',
+    hub_blurb:
+      'ICDR registration for Indian networks, plus GSMA brand / TAC allocation for new IMEIs.',
+    hub_badge: 'Devices',
+    source_file: 'imei-icdr.html',
+    source_type: 'seed',
+  },
 ];
 
 function seed({ force = false } = {}) {
@@ -153,10 +187,7 @@ function seed({ force = false } = {}) {
   if (!getSetting('footer')) setSetting('footer', DEFAULT_FOOTER);
 
   const existing = db.prepare('SELECT COUNT(*) AS c FROM pages').get().c;
-  if (existing > 0 && !force) {
-    console.log('Pages already seeded (' + existing + ') — skipping page insert');
-  } else {
-    const insert = db.prepare(`
+  const insert = db.prepare(`
     INSERT INTO pages (
       slug, title, meta_description, canonical_path, robots, og_title, og_description,
       hero_h1, hero_lede, form_heading, whatsapp_text, phone, role_options,
@@ -169,22 +200,31 @@ function seed({ force = false } = {}) {
     ON CONFLICT(slug) DO NOTHING
   `);
 
-    const tx = db.transaction((pages) => {
-      for (const p of pages) {
-        const filePath = path.join(PAGES_DIR, p.source_file);
-        if (!fs.existsSync(filePath)) {
-          console.warn('Missing page file:', filePath);
-          continue;
-        }
-        insert.run({
-          ...p,
-          role_options: JSON.stringify(p.role_options),
-        });
+  const tx = db.transaction((pages) => {
+    let added = 0;
+    for (const p of pages) {
+      const filePath = path.join(PAGES_DIR, p.source_file);
+      if (!fs.existsSync(filePath)) {
+        console.warn('Missing page file:', filePath);
+        continue;
       }
-    });
+      const info = insert.run({
+        ...p,
+        role_options: JSON.stringify(p.role_options),
+      });
+      if (info.changes) added += 1;
+    }
+    return added;
+  });
 
-    tx(SEED_PAGES);
-    console.log('Seeded settings +', SEED_PAGES.length, 'pages');
+  if (existing > 0 && !force) {
+    const added = tx(SEED_PAGES);
+    console.log(
+      'Pages already present (' + existing + ') — inserted ' + added + ' missing seed page(s)'
+    );
+  } else {
+    const added = tx(SEED_PAGES);
+    console.log('Seeded settings +', added, 'pages');
   }
 
   // Soft-refresh SEO copy once so existing DBs drop keyword-stuffed / test metas

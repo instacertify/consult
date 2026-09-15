@@ -384,6 +384,7 @@ function pageKind(slug = '') {
   if (s.includes('lmpc')) return 'lmpc';
   if (s.includes('msds') || s.includes('sds')) return 'msds';
   if (s.includes('cdsco')) return 'cdsco';
+  if (s.includes('imei') || s.includes('icdr') || s.includes('tac')) return 'imei';
   return 'generic';
 }
 
@@ -442,6 +443,23 @@ function defaultAboutForSlug(slug = '') {
       image_url: '/img/bis-mark-visual.jpg',
       image_alt: 'Regulatory compliance visual',
       caption: 'Pathway depends on your product class — confirmed on the first call.',
+    };
+  }
+  if (kind === 'imei') {
+    return {
+      enabled: true,
+      eyebrow: 'IMEI · ICDR & TAC',
+      title: 'What is IMEI ICDR compliance?',
+      body:
+        'ICDR registration is mandatory to import or sell devices with IMEI numbers on Indian networks. Separately, brand registration and TAC allocation with GSMA create the IMEI numbers themselves — most people need clarity on which of the two applies.',
+      points: [
+        'Mandatory for importers and manufacturers of IMEI devices in India',
+        'Brand / TAC work is separate from ICDR — we map which you need first',
+        'Applications often stall on brand-name approval — we handle that step',
+      ],
+      image_url: '/img/imei-icdr-visual.jpg',
+      image_alt: 'Illustrative IMEI ICDR registration layout',
+      caption: 'Illustrative layout — your registration / TAC details appear after grant.',
     };
   }
   // BIS default (and generic fallback)
@@ -640,6 +658,38 @@ function defaultRouteVisuals(slug = '') {
       },
     ];
   }
+  if (kind === 'imei') {
+    return [
+      {
+        key: 'icdr',
+        tag: 'Mandatory',
+        title: 'ICDR registration',
+        blurb: 'Import or sell IMEI devices on Indian networks',
+        tone: 'navy',
+      },
+      {
+        key: 'tac',
+        tag: 'Create IMEIs',
+        title: 'TAC allocation',
+        blurb: 'GSMA brand registration and new IMEI ranges',
+        tone: 'teal',
+      },
+      {
+        key: 'brand',
+        tag: 'Brand',
+        title: 'Brand name approval',
+        blurb: 'The step where most applications stall',
+        tone: 'orange',
+      },
+      {
+        key: 'both',
+        tag: 'Combined',
+        title: 'TAC + ICDR',
+        blurb: 'New numbers and Indian network compliance together',
+        tone: 'slate',
+      },
+    ];
+  }
   // BIS
   return [
     {
@@ -696,6 +746,13 @@ function defaultRouteSectionMeta(slug = '') {
       lede: 'We map the CDSCO route to your product class before you gather documents.',
     };
   }
+  if (kind === 'imei') {
+    return {
+      eyebrow: 'Two services',
+      title: 'ICDR compliance or TAC allocation — which one are you?',
+      lede: 'Almost everyone says “IMEI certification”. It means two different things depending on whether you already have IMEIs or need new ones.',
+    };
+  }
   return {
     eyebrow: 'Which route applies',
     title: 'ISI, CRS, FMCS or Scheme X — they are not interchangeable',
@@ -704,16 +761,16 @@ function defaultRouteSectionMeta(slug = '') {
 }
 
 function schemeVisualIcon(key) {
-  if (key === 'fmcs' || key === 'export' || key === 'importer') {
+  if (key === 'fmcs' || key === 'export' || key === 'importer' || key === 'icdr') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>`;
   }
-  if (key === 'crs' || key === 'docs' || key === 'ecommerce') {
+  if (key === 'crs' || key === 'docs' || key === 'ecommerce' || key === 'tac') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>`;
   }
-  if (key === 'schemex' || key === 'manufacturer' || key === 'device') {
+  if (key === 'schemex' || key === 'manufacturer' || key === 'device' || key === 'both') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h16M6 20V10l6-4 6 4v10M10 20v-4h4v4"/></svg>`;
   }
-  if (key === 'packer' || key === 'ghs' || key === 'cosmetic') {
+  if (key === 'packer' || key === 'ghs' || key === 'cosmetic' || key === 'brand') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>`;
   }
   if (key === 'buyer' || key === 'drug') {
@@ -810,6 +867,7 @@ function defaultHeroBgForSlug(slug = '') {
   if (kind === 'msds') return '/img/msds-hero-atmosphere.jpg';
   if (kind === 'bis') return '/img/bis-hero-atmosphere.jpg';
   if (kind === 'cdsco') return '/img/bis-hero-atmosphere.jpg';
+  if (kind === 'imei') return '/img/imei-hero-atmosphere.jpg';
   return '';
 }
 
