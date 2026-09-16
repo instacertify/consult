@@ -15,7 +15,25 @@ npm start
 ```
 
 - Site: http://localhost:3000  
-- Admin: http://localhost:3000/admin — **one** login (`ADMIN_USERNAME` + `ADMIN_PASSWORD` + captcha, or credentials changed in Admin → Change login) unlocks **all** independent page editors; no per-page password.
+- Admin: http://localhost:3000/admin — **one** login unlocks **all** page editors.
+
+### Admin login
+
+Defaults (from `.env.example` / code if env unset):
+
+- **Login ID:** `admin`
+- **Password:** `change-me-admin`
+- **Captcha:** type the sum result shown on the form
+
+Production uses whatever you set as `ADMIN_USERNAME` / `ADMIN_PASSWORD` on the host. On boot the app syncs those env values into the DB so they stay in sync after deploys.
+
+To force-reset:
+
+```bash
+# in .env: ADMIN_RESET_CREDENTIALS=1   (then restart once and remove the flag)
+# or:
+node scripts/reset-admin.js
+```
 
 ## Public routes
 

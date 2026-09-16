@@ -13,6 +13,7 @@ const { injectTrackingIntoHtml } = require('./services/trackingTags');
 const { router: leadsRouter, handleLead } = require('./routes/leads');
 const adminRouter = require('./routes/admin');
 const { SqliteSessionStore } = require('./services/sessionStore');
+const { syncAdminAuthFromEnv, getAdminUsername } = require('./services/adminAuth');
 
 // Ensure DB + seed defaults on boot if empty
 getDb();
@@ -21,6 +22,12 @@ try {
   seed();
 } catch (e) {
   console.warn('Seed note:', e.message);
+}
+try {
+  syncAdminAuthFromEnv();
+  console.log('Admin login user:', getAdminUsername());
+} catch (e) {
+  console.warn('Admin auth sync note:', e.message);
 }
 
 const app = express();
