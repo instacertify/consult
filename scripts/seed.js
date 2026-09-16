@@ -30,7 +30,7 @@ const DEFAULT_SITE = {
   baseUrl: process.env.BASE_URL || 'https://consult.instacertify.com',
   hubTitle: 'Choose your certification path',
   hubDescription:
-    'Pick the compliance path that matches your product — BIS, LMPC / Legal Metrology, MSDS / GHS, or IMEI ICDR & TAC. Fast quotes from Instacertify.',
+    'Pick the compliance path that matches your product — BIS, LMPC, MSDS, IMEI, EPR, IP, or EMC testing. Fast quotes from Instacertify.',
   hubEyebrow: 'Instacertify Consult',
   hubSupport:
     'Not sure which path you need? Call us and we will map it in one conversation.',
@@ -178,6 +178,110 @@ const SEED_PAGES = [
     source_file: 'imei-icdr.html',
     source_type: 'seed',
   },
+  {
+    slug: 'epr-registration',
+    title: 'EPR Registration & Annual Compliance | Instacertify',
+    meta_description:
+      'EPR registration with CPCB for plastic, e-waste, battery, used oil and waste tyre — plus annual returns and ongoing compliance.',
+    canonical_path: '/epr-registration',
+    robots: 'index, follow',
+    og_title: 'EPR Registration | Instacertify',
+    og_description:
+      'Plastic, e-waste, battery, used oil and tyre EPR — filed right, with annual returns handled.',
+    hero_h1: 'EPR registration— filed right, and kept right after that.',
+    hero_lede: '',
+    form_heading: 'Get your EPR quote',
+    whatsapp_text: 'Hi, I need EPR registration help.',
+    phone: '+91 99991 18039',
+    role_options: [
+      'EPR — Plastic packaging',
+      'EPR — E-waste',
+      'EPR — Battery waste',
+      'EPR — Used oil',
+      'EPR — Waste tyre',
+      'More than one category',
+      'Annual return or renewal only',
+      'Registration done wrong — need it corrected',
+      'Not sure — please advise',
+    ],
+    enabled: 1,
+    sort_order: 5,
+    hub_label: 'EPR Registration',
+    hub_blurb:
+      'Plastic, e-waste, battery, oil & tyre EPR with CPCB — registration plus annual compliance.',
+    hub_badge: 'CPCB',
+    source_file: 'epr-registration.html',
+    source_type: 'seed',
+  },
+  {
+    slug: 'ip-testing',
+    title: 'IP Testing IEC 60529 — IP65, IP67, IP68, IP 69K | Instacertify',
+    meta_description:
+      'Ingress protection testing to IEC 60529 — dust and water ratings including IP 69K. Right rating, NABL / BIS-recognised labs, design review before samples.',
+    canonical_path: '/ip-testing',
+    robots: 'index, follow',
+    og_title: 'IP Testing to IEC 60529 | Instacertify',
+    og_description:
+      'IP65–IP68 and IP 69K testing booked at labs that can run the method. Free rating guidance before samples ship.',
+    hero_h1: 'IP testing to IEC 60529— booked at the lab that can actually run it.',
+    hero_lede: '',
+    form_heading: 'Get your IP testing quote',
+    whatsapp_text: 'Hi, I need IP testing / IEC 60529 help.',
+    phone: '+91 99991 18039',
+    role_options: [
+      'Not sure — advise me',
+      'IP54',
+      'IP55',
+      'IP65',
+      'IP66',
+      'IP67',
+      'IP68',
+      'IP 69K',
+      'IPX4 only',
+      'Other / specified by my buyer',
+    ],
+    enabled: 1,
+    sort_order: 6,
+    hub_label: 'IP Testing',
+    hub_blurb:
+      'IEC 60529 ingress testing — IP65 to IP 69K at labs that can run the method.',
+    hub_badge: 'IEC 60529',
+    source_file: 'ip-testing.html',
+    source_type: 'seed',
+  },
+  {
+    slug: 'emc-testing',
+    title: 'EMI & EMC Testing — CISPR & IEC 61000 | Instacertify',
+    meta_description:
+      'EMI and EMC testing for electronics, appliances, lighting, EV, telecom and industrial gear. Emission and immunity to CISPR and IEC 61000 at NABL / TEC labs.',
+    canonical_path: '/emc-testing',
+    robots: 'index, follow',
+    og_title: 'EMI & EMC Testing — Right Standard, Right Lab | Instacertify',
+    og_description:
+      'Find the EMC standard your product gets tested to, then plan emission and immunity at a lab with that scope.',
+    hero_h1: 'EMI & EMC testing— planned properly, so you pay for one campaign.',
+    hero_lede: '',
+    form_heading: 'Get your EMC test plan',
+    whatsapp_text: 'Hi, I need EMI / EMC testing help.',
+    phone: '+91 99991 18039',
+    role_options: [
+      'India only',
+      'India and export',
+      'European Union',
+      'United States',
+      'United Kingdom',
+      'Gulf / GCC',
+      'Several — not sure yet',
+    ],
+    enabled: 1,
+    sort_order: 7,
+    hub_label: 'EMC Testing',
+    hub_blurb:
+      'EMI / EMC emission & immunity — CISPR and IEC 61000 at NABL / TEC labs.',
+    hub_badge: 'CISPR / IEC',
+    source_file: 'emc-testing.html',
+    source_type: 'seed',
+  },
 ];
 
 function seed({ force = false } = {}) {
@@ -245,6 +349,64 @@ function seed({ force = false } = {}) {
     }
     setSetting('seo_human_v1', true);
     console.log('Applied human SEO copy (seo_human_v1)');
+  }
+
+  // Keep hub directory copy in sync when new landings are added
+  if (getSetting('hub_desc_ip_v1') !== true) {
+    const site = getSetting('site') || {};
+    setSetting('site', {
+      ...site,
+      hubDescription: DEFAULT_SITE.hubDescription,
+    });
+    setSetting('hub_desc_ip_v1', true);
+    console.log('Updated hub description for IP testing (hub_desc_ip_v1)');
+  }
+
+  if (getSetting('hub_desc_emc_v1') !== true) {
+    const site = getSetting('site') || {};
+    setSetting('site', {
+      ...site,
+      hubDescription: DEFAULT_SITE.hubDescription,
+    });
+    setSetting('hub_desc_emc_v1', true);
+    console.log('Updated hub description for EMC testing (hub_desc_emc_v1)');
+  }
+
+  // Seed editable page visuals into content_json when empty (admin Page visuals)
+  try {
+    const {
+      extractPageMetaFromHtml,
+    } = require('../src/services/htmlAdapter');
+    const { applyPageVisualDefaults } = require('../src/services/contentEditor');
+    const rows = db.prepare(`SELECT id, slug, source_file, content_json FROM pages WHERE source_type = 'seed'`).all();
+    const updJson = db.prepare(
+      `UPDATE pages SET content_json = ?, updated_at = datetime('now') WHERE id = ?`
+    );
+    for (const row of rows) {
+      let existing = {};
+      try {
+        existing = JSON.parse(row.content_json || '{}') || {};
+      } catch {
+        existing = {};
+      }
+      const hasVisuals =
+        String(existing.hero_bg_url || '').trim() &&
+        (existing.about || existing.about_bis) &&
+        Array.isArray(existing.scheme_visuals) &&
+        existing.scheme_visuals.length;
+      if (hasVisuals) continue;
+      const filePath = path.join(PAGES_DIR, row.source_file || `${row.slug}.html`);
+      if (!fs.existsSync(filePath)) continue;
+      const html = fs.readFileSync(filePath, 'utf8');
+      const meta = extractPageMetaFromHtml(html, row.slug);
+      const content = applyPageVisualDefaults(
+        { ...(meta.content_json || {}), ...existing },
+        row.slug
+      );
+      updJson.run(JSON.stringify(content), row.id);
+    }
+  } catch (err) {
+    console.warn('content_json seed note:', err.message);
   }
 }
 
