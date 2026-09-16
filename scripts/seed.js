@@ -30,7 +30,7 @@ const DEFAULT_SITE = {
   baseUrl: process.env.BASE_URL || 'https://consult.instacertify.com',
   hubTitle: 'Choose your certification path',
   hubDescription:
-    'Pick the compliance path that matches your product — BIS, LMPC, MSDS, IMEI, EPR, IP, EMC, or G-Mark. Fast quotes from Instacertify.',
+    'Pick the compliance path that matches your product — BIS, LMPC, MSDS, IMEI, EPR, IP, EMC, G-Mark, or SABER. Fast quotes from Instacertify.',
   hubEyebrow: 'Instacertify Consult',
   hubSupport:
     'Not sure which path you need? Call us and we will map it in one conversation.',
@@ -316,6 +316,36 @@ const SEED_PAGES = [
     source_file: 'gmark-certification.html',
     source_type: 'seed',
   },
+  {
+    slug: 'saber-certification',
+    title: 'SABER Certification Saudi Arabia | PCoC & SCoC | Instacertify',
+    meta_description:
+      'SABER registration for Saudi Arabia under SALEEM — PCoC for your product models and SCoC for every consignment. Check what has to exist before sailing.',
+    canonical_path: '/saber-certification',
+    robots: 'index, follow',
+    og_title: 'SABER Certification — PCoC and SCoC, Explained Properly',
+    og_description:
+      'A PCoC certifies your product. An SCoC releases your container. You need both — check what your shipment needs before it sails.',
+    hero_h1: 'SABER certification for Saudi Arabia— PCoC and SCoC, handled properly.',
+    hero_lede: '',
+    form_heading: 'Get your SABER quote',
+    whatsapp_text: 'Hi, I need SABER / PCoC / SCoC help for Saudi Arabia.',
+    phone: '+91 99991 18039',
+    role_options: [
+      'Planning — nothing started yet',
+      'PCoC in hand, shipment being prepared',
+      'Goods ready to sail, or already sailed',
+      'Container already at a Saudi port',
+    ],
+    enabled: 1,
+    sort_order: 9,
+    hub_label: 'SABER',
+    hub_blurb:
+      'Saudi SABER under SALEEM — PCoC for the product and SCoC for every shipment.',
+    hub_badge: 'Saudi',
+    source_file: 'saber-certification.html',
+    source_type: 'seed',
+  },
 ];
 
 function seed({ force = false } = {}) {
@@ -414,6 +444,16 @@ function seed({ force = false } = {}) {
     });
     setSetting('hub_desc_gmark_v1', true);
     console.log('Updated hub description for G-Mark (hub_desc_gmark_v1)');
+  }
+
+  if (getSetting('hub_desc_saber_v1') !== true) {
+    const site = getSetting('site') || {};
+    setSetting('site', {
+      ...site,
+      hubDescription: DEFAULT_SITE.hubDescription,
+    });
+    setSetting('hub_desc_saber_v1', true);
+    console.log('Updated hub description for SABER (hub_desc_saber_v1)');
   }
 
   // Seed editable page visuals into content_json when empty (admin Page visuals)

@@ -241,7 +241,7 @@ function adaptPageHtml(page, options = {}) {
   // Page visual bands AFTER h2 remapping so CMS section indexes stay stable
   const kind = pageKind(page.slug);
   const hasHero = Boolean($('.hero').first().length);
-  const forceVisuals = hasHero && ['bis', 'lmpc', 'msds', 'cdsco', 'imei', 'epr', 'ip', 'emc', 'gmark'].includes(kind);
+  const forceVisuals = hasHero && ['bis', 'lmpc', 'msds', 'cdsco', 'imei', 'epr', 'ip', 'emc', 'gmark', 'saber'].includes(kind);
   applyAboutSection($, visualContent, { force: forceVisuals, slug: page.slug });
   applySchemeVisuals($, visualContent, { force: forceVisuals, slug: page.slug });
 

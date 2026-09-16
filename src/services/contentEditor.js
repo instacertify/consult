@@ -389,6 +389,7 @@ function pageKind(slug = '') {
   if (s.includes('ip-testing') || s.includes('ip-rating') || s.includes('iec-60529')) return 'ip';
   if (s.includes('emc') || s.includes('emi-emc') || s.includes('cispr')) return 'emc';
   if (s.includes('gmark') || s.includes('g-mark') || s.includes('gulf-conformity')) return 'gmark';
+  if (s.includes('saber') || s.includes('pcoc') || s.includes('scoc')) return 'saber';
   return 'generic';
 }
 
@@ -532,6 +533,23 @@ function defaultAboutForSlug(slug = '') {
       image_url: '/img/gmark-certificate-visual.jpg',
       image_alt: 'Illustrative G-Mark Gulf Conformity certificate layout',
       caption: 'Illustrative layout — your certificate number and markets appear after grant.',
+    };
+  }
+  if (kind === 'saber') {
+    return {
+      enabled: true,
+      eyebrow: 'SABER · SALEEM · Saudi Arabia',
+      title: 'What is SABER certification?',
+      body:
+        'SABER is Saudi Arabia’s platform under the SALEEM programme. A PCoC certifies your product models; an SCoC releases each consignment. They are not interchangeable — without a live PCoC, no SCoC, and without an SCoC the goods do not clear.',
+      points: [
+        'PCoC per regulated model (typically about a year)',
+        'SCoC per shipment, matched to invoice / packing / B/L',
+        'Worked through your Saudi importer’s SABER account',
+      ],
+      image_url: '/img/saber-certificate-visual.jpg',
+      image_alt: 'Illustrative SABER PCoC and SCoC certificate layout',
+      caption: 'Illustrative layout — your PCoC / SCoC numbers appear after grant.',
     };
   }
   // BIS default (and generic fallback)
@@ -890,6 +908,38 @@ function defaultRouteVisuals(slug = '') {
       },
     ];
   }
+  if (kind === 'saber') {
+    return [
+      {
+        key: 'pcoc',
+        tag: 'Product',
+        title: 'PCoC',
+        blurb: 'Product Certificate of Conformity — per model, about a year',
+        tone: 'navy',
+      },
+      {
+        key: 'scoc',
+        tag: 'Shipment',
+        title: 'SCoC',
+        blurb: 'Shipment Certificate — every consignment, matched to a live PCoC',
+        tone: 'teal',
+      },
+      {
+        key: 'regulated',
+        tag: 'Scope',
+        title: 'Regulated check',
+        blurb: 'Confirm HS / category needs SABER before you book testing',
+        tone: 'orange',
+      },
+      {
+        key: 'importer',
+        tag: 'Account',
+        title: 'Importer SABER',
+        blurb: 'Filed on the Saudi importer’s account — we coordinate both sides',
+        tone: 'slate',
+      },
+    ];
+  }
   // BIS
   return [
     {
@@ -981,6 +1031,13 @@ function defaultRouteSectionMeta(slug = '') {
       lede: 'Start with the shared G-Mark file, then add the Saudi and UAE registrations each destination still asks for before clearance.',
     };
   }
+  if (kind === 'saber') {
+    return {
+      eyebrow: 'Two certificates',
+      title: 'PCoC and SCoC — what each one is for',
+      lede: 'A PCoC certifies the product. An SCoC releases the container. You need both, in that order, on the Saudi importer’s SABER account.',
+    };
+  }
   return {
     eyebrow: 'Which route applies',
     title: 'ISI, CRS, FMCS or Scheme X — they are not interchangeable',
@@ -989,13 +1046,13 @@ function defaultRouteSectionMeta(slug = '') {
 }
 
 function schemeVisualIcon(key) {
-  if (key === 'fmcs' || key === 'export' || key === 'importer' || key === 'icdr' || key === 'plastic' || key === 'ip65' || key === 'emission' || key === 'gmark') {
+  if (key === 'fmcs' || key === 'export' || key === 'importer' || key === 'icdr' || key === 'plastic' || key === 'ip65' || key === 'emission' || key === 'gmark' || key === 'pcoc') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>`;
   }
-  if (key === 'crs' || key === 'docs' || key === 'ecommerce' || key === 'tac' || key === 'ewaste' || key === 'ip67' || key === 'immunity' || key === 'saber') {
+  if (key === 'crs' || key === 'docs' || key === 'ecommerce' || key === 'tac' || key === 'ewaste' || key === 'ip67' || key === 'immunity' || key === 'saber' || key === 'scoc') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>`;
   }
-  if (key === 'schemex' || key === 'manufacturer' || key === 'device' || key === 'both' || key === 'battery' || key === 'ip69k' || key === 'precomp' || key === 'ecas') {
+  if (key === 'schemex' || key === 'manufacturer' || key === 'device' || key === 'both' || key === 'battery' || key === 'ip69k' || key === 'precomp' || key === 'ecas' || key === 'regulated') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h16M6 20V10l6-4 6 4v10M10 20v-4h4v4"/></svg>`;
   }
   if (key === 'packer' || key === 'ghs' || key === 'cosmetic' || key === 'brand' || key === 'oiltyre' || key === 'decoder' || key === 'standards' || key === 'multimarket') {
@@ -1100,6 +1157,7 @@ function defaultHeroBgForSlug(slug = '') {
   if (kind === 'ip') return '/img/ip-hero-atmosphere.jpg';
   if (kind === 'emc') return '/img/emc-hero-atmosphere.jpg';
   if (kind === 'gmark') return '/img/gmark-hero-atmosphere.jpg';
+  if (kind === 'saber') return '/img/saber-hero-atmosphere.jpg';
   return '';
 }
 
