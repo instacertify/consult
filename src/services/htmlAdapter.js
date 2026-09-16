@@ -5,6 +5,7 @@ const { getSetting } = require('../db');
 const {
   extractHeroContent,
   applyHeroContent,
+  applyFormCardContent,
   applyTrustedBy,
   applyAboutSection,
   applySchemeVisuals,
@@ -76,7 +77,10 @@ function extractEditableWords(html) {
 
   const sections = [];
   $('h2').each((i, el) => {
-    const text = $(el).text().replace(/\s+/g, ' ').trim();
+    const $el = $(el);
+    // Form card heading is edited via form_heading — keep it out of section list
+    if ($el.closest('form.formcard, form[data-adapted="1"], #apply form').length) return;
+    const text = $el.text().replace(/\s+/g, ' ').trim();
     if (!text) return;
     sections.push({
       key: `h2_${i}`,
@@ -212,6 +216,7 @@ function adaptPageHtml(page, options = {}) {
   }
 
   // Section headings (independent page body words)
+  // Skip contact-form h2 — that is edited via form_heading, not section indexes
   const sections = Array.isArray(content.sections) ? content.sections : [];
   const $h2s = $('h2');
   for (const sec of sections) {
@@ -220,6 +225,7 @@ function adaptPageHtml(page, options = {}) {
     const idx = Number(m[1]);
     const node = $h2s.eq(idx);
     if (!node.length) continue;
+    if (node.closest('form.formcard, form[data-adapted="1"], #apply form').length) continue;
     const text = String(sec.text || '').trim();
     if (!text) {
       // Hide emptied headings and tighten the surrounding section block
@@ -237,6 +243,12 @@ function adaptPageHtml(page, options = {}) {
       node.css('display', '');
     }
   }
+
+  // Re-apply form card words after h2 remapping so form heading/sub stay authoritative
+  applyFormCardContent($, {
+    ...visualContent,
+    form_heading: page.form_heading || visualContent.form_heading,
+  });
 
   // Page visual bands AFTER h2 remapping so CMS section indexes stay stable
   const kind = pageKind(page.slug);

@@ -43,6 +43,8 @@ function extractHeroContent(html) {
     });
   });
 
+  const formCard = extractFormCardContent($);
+
   return {
     flag_prefix,
     flag_bold,
@@ -54,22 +56,244 @@ function extractHeroContent(html) {
     cta_secondary: ctas[1]?.text || '',
     cta_secondary_href: ctas[1]?.href || '',
     ticks,
-    form_heading: (
+    form_heading: formCard.form_heading || (
       hero.find('.formcard h2').first().text() ||
       $('#apply h2').first().text() ||
       ''
     )
       .replace(/\s+/g, ' ')
       .trim(),
-    form_sub: (
+    form_sub: formCard.form_sub || (
       hero.find('.formcard__sub').first().text() ||
       $('.formcard__sub').first().text() ||
       ''
     )
       .replace(/\s+/g, ' ')
       .trim(),
+    form_fields: formCard.form_fields || [],
+    form_consent: formCard.form_consent || '',
+    form_submit: formCard.form_submit || '',
+    form_foot: formCard.form_foot || '',
+    form_mailline: formCard.form_mailline || '',
     trusted_label: ($('.marq__lbl').first().text() || '').replace(/\s+/g, ' ').trim(),
   };
+}
+
+/**
+ * Pull every editable contact-form word from a landing (labels, placeholders,
+ * consent, submit, foot note, prefer-email line).
+ */
+function extractFormCardContent($input) {
+  const $ =
+    typeof $input === 'string'
+      ? cheerio.load($input)
+      : typeof $input === 'function'
+        ? $input
+        : cheerio.load(String($input || ''));
+
+  const form = $(
+    'form.formcard, .hero form.formcard, #apply form, form[data-adapted="1"]'
+  ).first();
+  if (!form.length) {
+    return {
+      form_heading: '',
+      form_sub: '',
+      form_fields: [],
+      form_consent: '',
+      form_submit: '',
+      form_foot: '',
+      form_mailline: '',
+    };
+  }
+
+  const form_heading = (form.find('h2').first().text() || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const form_sub = (form.find('.formcard__sub').first().text() || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const form_fields = [];
+  form.find('.field').each((_, el) => {
+    const $field = $(el);
+    const $ctrl = $field.find('input, select, textarea').filter((_, n) => {
+      const nm = ($(n).attr('name') || '').trim();
+      return nm && nm !== 'page_slug' && nm !== 'consent';
+    }).first();
+    if (!$ctrl.length) return;
+    const name = String($ctrl.attr('name') || '').trim();
+    if (!name) return;
+    const $label = $field.find('label').first();
+    const labelClone = $label.clone();
+    labelClone.find('.req, .field-hint').remove();
+    const label = labelClone.text().replace(/\s+/g, ' ').trim();
+    const placeholder = String($ctrl.attr('placeholder') || '').trim();
+    let kind = 'input';
+    if ($ctrl.is('select')) kind = 'select';
+    else if ($ctrl.is('textarea')) kind = 'textarea';
+    form_fields.push({ name, label, placeholder, kind });
+  });
+
+  const $consentSpan = form.find('label.consent span, .consent span').first();
+  const form_consent = ($consentSpan.text() || form.find('label.consent').first().text() || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const $submit = form.find('button[type="submit"], [type="submit"]').first();
+  const submitClone = $submit.clone();
+  submitClone.find('svg').remove();
+  const form_submit = submitClone.text().replace(/\s+/g, ' ').trim();
+
+  const $foot = form.find('.formcard__foot').first();
+  const footClone = $foot.clone();
+  footClone.find('svg').remove();
+  const form_foot = footClone.text().replace(/\s+/g, ' ').trim();
+
+  const $mail = form.find('.mailline').first();
+  const mailClone = $mail.clone();
+  mailClone.find('a').remove();
+  const form_mailline = mailClone.text().replace(/\s+/g, ' ').trim();
+
+  return {
+    form_heading,
+    form_sub,
+    form_fields,
+    form_consent,
+    form_submit,
+    form_foot,
+    form_mailline,
+  };
+}
+
+function normalizeFormFields(content = {}, fallback = []) {
+  if (Array.isArray(content.form_fields) && content.form_fields.length) {
+    return content.form_fields.map((f) => ({
+      name: String(f.name || '').trim(),
+      label: String(f.label || '').trim(),
+      placeholder: String(f.placeholder || '').trim(),
+      kind: f.kind === 'select' || f.kind === 'textarea' ? f.kind : 'input',
+    })).filter((f) => f.name);
+  }
+  return Array.isArray(fallback) ? fallback : [];
+}
+
+/**
+ * Apply contact-form labels, placeholders, consent, submit, foot, mailline.
+ */
+function applyFormCardContent($, content = {}) {
+  const form = $(
+    'form.formcard, .hero form.formcard, #apply form, form[data-adapted="1"]'
+  ).first();
+  if (!form.length) return;
+
+  if (content.form_heading !== undefined) {
+    const fh = form.find('h2').first();
+    if (fh.length) {
+      const t = String(content.form_heading || '').trim();
+      if (!t) fh.remove();
+      else fh.text(t);
+    }
+  }
+
+  if (content.form_sub !== undefined) {
+    const fs = form.find('.formcard__sub').first();
+    if (fs.length) {
+      const t = String(content.form_sub || '').trim();
+      if (!t) fs.remove();
+      else fs.text(t);
+    }
+  }
+
+  const fields = normalizeFormFields(content);
+  for (const row of fields) {
+    const $ctrl = form
+      .find(`input[name="${row.name}"], select[name="${row.name}"], textarea[name="${row.name}"]`)
+      .first();
+    if (!$ctrl.length) continue;
+    const $field = $ctrl.closest('.field');
+    const $label = $field.find('label').first();
+    if ($label.length && row.label !== undefined) {
+      const req = $label.find('.req').first();
+      const reqHtml = req.length ? $.html(req) : '';
+      const hint = $label.find('.field-hint').first();
+      const hintHtml = hint.length ? ` ${$.html(hint)}` : '';
+      $label.html(
+        `${escapeHtml(row.label)}${reqHtml ? ` ${reqHtml}` : ''}${hintHtml}`
+      );
+    }
+    if (row.kind !== 'select' && row.placeholder !== undefined) {
+      if (row.placeholder) $ctrl.attr('placeholder', row.placeholder);
+      else $ctrl.removeAttr('placeholder');
+    }
+  }
+
+  if (content.form_consent !== undefined) {
+    const $span = form.find('label.consent span, .consent span').first();
+    const t = String(content.form_consent || '').trim();
+    if ($span.length) {
+      if (!t) $span.text('');
+      else {
+        let html = escapeHtml(t);
+        html = html.replace(
+          /privacy policy/gi,
+          '<a href="https://instacertify.com/privacy-policy" target="_blank" rel="noopener">privacy policy</a>'
+        );
+        html = html.replace(
+          /terms of service/gi,
+          '<a href="https://instacertify.com/terms-of-service" target="_blank" rel="noopener">terms of service</a>'
+        );
+        $span.html(html);
+      }
+    }
+  }
+
+  if (content.form_submit !== undefined) {
+    const $btn = form.find('button[type="submit"], [type="submit"]').first();
+    if ($btn.length) {
+      const t = String(content.form_submit || '').trim();
+      if (t) {
+        const $svg = $btn.find('svg').first().clone();
+        $btn.empty();
+        if ($svg.length) $btn.append($svg);
+        $btn.append(` ${escapeHtml(t)}`);
+      }
+    }
+  }
+
+  if (content.form_foot !== undefined) {
+    const $foot = form.find('.formcard__foot').first();
+    if ($foot.length) {
+      const t = String(content.form_foot || '').trim();
+      const $svg = $foot.find('svg').first().clone();
+      if (!t) $foot.remove();
+      else {
+        $foot.empty();
+        if ($svg.length) $foot.append($svg);
+        $foot.append(` ${escapeHtml(t)}`);
+      }
+    }
+  }
+
+  if (content.form_mailline !== undefined) {
+    const $mail = form.find('.mailline').first();
+    if ($mail.length) {
+      const t = String(content.form_mailline || '').trim();
+      const $a = $mail.find('a').first().clone();
+      if (!t && !$a.length) $mail.remove();
+      else {
+        $mail.empty();
+        if (t) $mail.append(documentSafeText(t));
+        if ($a.length) {
+          $mail.append(t ? ' ' : '');
+          $mail.append($a);
+        }
+      }
+    }
+  }
+}
+
+function documentSafeText(t) {
+  return escapeHtml(t);
 }
 
 /**
@@ -172,26 +396,8 @@ function applyHeroContent($, content = {}) {
     }
   }
 
-  if (content.form_heading !== undefined) {
-    const fh = hero.find('.formcard h2').first();
-    if (fh.length) {
-      const t = String(content.form_heading || '').trim();
-      if (!t) fh.remove();
-      else fh.text(t);
-    }
-  } else if (content.form_heading) {
-    const fh = hero.find('.formcard h2').first();
-    if (fh.length) fh.text(content.form_heading);
-  }
-
-  const fs = hero.find('.formcard__sub').first();
-  if (fs.length && content.form_sub !== undefined) {
-    const t = String(content.form_sub || '').trim();
-    if (!t) fs.remove();
-    else fs.text(t);
-  } else if (content.form_sub) {
-    if (fs.length) fs.text(content.form_sub);
-  }
+  // Contact form card words (heading, labels, consent, submit, foot)
+  applyFormCardContent($, content);
 
   // Hero stats under headline/ticks (Happy Clients / Advisors / Offices)
   applyHeroStats(hero, $, content);
@@ -1294,13 +1500,16 @@ function escapeAttr(s) {
 
 module.exports = {
   extractHeroContent,
+  extractFormCardContent,
   applyHeroContent,
+  applyFormCardContent,
   applyTrustedBy,
   applyAboutBisSection,
   applyAboutSection,
   applySchemeVisuals,
   defaultHeroStats,
   normalizeHeroStats,
+  normalizeFormFields,
   defaultAboutBis,
   defaultAboutForSlug,
   defaultSchemeVisuals,
