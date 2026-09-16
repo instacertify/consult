@@ -27,6 +27,11 @@ const {
 const {
   normalizeHeroStats,
   defaultAboutForSlug,
+  defaultRouteVisuals,
+  defaultRouteSectionMeta,
+  extractFormCardContent,
+  normalizeFormFields,
+  applyPageVisualDefaults,
 } = require('../services/contentEditor');
 const { isEmailConfigured } = require('../services/mail');
 const { createMathCaptcha, captchaMatches } = require('../services/captcha');
@@ -217,8 +222,31 @@ router.post('/pages/:id', express.urlencoded({ extended: true }), (req, res) => 
   content.cta_primary_href = b.cta_primary_href || '';
   content.cta_secondary = b.cta_secondary || '';
   content.cta_secondary_href = b.cta_secondary_href || '';
+  content.form_heading = b.form_heading || '';
   content.form_sub = b.form_sub || '';
+  content.form_consent = b.form_consent != null ? String(b.form_consent) : content.form_consent || '';
+  content.form_submit = b.form_submit != null ? String(b.form_submit) : content.form_submit || '';
+  content.form_foot = b.form_foot != null ? String(b.form_foot) : content.form_foot || '';
+  content.form_mailline = b.form_mailline != null ? String(b.form_mailline) : content.form_mailline || '';
   content.trusted_label = b.trusted_label || content.trusted_label || '';
+
+  // Contact form field labels + placeholders (same order as the live form)
+  if (b.form_fields_present) {
+    const form_fields = [];
+    for (let i = 0; i < 16; i++) {
+      if (b[`ff_name_${i}`] === undefined) continue;
+      const name = String(b[`ff_name_${i}`] || '').trim();
+      if (!name) continue;
+      form_fields.push({
+        name,
+        label: String(b[`ff_label_${i}`] || '').trim(),
+        placeholder: String(b[`ff_placeholder_${i}`] || '').trim(),
+        kind: String(b[`ff_kind_${i}`] || 'input').trim() || 'input',
+      });
+    }
+    content.form_fields = form_fields;
+  }
+
   // Keep atmosphere / about visuals unless explicitly cleared via upload forms
   if (b.hero_bg_url !== undefined) content.hero_bg_url = String(b.hero_bg_url || '').trim();
   if (b.about_bis_enabled_present) {
@@ -244,6 +272,36 @@ router.post('/pages/:id', express.urlencoded({ extended: true }), (req, res) => 
     content.about = about;
     content.about_bis = about; // keep legacy key in sync
   }
+
+  // Route / who-it-covers tiles (match front-end scheme-visuals section)
+  if (b.route_section_present) {
+    content.scheme_visuals_enabled =
+      b.scheme_visuals_enabled === '1' || b.scheme_visuals_enabled === 'on';
+    content.route_section = {
+      eyebrow: String(b.route_eyebrow || '').trim(),
+      title: String(b.route_title || '').trim(),
+      lede: String(b.route_lede || '').trim(),
+    };
+    const tiles = [];
+    for (let i = 0; i < 8; i++) {
+      if (
+        b[`route_tag_${i}`] === undefined &&
+        b[`route_title_${i}`] === undefined &&
+        b[`route_blurb_${i}`] === undefined
+      ) {
+        continue;
+      }
+      const tag = String(b[`route_tag_${i}`] || '').trim();
+      const title = String(b[`route_title_${i}`] || '').trim();
+      const blurb = String(b[`route_blurb_${i}`] || '').trim();
+      const key = String(b[`route_key_${i}`] || '').trim() || `tile_${i}`;
+      const tone = String(b[`route_tone_${i}`] || 'navy').trim() || 'navy';
+      if (!tag && !title && !blurb) continue;
+      tiles.push({ key, tag, title, blurb, tone });
+    }
+    content.scheme_visuals = tiles;
+  }
+
   // legacy inset hero image feature removed
   delete content.hero_image_url;
   delete content.hero_image_alt;
@@ -281,7 +339,7 @@ router.post('/pages/:id', express.urlencoded({ extended: true }), (req, res) => 
   content.hero_stats = hero_stats;
 
   const sections = [];
-  const keys = Object.keys(b).filter((k) => k.startsWith('section_'));
+  const keys = Object.keys(b).filter((k) => /^section_\d+$/.test(k));
   for (const key of keys) {
     const idx = key.replace('section_', '');
     sections.push({
@@ -341,6 +399,12 @@ router.post('/pages/:id/reload-words', express.urlencoded({ extended: true }), (
       bis_catalog: existing.bis_catalog || { categories: [], products: [] },
       hero_stats: existing.hero_stats,
       hero_stats_enabled: existing.hero_stats_enabled,
+      hero_bg_url: existing.hero_bg_url,
+      about: existing.about || existing.about_bis,
+      about_bis: existing.about_bis || existing.about,
+      scheme_visuals: existing.scheme_visuals,
+      scheme_visuals_enabled: existing.scheme_visuals_enabled,
+      route_section: existing.route_section,
     };
     updatePage(id, {
       title: meta.title,
@@ -1270,7 +1334,7 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
   } catch {
     content = {};
   }
-  const sections = Array.isArray(content.sections) ? content.sections : [];
+  let sections = Array.isArray(content.sections) ? content.sections : [];
   const catalog = ensureCatalog(content);
   const heroStats = normalizeHeroStats(content);
   const bisData = readBisDataFor(page);
@@ -1297,6 +1361,82 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
     (content.about_bis && typeof content.about_bis === 'object' && content.about_bis) ||
     defaultAboutForSlug(page.slug);
   const aboutTitle = aboutCfg.title || 'What is this certification?';
+
+  // Live form fields — prefer saved CMS values, else extract from source HTML
+  let formCardDefaults = {};
+  try {
+    formCardDefaults = extractFormCardContent(readSourceHtml(page));
+  } catch {
+    formCardDefaults = {};
+  }
+  const formFields = normalizeFormFields(
+    content,
+    formCardDefaults.form_fields || []
+  );
+  const formConsent =
+    content.form_consent != null && content.form_consent !== ''
+      ? content.form_consent
+      : formCardDefaults.form_consent || '';
+  const formSubmit =
+    content.form_submit != null && content.form_submit !== ''
+      ? content.form_submit
+      : formCardDefaults.form_submit || '';
+  const formFoot =
+    content.form_foot != null && content.form_foot !== ''
+      ? content.form_foot
+      : formCardDefaults.form_foot || '';
+  const formMailline =
+    content.form_mailline != null && content.form_mailline !== ''
+      ? content.form_mailline
+      : formCardDefaults.form_mailline || '';
+  const formHeading =
+    content.form_heading || page.form_heading || formCardDefaults.form_heading || '';
+  const formSub = content.form_sub || formCardDefaults.form_sub || '';
+  sections = sections.filter((s) => {
+    const key = String(s.key || '');
+    if (!/^h2_\d+$/.test(key)) return false;
+    const t = String(s.text || '').trim().toLowerCase();
+    const fh = String(formHeading || '').trim().toLowerCase();
+    if (fh && t === fh) return false;
+    if (/^get your .+ quote/.test(t) || /^get your .+ test/.test(t)) return false;
+    return true;
+  });
+
+  const visualDefaults = applyPageVisualDefaults(content, page.slug);
+  const routeSection = {
+    ...defaultRouteSectionMeta(page.slug),
+    ...(visualDefaults.route_section && typeof visualDefaults.route_section === 'object'
+      ? visualDefaults.route_section
+      : {}),
+  };
+  const ticksRows = [
+    ...((content.ticks && content.ticks.length
+      ? content.ticks
+      : [
+          { bold: '', rest: '' },
+          { bold: '', rest: '' },
+          { bold: '', rest: '' },
+        ]) || []),
+  ];
+  while (ticksRows.length < 3) ticksRows.push({ bold: '', rest: '' });
+  if (ticksRows.length < 6) {
+    ticksRows.push({ bold: '', rest: '' });
+  }
+
+  const schemeVisuals = [
+    ...(Array.isArray(visualDefaults.scheme_visuals) && visualDefaults.scheme_visuals.length
+      ? visualDefaults.scheme_visuals
+      : defaultRouteVisuals(page.slug)),
+  ].slice(0, 8);
+  while (schemeVisuals.length < 4) {
+    schemeVisuals.push({
+      key: `tile_${schemeVisuals.length}`,
+      tag: '',
+      title: '',
+      blurb: '',
+      tone: 'navy',
+    });
+  }
 
   return shell(
     `Edit ${page.slug}`,
@@ -1363,48 +1503,29 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
       </fieldset>
 
       <fieldset class="hero-editor">
-        <legend>3 · Hero banner word editor (all words)</legend>
-        <p class="muted">Edit every word on the hero/banner side. Uses the full editor width so nothing is cramped.</p>
+        <legend>3 · Hero (left column — same order as the live page)</legend>
+        <p class="muted">Edit top-to-bottom exactly as visitors see the banner: flag → headline → paragraph → buttons → ticks → stats. Form card is the next section.</p>
+        <h3 class="subhead">Banner flag</h3>
+        <label>Flag text <input name="flag_prefix" value="${esc(content.flag_prefix || '')}" placeholder="Goods held at customs?"></label>
+        <label>Flag bold <input name="flag_bold" value="${esc(content.flag_bold || '')}" placeholder="Call, don't fill a form"></label>
+        <h3 class="subhead">Headline</h3>
+        <label>H1 main <textarea name="h1_main" rows="2">${esc(content.h1_main || page.hero_h1 || '')}</textarea></label>
+        <label>H1 emphasis (em) <input name="h1_em" value="${esc(content.h1_em || '')}" placeholder="— ISI, CRS, FMCS & Scheme X."></label>
+        <label>Hero paragraph <textarea name="hero_sub" rows="5">${esc(content.hero_sub || page.hero_lede || '')}</textarea></label>
+        <h3 class="subhead">Buttons</h3>
         <div class="hero-grid">
           <div>
-            <h3 class="subhead">Banner flag</h3>
-            <label>Flag text <input name="flag_prefix" value="${esc(content.flag_prefix || '')}" placeholder="Goods held at customs?"></label>
-            <label>Flag bold <input name="flag_bold" value="${esc(content.flag_bold || '')}" placeholder="Call, don't fill a form"></label>
-            <h3 class="subhead">Headline</h3>
-            <label>H1 main <textarea name="h1_main" rows="2">${esc(content.h1_main || page.hero_h1 || '')}</textarea></label>
-            <label>H1 emphasis (em) <input name="h1_em" value="${esc(content.h1_em || '')}" placeholder="— ISI, CRS, FMCS & Scheme X."></label>
-            <label>Hero paragraph <textarea name="hero_sub" rows="5">${esc(content.hero_sub || page.hero_lede || '')}</textarea></label>
-            <label>Directory label <input name="hub_label" value="${esc(page.hub_label)}"></label>
-            <label>Directory badge <input name="hub_badge" value="${esc(page.hub_badge)}"></label>
-            <label>Directory blurb <textarea name="hub_blurb" rows="2">${esc(page.hub_blurb)}</textarea></label>
-          </div>
-          <div>
-            <h3 class="subhead">Buttons</h3>
             <label>Primary CTA text <input name="cta_primary" value="${esc(content.cta_primary || '')}"></label>
             <label>Primary CTA link <input name="cta_primary_href" value="${esc(content.cta_primary_href || '')}"></label>
+          </div>
+          <div>
             <label>Secondary CTA text <input name="cta_secondary" value="${esc(content.cta_secondary || '')}"></label>
             <label>Secondary CTA link <input name="cta_secondary_href" value="${esc(content.cta_secondary_href || '')}"></label>
-            <h3 class="subhead">Form card words</h3>
-            <label>Form heading <input name="form_heading" value="${esc(content.form_heading || page.form_heading || '')}"></label>
-            <label>Form subtext <textarea name="form_sub" rows="3">${esc(content.form_sub || '')}</textarea></label>
-            <label>Phone on this page <input name="phone" value="${esc(page.phone)}"></label>
-            <label>WhatsApp prefill text <input name="whatsapp_text" value="${esc(page.whatsapp_text)}"></label>
           </div>
         </div>
-        <h3 class="subhead" id="dropdowns">Form dropdown options (add more anytime)</h3>
-        <p class="muted">These power the role / category dropdown on the contact form. Add one option at a time or edit the full list.</p>
-        <div class="option-list">
-          ${roles.map((r) => `<span class="pill on">${esc(r)}</span>`).join(' ') || '<span class="muted">No options yet</span>'}
-        </div>
-        <label>Full dropdown list (one per line)
-          <textarea name="role_options" rows="6">${esc(roles.join('\n'))}</textarea>
-        </label>
         <h3 class="subhead">Hero tick points</h3>
         <div class="ticks-grid">
-          ${(content.ticks && content.ticks.length
-            ? content.ticks
-            : [{ bold: '', rest: '' }, { bold: '', rest: '' }, { bold: '', rest: '' }]
-          )
+          ${ticksRows
             .map(
               (t, i) => `<div class="tick-card">
               <label>Tick ${i + 1} bold <input name="tick_bold_${i}" value="${esc(t.bold || '')}"></label>
@@ -1413,6 +1534,88 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
             )
             .join('')}
         </div>
+        <h3 class="subhead" id="hero-stats">Hero stats (beside the form)</h3>
+        <p class="muted">Happy Customers / Expert Advisors / Branch Offices. Leave a number blank to hide that stat.</p>
+        <div class="stats-admin-grid">
+          ${heroStats
+            .map(
+              (s) => `<div class="stat-admin-card">
+            <div class="stat-admin-preview">
+              ${
+                s.iconUrl
+                  ? `<img src="${esc(s.iconUrl)}" alt="">`
+                  : `<span class="muted">Default icon</span>`
+              }
+            </div>
+            <label>Number / value
+              <input name="stat_value_${esc(s.key)}" value="${esc(s.value)}">
+            </label>
+            <label>Label
+              <input name="stat_label_${esc(s.key)}" value="${esc(s.label)}">
+            </label>
+            <p class="muted" style="margin:6px 0 0;font-size:12px">Icon upload is below this form.</p>
+          </div>`
+            )
+            .join('')}
+        </div>
+        <label style="display:flex;flex-direction:row;align-items:center;gap:8px;margin-top:8px">
+          <input type="checkbox" name="hero_stats_enabled" value="1" ${
+            content.hero_stats_enabled === false ? '' : 'checked'
+          }>
+          Show hero stats on this landing
+        </label>
+        <input type="hidden" name="hero_stats_enabled_present" value="1">
+        <h3 class="subhead">Hero atmosphere (full-bleed background)</h3>
+        <label>Background image URL
+          <input name="hero_bg_url" value="${esc(content.hero_bg_url || '')}" placeholder="/img/…-hero-atmosphere.jpg">
+        </label>
+        <p class="muted">Upload a new atmosphere image in the media panel under this form.</p>
+      </fieldset>
+
+      <fieldset class="hero-editor" id="contact-form-editor">
+        <legend>4 · Contact form card (right column — same order as the live form)</legend>
+        <p class="muted">Heading → subtext → each field label/placeholder → role dropdown → consent → submit → foot note → prefer-email line.</p>
+        <label>Form heading <input name="form_heading" value="${esc(formHeading)}"></label>
+        <label>Form subtext <textarea name="form_sub" rows="3">${esc(formSub)}</textarea></label>
+        <input type="hidden" name="form_fields_present" value="1">
+        <h3 class="subhead">Form fields (labels &amp; placeholders)</h3>
+        <div class="ticks-grid">
+          ${
+            formFields.length
+              ? formFields
+                  .map(
+                    (f, i) => `<div class="tick-card">
+              <input type="hidden" name="ff_name_${i}" value="${esc(f.name)}">
+              <input type="hidden" name="ff_kind_${i}" value="${esc(f.kind || 'input')}">
+              <p class="muted" style="margin:0 0 6px">Field <code>${esc(f.name)}</code> · ${esc(f.kind || 'input')}</p>
+              <label>Label <input name="ff_label_${i}" value="${esc(f.label || '')}"></label>
+              ${
+                f.kind === 'select'
+                  ? `<p class="muted" style="margin:6px 0 0">Dropdown options are edited below.</p>`
+                  : `<label>Placeholder <input name="ff_placeholder_${i}" value="${esc(f.placeholder || '')}"></label>`
+              }
+            </div>`
+                  )
+                  .join('')
+              : `<p class="muted">No form fields detected yet. Click “Reload words from HTML” below.</p>`
+          }
+        </div>
+        <h3 class="subhead" id="dropdowns">Role / category dropdown options</h3>
+        <p class="muted">Powers the role dropdown on the contact form. One option per line.</p>
+        <div class="option-list">
+          ${roles.map((r) => `<span class="pill on">${esc(r)}</span>`).join(' ') || '<span class="muted">No options yet</span>'}
+        </div>
+        <label>Full dropdown list (one per line)
+          <textarea name="role_options" rows="6">${esc(roles.join('\n'))}</textarea>
+        </label>
+        <h3 class="subhead">Consent, submit &amp; foot</h3>
+        <label>Consent text <textarea name="form_consent" rows="3">${esc(formConsent)}</textarea></label>
+        <label>Submit button text <input name="form_submit" value="${esc(formSubmit)}"></label>
+        <label>Form foot note <input name="form_foot" value="${esc(formFoot)}"></label>
+        <label>Prefer-email line <input name="form_mailline" value="${esc(formMailline)}" placeholder="Prefer email?"></label>
+        <h3 class="subhead">Contact links on this page</h3>
+        <label>Phone on this page <input name="phone" value="${esc(page.phone)}"></label>
+        <label>WhatsApp prefill text <input name="whatsapp_text" value="${esc(page.whatsapp_text)}"></label>
       </fieldset>
 
       ${
@@ -1428,7 +1631,75 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
       }
 
       <fieldset>
-        <legend>4 · Section headings (every front-end H2)</legend>
+        <legend>5 · “What is…?” section</legend>
+        <input type="hidden" name="about_bis_enabled_present" value="1">
+        <label style="display:flex;flex-direction:row;align-items:center;gap:8px">
+          <input type="checkbox" name="about_bis_enabled" value="1" ${
+            aboutCfg.enabled !== false ? 'checked' : ''
+          }>
+          Show “${esc(aboutTitle)}” section
+        </label>
+        <label>Eyebrow <input name="about_bis_eyebrow" value="${esc(aboutCfg.eyebrow || '')}"></label>
+        <label>Title <input name="about_bis_title" value="${esc(aboutCfg.title || '')}"></label>
+        <label>Body <textarea name="about_bis_body" rows="4">${esc(aboutCfg.body || '')}</textarea></label>
+        <label>Image alt <input name="about_bis_image_alt" value="${esc(aboutCfg.image_alt || '')}"></label>
+        <label>Caption <input name="about_bis_caption" value="${esc(aboutCfg.caption || '')}"></label>
+        ${[0, 1, 2]
+          .map((i) => {
+            const pts = aboutCfg.points || [];
+            return `<label>Point ${i + 1} <input name="about_bis_point_${i}" value="${esc(pts[i] || '')}"></label>`;
+          })
+          .join('')}
+        <p class="muted">Upload the about image in the media panel under this form.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>6 · Route / who-it-covers tiles</legend>
+        <input type="hidden" name="route_section_present" value="1">
+        <label style="display:flex;flex-direction:row;align-items:center;gap:8px">
+          <input type="checkbox" name="scheme_visuals_enabled" value="1" ${
+            content.scheme_visuals_enabled === false ? '' : 'checked'
+          }>
+          Show route tiles on this landing
+        </label>
+        <label>Section eyebrow <input name="route_eyebrow" value="${esc(routeSection.eyebrow || '')}"></label>
+        <label>Section title <input name="route_title" value="${esc(routeSection.title || '')}"></label>
+        <label>Section lede <textarea name="route_lede" rows="3">${esc(routeSection.lede || '')}</textarea></label>
+        <h3 class="subhead">Tiles</h3>
+        <div class="ticks-grid">
+          ${schemeVisuals
+            .map(
+              (r, i) => `<div class="tick-card">
+              <input type="hidden" name="route_key_${i}" value="${esc(r.key || `tile_${i}`)}">
+              <label>Tag <input name="route_tag_${i}" value="${esc(r.tag || '')}"></label>
+              <label>Title <input name="route_title_${i}" value="${esc(r.title || '')}"></label>
+              <label>Blurb <textarea name="route_blurb_${i}" rows="2">${esc(r.blurb || '')}</textarea></label>
+              <label>Tone
+                <select name="route_tone_${i}">
+                  ${['navy', 'teal', 'orange', 'slate']
+                    .map(
+                      (t) =>
+                        `<option value="${t}" ${
+                          (r.tone || 'navy') === t ? 'selected' : ''
+                        }>${t}</option>`
+                    )
+                    .join('')}
+                </select>
+              </label>
+            </div>`
+            )
+            .join('')}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>7 · Trusted by label</legend>
+        <label>Trusted by heading <input name="trusted_label" value="${esc(content.trusted_label || '')}" placeholder="Trusted by Indian and overseas manufacturers"></label>
+        <p class="muted">Brand logos are managed in the upload panel below.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>8 · Other section headings (remaining H2s)</legend>
         ${
           sections.length
             ? sections
@@ -1445,16 +1716,18 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
       </fieldset>
 
       <fieldset>
-        <legend>5 · Trusted by label</legend>
-        <label>Trusted by heading <input name="trusted_label" value="${esc(content.trusted_label || '')}" placeholder="Trusted by Indian and overseas manufacturers"></label>
+        <legend>9 · Directory listing (hub card)</legend>
+        <label>Directory label <input name="hub_label" value="${esc(page.hub_label)}"></label>
+        <label>Directory badge <input name="hub_badge" value="${esc(page.hub_badge)}"></label>
+        <label>Directory blurb <textarea name="hub_blurb" rows="2">${esc(page.hub_blurb)}</textarea></label>
       </fieldset>
 
       <button type="submit">Save URL &amp; all words</button>
     </form>
 
-    <section class="panel" id="hero-stats">
-      <h2>Hero stats (below headline)</h2>
-      <p class="muted">Shown under the hero copy on this landing: Happy Customers, Expert Advisors, Branch Offices. Change numbers, labels, and icons (PNG/WebP) for each. Leave a number blank to hide that stat — the row reflows to stay aligned.</p>
+    <section class="panel" id="hero-stat-icons">
+      <h2>Hero stat icons</h2>
+      <p class="muted">Numbers and labels save with the main form above. Upload PNG/WebP icons here.</p>
       <div class="stats-admin-grid">
         ${heroStats
           .map(
@@ -1466,39 +1739,24 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
                   : `<span class="muted">Default icon</span>`
               }
             </div>
-            <label>Number / value
-              <input form="page-main-form" name="stat_value_${esc(s.key)}" value="${esc(s.value)}">
-            </label>
-            <label>Label
-              <input form="page-main-form" name="stat_label_${esc(s.key)}" value="${esc(s.label)}">
-            </label>
             <form method="post" action="/admin/pages/${page.id}/stat-icon/${esc(s.key)}" enctype="multipart/form-data" class="stack">
-              <label>Change icon (PNG / WebP)
+              <label>Change ${esc(s.label)} icon (PNG / WebP)
                 <input type="file" name="icon" accept="image/png,image/webp,image/jpeg,.png,.webp,.jpg" required>
               </label>
-              <button type="submit">Upload ${esc(s.label)} icon</button>
+              <button type="submit">Upload icon</button>
             </form>
           </div>`
           )
           .join('')}
       </div>
-      <p class="muted" style="margin-top:12px">Tip: save the main “Save URL &amp; all words” form after editing numbers/labels. Icons upload immediately.</p>
-      <label style="display:flex;flex-direction:row;align-items:center;gap:8px;margin-top:8px">
-        <input form="page-main-form" type="checkbox" name="hero_stats_enabled" value="1" ${
-          content.hero_stats_enabled === false ? '' : 'checked'
-        }>
-        Show hero stats on this landing
-      </label>
-      <input form="page-main-form" type="hidden" name="hero_stats_enabled_present" value="1">
     </section>
 
     <section class="panel media-panel" id="page-visuals">
-      <h2>Page visuals — hero, What is…, routes</h2>
-      <p class="muted">Same pattern on every landing: atmosphere behind the hero form, a “What is…?” visual band, and route / who-it-covers tiles.</p>
+      <h2>Page visuals — upload hero atmosphere &amp; about image</h2>
+      <p class="muted">Copy for these sections is edited in the main form above (sections 3 and 5). Upload images here.</p>
       <div class="grid-2" style="margin-top:12px">
         <div>
-          <h3 class="subhead">1. Hero atmosphere (full-bleed background)</h3>
-          <p class="muted">Edge-to-edge photo behind the navy overlay — not an inset card. Keeps the contact form readable.</p>
+          <h3 class="subhead">Hero atmosphere</h3>
           ${
             content.hero_bg_url
               ? `<div class="media-preview"><img src="${esc(content.hero_bg_url)}" alt="Hero atmosphere"></div>`
@@ -1508,13 +1766,9 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
             <label>Upload hero background <input type="file" name="image" accept="image/*" required></label>
             <button type="submit">Upload hero atmosphere</button>
           </form>
-          <label style="margin-top:10px">Or paste image URL
-            <input form="page-main-form" name="hero_bg_url" value="${esc(content.hero_bg_url || '')}" placeholder="/img/…-hero-atmosphere.jpg">
-          </label>
         </div>
         <div>
-          <h3 class="subhead">2. “What is…?” visual</h3>
-          <p class="muted">Large educational graphic beside short explanation (certificate / SDS / mark).</p>
+          <h3 class="subhead">“What is…?” visual</h3>
           ${
             aboutCfg.image_url
               ? `<div class="media-preview"><img src="${esc(aboutCfg.image_url)}" alt="${esc(aboutCfg.image_alt || 'About visual')}"></div>`
@@ -1525,29 +1779,6 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
             <button type="submit">Upload about image</button>
           </form>
         </div>
-      </div>
-      <input form="page-main-form" type="hidden" name="about_bis_enabled_present" value="1">
-      <label style="display:flex;flex-direction:row;align-items:center;gap:8px;margin-top:14px">
-        <input form="page-main-form" type="checkbox" name="about_bis_enabled" value="1" ${
-          aboutCfg.enabled !== false ? 'checked' : ''
-        }>
-        Show “${esc(aboutTitle)}” section
-      </label>
-      <div class="form-grid" style="margin-top:8px">
-        <fieldset>
-          <legend>About section copy</legend>
-          <label>Eyebrow <input form="page-main-form" name="about_bis_eyebrow" value="${esc(aboutCfg.eyebrow || '')}"></label>
-          <label>Title <input form="page-main-form" name="about_bis_title" value="${esc(aboutCfg.title || '')}"></label>
-          <label>Body <textarea form="page-main-form" name="about_bis_body" rows="4">${esc(aboutCfg.body || '')}</textarea></label>
-          <label>Image alt <input form="page-main-form" name="about_bis_image_alt" value="${esc(aboutCfg.image_alt || '')}"></label>
-          <label>Caption <input form="page-main-form" name="about_bis_caption" value="${esc(aboutCfg.caption || '')}"></label>
-          ${[0, 1, 2]
-            .map((i) => {
-              const pts = aboutCfg.points || [];
-              return `<label>Point ${i + 1} <input form="page-main-form" name="about_bis_point_${i}" value="${esc(pts[i] || '')}"></label>`;
-            })
-            .join('')}
-        </fieldset>
       </div>
     </section>
 
