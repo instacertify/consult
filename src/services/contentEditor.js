@@ -388,6 +388,7 @@ function pageKind(slug = '') {
   if (s.includes('epr')) return 'epr';
   if (s.includes('ip-testing') || s.includes('ip-rating') || s.includes('iec-60529')) return 'ip';
   if (s.includes('emc') || s.includes('emi-emc') || s.includes('cispr')) return 'emc';
+  if (s.includes('gmark') || s.includes('g-mark') || s.includes('gulf-conformity')) return 'gmark';
   return 'generic';
 }
 
@@ -514,6 +515,23 @@ function defaultAboutForSlug(slug = '') {
       image_url: '/img/emc-report-visual.jpg',
       image_alt: 'Illustrative EMC test report layout',
       caption: 'Illustrative layout — your standards and lab report number appear after testing.',
+    };
+  }
+  if (kind === 'gmark') {
+    return {
+      enabled: true,
+      eyebrow: 'Gulf Conformity Mark · GSO',
+      title: 'What is G-Mark certification?',
+      body:
+        'G-Mark is the Gulf Conformity Mark for low voltage equipment, appliances and toys sold across GCC markets. It is the shared conformity file — Saudi SABER and UAE ECAS are usually still needed on top before goods clear those countries.',
+      points: [
+        'Covers GCC states for regulated low-voltage categories',
+        'SABER (Saudi) and ECAS (UAE) planned with the G-Mark pathway',
+        'Existing CB / CE / test evidence reused where the notified body accepts it',
+      ],
+      image_url: '/img/gmark-certificate-visual.jpg',
+      image_alt: 'Illustrative G-Mark Gulf Conformity certificate layout',
+      caption: 'Illustrative layout — your certificate number and markets appear after grant.',
     };
   }
   // BIS default (and generic fallback)
@@ -840,6 +858,38 @@ function defaultRouteVisuals(slug = '') {
       },
     ];
   }
+  if (kind === 'gmark') {
+    return [
+      {
+        key: 'gmark',
+        tag: 'GCC',
+        title: 'G-Mark',
+        blurb: 'Gulf Conformity Mark for regulated low-voltage products',
+        tone: 'navy',
+      },
+      {
+        key: 'saber',
+        tag: 'Saudi',
+        title: 'SABER',
+        blurb: 'Saudi product registration / shipment approval on top of G-Mark',
+        tone: 'teal',
+      },
+      {
+        key: 'ecas',
+        tag: 'UAE',
+        title: 'ECAS / EQM',
+        blurb: 'UAE conformity registration after the shared Gulf file',
+        tone: 'orange',
+      },
+      {
+        key: 'multimarket',
+        tag: 'Plan first',
+        title: 'Multi-market path',
+        blurb: 'Map which Gulf states need what before samples and filing',
+        tone: 'slate',
+      },
+    ];
+  }
   // BIS
   return [
     {
@@ -924,6 +974,13 @@ function defaultRouteSectionMeta(slug = '') {
       lede: 'Pick the standards your market and product family actually require, then book a lab that can run that full campaign — not a partial scan.',
     };
   }
+  if (kind === 'gmark') {
+    return {
+      eyebrow: 'Gulf markets',
+      title: 'G-Mark, SABER or ECAS — they stack, they are not the same',
+      lede: 'Start with the shared G-Mark file, then add the Saudi and UAE registrations each destination still asks for before clearance.',
+    };
+  }
   return {
     eyebrow: 'Which route applies',
     title: 'ISI, CRS, FMCS or Scheme X — they are not interchangeable',
@@ -932,16 +989,16 @@ function defaultRouteSectionMeta(slug = '') {
 }
 
 function schemeVisualIcon(key) {
-  if (key === 'fmcs' || key === 'export' || key === 'importer' || key === 'icdr' || key === 'plastic' || key === 'ip65' || key === 'emission') {
+  if (key === 'fmcs' || key === 'export' || key === 'importer' || key === 'icdr' || key === 'plastic' || key === 'ip65' || key === 'emission' || key === 'gmark') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>`;
   }
-  if (key === 'crs' || key === 'docs' || key === 'ecommerce' || key === 'tac' || key === 'ewaste' || key === 'ip67' || key === 'immunity') {
+  if (key === 'crs' || key === 'docs' || key === 'ecommerce' || key === 'tac' || key === 'ewaste' || key === 'ip67' || key === 'immunity' || key === 'saber') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>`;
   }
-  if (key === 'schemex' || key === 'manufacturer' || key === 'device' || key === 'both' || key === 'battery' || key === 'ip69k' || key === 'precomp') {
+  if (key === 'schemex' || key === 'manufacturer' || key === 'device' || key === 'both' || key === 'battery' || key === 'ip69k' || key === 'precomp' || key === 'ecas') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h16M6 20V10l6-4 6 4v10M10 20v-4h4v4"/></svg>`;
   }
-  if (key === 'packer' || key === 'ghs' || key === 'cosmetic' || key === 'brand' || key === 'oiltyre' || key === 'decoder' || key === 'standards') {
+  if (key === 'packer' || key === 'ghs' || key === 'cosmetic' || key === 'brand' || key === 'oiltyre' || key === 'decoder' || key === 'standards' || key === 'multimarket') {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>`;
   }
   if (key === 'buyer' || key === 'drug') {
@@ -1042,6 +1099,7 @@ function defaultHeroBgForSlug(slug = '') {
   if (kind === 'epr') return '/img/epr-hero-atmosphere.jpg';
   if (kind === 'ip') return '/img/ip-hero-atmosphere.jpg';
   if (kind === 'emc') return '/img/emc-hero-atmosphere.jpg';
+  if (kind === 'gmark') return '/img/gmark-hero-atmosphere.jpg';
   return '';
 }
 

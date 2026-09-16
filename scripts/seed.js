@@ -30,7 +30,7 @@ const DEFAULT_SITE = {
   baseUrl: process.env.BASE_URL || 'https://consult.instacertify.com',
   hubTitle: 'Choose your certification path',
   hubDescription:
-    'Pick the compliance path that matches your product — BIS, LMPC, MSDS, IMEI, EPR, IP, or EMC testing. Fast quotes from Instacertify.',
+    'Pick the compliance path that matches your product — BIS, LMPC, MSDS, IMEI, EPR, IP, EMC, or G-Mark. Fast quotes from Instacertify.',
   hubEyebrow: 'Instacertify Consult',
   hubSupport:
     'Not sure which path you need? Call us and we will map it in one conversation.',
@@ -282,6 +282,40 @@ const SEED_PAGES = [
     source_file: 'emc-testing.html',
     source_type: 'seed',
   },
+  {
+    slug: 'gmark-certification',
+    title: 'G-Mark Certification for the GCC | Gulf Conformity Mark | Instacertify',
+    meta_description:
+      'G-Mark for low voltage equipment, appliances and toys across the GCC — plus SABER and ECAS registration each country wants on top.',
+    canonical_path: '/gmark-certification',
+    robots: 'index, follow',
+    og_title: 'G-Mark Certification — and What Each Gulf State Wants On Top',
+    og_description:
+      'G-Mark does not get goods through Saudi customs alone. Check what your product needs for each Gulf market before you ship.',
+    hero_h1: 'G-Mark certification— and everything the destination asks for after it.',
+    hero_lede: '',
+    form_heading: 'Get your Gulf market quote',
+    whatsapp_text: 'Hi, I need G-Mark / Gulf conformity help.',
+    phone: '+91 99991 18039',
+    role_options: [
+      'Saudi Arabia',
+      'United Arab Emirates',
+      'Kuwait',
+      'Qatar',
+      'Bahrain',
+      'Oman',
+      'All GCC states',
+      'Not decided yet',
+    ],
+    enabled: 1,
+    sort_order: 8,
+    hub_label: 'G-Mark',
+    hub_blurb:
+      'Gulf Conformity Mark for LVE, appliances and toys — plus SABER / ECAS where needed.',
+    hub_badge: 'GCC',
+    source_file: 'gmark-certification.html',
+    source_type: 'seed',
+  },
 ];
 
 function seed({ force = false } = {}) {
@@ -370,6 +404,16 @@ function seed({ force = false } = {}) {
     });
     setSetting('hub_desc_emc_v1', true);
     console.log('Updated hub description for EMC testing (hub_desc_emc_v1)');
+  }
+
+  if (getSetting('hub_desc_gmark_v1') !== true) {
+    const site = getSetting('site') || {};
+    setSetting('site', {
+      ...site,
+      hubDescription: DEFAULT_SITE.hubDescription,
+    });
+    setSetting('hub_desc_gmark_v1', true);
+    console.log('Updated hub description for G-Mark (hub_desc_gmark_v1)');
   }
 
   // Seed editable page visuals into content_json when empty (admin Page visuals)
