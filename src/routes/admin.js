@@ -107,7 +107,11 @@ router.get('/login', (req, res) => {
   if (req.session.admin) return res.redirect('/admin');
   const captcha = createMathCaptcha();
   req.session.loginCaptcha = captcha.answer;
-  res.send(loginPage(req.query.error, captcha));
+  // Persist captcha before HTML is sent (saveUninitialized:false)
+  req.session.save((err) => {
+    if (err) console.warn('session save (login get):', err.message);
+    res.send(loginPage(req.query.error, captcha));
+  });
 });
 
 router.post('/login', express.urlencoded({ extended: true }), (req, res) => {
@@ -122,12 +126,12 @@ router.post('/login', express.urlencoded({ extended: true }), (req, res) => {
   if (verifyAdminLogin(username, password)) {
     // Single backend session — unlocks every independent page editor
     req.session.regenerate((err) => {
-      if (err) {
-        req.session.admin = true;
-        return res.redirect('/admin');
-      }
+      if (err) console.warn('session regenerate:', err.message);
       req.session.admin = true;
-      return res.redirect('/admin');
+      req.session.save((saveErr) => {
+        if (saveErr) console.warn('session save (login):', saveErr.message);
+        return res.redirect('/admin');
+      });
     });
     return;
   }

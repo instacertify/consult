@@ -12,6 +12,7 @@ const { adaptPageHtml } = require('./services/htmlAdapter');
 const { injectTrackingIntoHtml } = require('./services/trackingTags');
 const { router: leadsRouter, handleLead } = require('./routes/leads');
 const adminRouter = require('./routes/admin');
+const { SqliteSessionStore } = require('./services/sessionStore');
 
 // Ensure DB + seed defaults on boot if empty
 getDb();
@@ -24,6 +25,13 @@ try {
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
+// Secure cookies only in production HTTPS (override with COOKIE_SECURE=true|false)
+const cookieSecure =
+  process.env.COOKIE_SECURE === 'true'
+    ? true
+    : process.env.COOKIE_SECURE === 'false'
+      ? false
+      : process.env.NODE_ENV === 'production';
 
 app.set('trust proxy', 1);
 app.use(compression());
@@ -41,10 +49,12 @@ app.use(
     secret: process.env.SESSION_SECRET || 'dev-consult-secret-change-me',
     resave: false,
     saveUninitialized: false,
+    store: new SqliteSessionStore(),
+    proxy: true,
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      secure: cookieSecure,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     },
   })
