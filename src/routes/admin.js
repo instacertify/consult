@@ -339,7 +339,7 @@ router.post('/pages/:id', express.urlencoded({ extended: true }), (req, res) => 
   content.hero_stats = hero_stats;
 
   const sections = [];
-  const keys = Object.keys(b).filter((k) => k.startsWith('section_'));
+  const keys = Object.keys(b).filter((k) => /^section_\d+$/.test(k));
   for (const key of keys) {
     const idx = key.replace('section_', '');
     sections.push({
