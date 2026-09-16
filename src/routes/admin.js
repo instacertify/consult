@@ -107,7 +107,11 @@ router.get('/login', (req, res) => {
   if (req.session.admin) return res.redirect('/admin');
   const captcha = createMathCaptcha();
   req.session.loginCaptcha = captcha.answer;
-  res.send(loginPage(req.query.error, captcha));
+  // Persist captcha before HTML is sent (saveUninitialized:false)
+  req.session.save((err) => {
+    if (err) console.warn('session save (login get):', err.message);
+    res.send(loginPage(req.query.error, captcha));
+  });
 });
 
 router.post('/login', express.urlencoded({ extended: true }), (req, res) => {
@@ -122,12 +126,12 @@ router.post('/login', express.urlencoded({ extended: true }), (req, res) => {
   if (verifyAdminLogin(username, password)) {
     // Single backend session — unlocks every independent page editor
     req.session.regenerate((err) => {
-      if (err) {
-        req.session.admin = true;
-        return res.redirect('/admin');
-      }
+      if (err) console.warn('session regenerate:', err.message);
       req.session.admin = true;
-      return res.redirect('/admin');
+      req.session.save((saveErr) => {
+        if (saveErr) console.warn('session save (login):', saveErr.message);
+        return res.redirect('/admin');
+      });
     });
     return;
   }
@@ -968,11 +972,12 @@ function shell(title, body) {
 function loginPage(error, captcha) {
   const errMsg =
     error === 'captcha'
-      ? 'Captcha did not match — try again.'
+      ? 'Captcha did not match — solve the sum shown below and try again.'
       : error
         ? 'Incorrect login ID or password.'
         : '';
   const img = captcha?.dataUri || '';
+  const question = String(captcha?.question || '').replace(/\s*=\s*\?$/, '');
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title>Admin Login</title>
@@ -985,10 +990,13 @@ function loginPage(error, captcha) {
   <label>Login ID <input type="text" name="username" autocapitalize="none" autocomplete="username" required autofocus></label>
   <label>Password <input type="password" name="password" autocapitalize="none" autocomplete="current-password" required></label>
   <div class="captcha-row">
-    <img class="captcha-img" src="${esc(img)}" width="220" height="64" alt="Captcha challenge">
-    <label>Captcha answer <input type="text" name="captcha" inputmode="numeric" autocomplete="off" required placeholder="Solve the sum"></label>
+    <img class="captcha-img" src="${esc(img)}" width="220" height="64" alt="Captcha: ${esc(captcha?.question || 'math challenge')}">
+    <label>Captcha answer
+      <span class="muted" style="display:block;font-weight:500;margin:4px 0 6px">What is <strong>${esc(question || '?')}</strong>?</span>
+      <input type="text" name="captcha" inputmode="numeric" autocomplete="off" required placeholder="Type the number only">
+    </label>
   </div>
-  <p class="muted" style="margin-top:0">Enter the result of the sum shown above.</p>
+  <p class="muted" style="margin-top:0">Example: if you see <code>5 + 4 = ?</code>, enter <code>9</code>.</p>
   <button type="submit">Sign in to all page editors</button>
 </form>
 </body></html>`;
