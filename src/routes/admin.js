@@ -1393,6 +1393,8 @@ function pageEditor({ page, pages = [], settings, saved, reloaded, catalogQ = ''
     content.form_heading || page.form_heading || formCardDefaults.form_heading || '';
   const formSub = content.form_sub || formCardDefaults.form_sub || '';
   sections = sections.filter((s) => {
+    const key = String(s.key || '');
+    if (!/^h2_\d+$/.test(key)) return false;
     const t = String(s.text || '').trim().toLowerCase();
     const fh = String(formHeading || '').trim().toLowerCase();
     if (fh && t === fh) return false;
